@@ -14,14 +14,7 @@ const fromRoot = (v, d) => (v ? resolve(ROOT, v) : d);
 export const config = {
   port: num(process.env.PORT, 3001),
 
-  // One key, or several separated by commas — requests rotate across them
-  // so the team doesn't share one rate limit.
-  groqKeys: [process.env.GROQ_API_KEYS, process.env.GROQ_API_KEY]
-    .filter(Boolean)
-    .join(',')
-    .split(/[\s,]+/)
-    .filter(Boolean)
-    .filter((k, i, all) => all.indexOf(k) === i),
+  groqKey: process.env.GROQ_API_KEY || '',
   groqModel: process.env.GROQ_MODEL || 'llama-3.1-8b-instant',
 
   telephonyProvider: process.env.TELEPHONY_PROVIDER || 'simulated',

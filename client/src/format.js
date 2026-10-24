@@ -25,7 +25,6 @@ export const STATUS = {
   needs_help: { label: 'Needs help', tone: 'danger' },
   reached: { label: 'Reached', tone: 'info' },
   reached_ok: { label: 'Reached — OK', tone: 'ok' },
-  reached_other: { label: 'Someone else answered', tone: 'warn' },
   responder_assigned: { label: 'Responder assigned', tone: 'violet' },
   safe: { label: 'Safe', tone: 'ok' },
 };
@@ -40,13 +39,6 @@ export const CALL_STATUS = {
   no_answer: 'No answer',
   canceled: 'Canceled',
   failed: 'Failed',
-};
-
-export const IDENTITY = {
-  unverified: { label: 'Identity not verified', tone: 'warn' },
-  matched_name: { label: 'Matched by name — confirm', tone: 'warn' },
-  matched_phone: { label: 'Matched by caller ID', tone: 'info' },
-  verified: { label: 'Identity confirmed', tone: 'ok' },
 };
 
 export const firstName = (n = '') => n.split(' ')[0];

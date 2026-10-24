@@ -21,24 +21,32 @@ With no `GROQ_API_KEY` the app runs in **mock mode**: calls follow a script, so 
 ## How a welfare check works
 
 1. The AI calls the person, or texts them if they're Deaf or non-verbal.
-2. **No answer:** it retries up to 3 times and adds +8 priority after each miss. After the first miss it also calls the emergency contact. After 3 misses the person is marked *Unreachable* so the dispatcher can send someone.
-3. **Answered:** the conversation runs, then the AI pulls out the problems (trapped, injured, gas, equipment battery left…). Those update the responder card and the priority.
-4. **Someone else answered:** what they say about the person goes on the person's card, marked "Someone else answered" (a second-hand "they're fine" doesn't lower priority). If the person who answered is with them or elsewhere in the affected area, they get their own linked card, flagged "identity not verified".
-5. The dispatcher decides: assign a unit, call again, text, add a note, or mark safe.
+2. **No answer:** it retries up to 3 times. Missed attempts update the Bayesian contact evidence and can increase uncertainty; after the first miss it also calls the emergency contact. After 3 misses the person is marked *Unreachable* so the dispatcher can send someone.
+3. **Answered:** the conversation runs, then the AI pulls out the problems (injured, equipment battery left, wants evacuation…). Those update the responder card and the priority.
+4. The dispatcher decides: assign a unit, call again, text, add a note, or mark safe.
 
-**Incoming calls** ring 911 first. The AI intake only answers if no operator picks up. The caller is then matched to the registry (all 100k, not just the sample): by caller ID first, then name + age. A match updates their existing card; otherwise they get a new card flagged "identity not verified", which the dispatcher can confirm.
+**Incoming calls** from people not in the registry ring 911 first. The AI intake only answers if no operator picks up, and the caller becomes a new card.
 
 **Interactive mode** ("Call — I'll answer"): you type the resident's replies. This is good for the live demo.
 
-**Several AI keys:** put them in `GROQ_API_KEY` separated by commas. Requests rotate across them, and a key that hits its rate limit rests while the others carry on.
+## Earthquake triage priority
 
-**Responder units:** the number in a unit's name is its call sign (Engine 12 = fire engine no. 12). The menu also shows how many crew that unit sends.
+The queue now uses a transparent, scenario-based Bayesian evidence model in `shared/bayesian-risk.js`, wrapped by `shared/priority.js`. It estimates the probability of serious harm within 15, 30 and 60 minutes, and the displayed priority score is the estimated 30-minute probability as a percentage. This is a hackathon decision-support model, **not a clinically validated or empirically calibrated casualty predictor**.
 
-## Priority
+- `shared/bayesian-risk.js` exposes all baseline priors, likelihood ratios, thresholds and uncertainty assumptions in `BAYESIAN_ASSUMPTIONS`.
+- Evidence is grouped (structural, acute, environmental, vulnerability, contact) to reduce double-counting of correlated signals. Structural damage and acute-call signals use the strongest signal in their group; environmental/vulnerability evidence is capped.
+- Confirmed trapped reports and building-collapse reports trigger deterministic `CRITICAL` overrides. A reported `OK` can never cancel severe hazard evidence.
+- Missing or stale hazard/contact information produces an explicit uncertainty level and may trigger a **VERIFY / HUMAN REVIEW** flag. The displayed upper-bound sensitivity estimate is a scenario stress check, **not a statistical confidence interval**.
+- The dashboard shows 15/30/60-minute estimates, evidence likelihood ratios, uncertainty sources and the assumptions notice.
+- `POST /api/hazards` stamps simulation updates with `observedAt`; old observations can be flagged as stale.
 
-Fixed rules in `shared/priority.js`, not AI, so the same inputs always give the same rank and every point is explained on screen. Tune the numbers in `WEIGHTS`. CRITICAL ≥ 60, HIGH ≥ 35.
+The initial 2% / 4% / 8% horizon priors and all likelihood ratios are illustrative scenario assumptions chosen for transparent demo behavior. They must be reviewed against domain-expert input and validated data before any real-world use. The synthetic scenarios test software behavior and relative ordering, not real-world predictive accuracy.
 
-Factors: medical needs (power-dependent equipment counts most), age, living alone, damage at home (building damage, gas or fire, blocked roads, power out — from the simulation), unanswered attempts, what the call found (trapped counts most), and time since last contact.
+Run the scenario validation tests with:
+
+```bash
+npm run test:priority
+```
 
 ## Data
 

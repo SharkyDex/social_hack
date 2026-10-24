@@ -1,166 +1,57 @@
-// ─────────────────────────────────────────────────────────────
-//  priority.js — the rules that order the dispatcher's queue.
-//
-//  Deliberately NOT AI: the same inputs always give the same score,
-//  and every point is explained, so a dispatcher (or a judge) can
-//  see exactly why someone is at the top. AI writes the one-line
-//  summary on the card; it never sets the rank.
-//
-//  Tune the numbers in WEIGHTS / THRESHOLDS — nothing else needs
-//  to change.
-// ─────────────────────────────────────────────────────────────
+// Earthquake-aware triage priority.
+// The Bayesian evidence model uses transparent scenario assumptions; it is not
+// an empirically calibrated casualty predictor. Hard safety overrides remain deterministic.
 import { deriveNeeds } from './needs.js';
+import { assessBayesianRisk, BAYESIAN_ASSUMPTIONS } from './bayesian-risk.js';
 
-export const THRESHOLDS = { CRITICAL: 60, HIGH: 35 };
-
-export const WEIGHTS = {
-  age85: 12,
-  age75: 8,
-  age65: 4,
-  livesAlone: 10,
-  // Danger at home after the earthquake — fed by the 3D simulation once integrated
-  buildingCollapsed: 45,
-  buildingSevere: 30,
-  buildingModerate: 15,
-  buildingMinor: 5,
-  shakingSevere: 10, // used only when no damage estimate exists
-  shakingStrong: 5,
-  gasOrFire: 20,
-  roadsBlocked: 10,
-  powerOutDependent: 20, // power cut AND they rely on powered equipment
-  // Contact status
-  perFailedAttempt: 8,
-  unreachable: 12,
-  reachedViaOther: 5,
-  // What the welfare call found
-  trapped: 45,
-  needsHelp: 25,
-  injured: 20,
-  reportsGasOrFire: 20,
-  reportsBuildingUnsafe: 10,
-  distress: 10,
-  equipmentUnder2h: 30,
-  equipmentUnder6h: 20,
-  equipmentUnder12h: 10,
-  wantsEvacuation: 8,
-  reportedOk: -25,
-  // Silence since last contact
-  silentOver60m: 5,
-  silentOver120m: 10,
-};
-
-// Within these groups only the strongest match counts (no double counting
-// "wheelchair" + "walker", or "ventilator" + "oxygen").
-const GROUPS = {
-  power: ['ventilator', 'oxygen', 'dialysis', 'suction', 'cpap'],
-  mobility: ['bedbound', 'wheelchair', 'mobility', 'walker'],
-  diabetes: ['insulin', 'diabetes'],
-};
-
-function medicalFactors(needs) {
-  const factors = [];
-  const used = new Set();
-  for (const ids of Object.values(GROUPS)) {
-    const inGroup = needs.flags.filter((f) => ids.includes(f.id));
-    if (inGroup.length) {
-      const top = inGroup.reduce((a, b) => (b.points > a.points ? b : a));
-      factors.push({ label: top.label, points: top.points, kind: 'medical' });
-      inGroup.forEach((f) => used.add(f.id));
-    }
-  }
-  for (const f of needs.flags) {
-    if (!used.has(f.id)) factors.push({ label: f.label, points: f.points, kind: 'medical' });
-  }
-  return factors;
-}
+export const THRESHOLDS = BAYESIAN_ASSUMPTIONS.thresholdsPercent;
 
 /**
- * @param person  record from the population dataset
- * @param c       the live case for that person (status, attempts, findings, hazard…)
- * @param now     Date.now(), injectable for tests
- * @returns {{score:number, level:string, factors:Array, reason:string}}
+ * @param person record from the population dataset
+ * @param c live case (status, attempts, findings, earthquake hazard…)
+ * @param now injectable timestamp for deterministic tests
  */
 export function scoreCase(person, c = {}, now = Date.now()) {
   const needs = c.needs || deriveNeeds(person);
-  const W = WEIGHTS;
-  const factors = [...medicalFactors(needs)];
-  const add = (label, points, kind) => factors.push({ label, points, kind });
-
-  // Age
-  const age = Number(person.age) || 0;
-  if (age >= 85) add(`Age ${age}`, W.age85, 'person');
-  else if (age >= 75) add(`Age ${age}`, W.age75, 'person');
-  else if (age >= 65) add(`Age ${age}`, W.age65, 'person');
-
-  if (person.livesAlone) add('Lives alone', W.livesAlone, 'person');
-
-  // Danger at home (placeholder until the simulation feeds real values)
-  const h = c.hazard || {};
-  const damage = {
-    collapsed: ['Building collapsed', W.buildingCollapsed],
-    severe: ['Building severely damaged', W.buildingSevere],
-    moderate: ['Building moderately damaged', W.buildingModerate],
-    minor: ['Minor building damage', W.buildingMinor],
-  }[h.buildingDamage];
-  if (damage) add(damage[0], damage[1], 'hazard');
-  else if (h.intensity >= 8) add(`Severe shaking (MMI ${h.intensity})`, W.shakingSevere, 'hazard');
-  else if (h.intensity >= 7) add(`Strong shaking (MMI ${h.intensity})`, W.shakingStrong, 'hazard');
-  if (h.gasLeak || h.fire) add(h.fire ? 'Fire nearby' : 'Gas leak nearby', W.gasOrFire, 'hazard');
-  if (h.roadsBlocked) add('Roads to home blocked', W.roadsBlocked, 'hazard');
-  if (h.powerOut && needs.powerDependent) add('Power out — relies on powered equipment', W.powerOutDependent, 'hazard');
-
-  // Contact attempts
-  const failed = c.failedAttempts || 0;
-  if (failed > 0) add(`${failed} unanswered attempt${failed > 1 ? 's' : ''}`, failed * W.perFailedAttempt, 'contact');
-  if (c.status === 'unreachable') add('Unreachable — all attempts failed', W.unreachable, 'contact');
-  if (c.status === 'reached_other') add(`Not reached directly — only via ${c.reachedVia || 'someone else'}`, W.reachedViaOther, 'contact');
-
-  // What the call found
-  const f = c.findings || {};
-  if (f.trapped) add('Trapped', W.trapped, 'call');
-  if (f.needsHelp) add('Asked for help on call', W.needsHelp, 'call');
-  if (f.injured) add('Injured', W.injured, 'call');
-  if (f.gasOrFire) add('Reports gas smell / fire', W.reportsGasOrFire, 'call');
-  if (f.buildingUnsafe) add('Reports building unsafe', W.reportsBuildingUnsafe, 'call');
-  if (f.distress) add('Distressed on call', W.distress, 'call');
-  if (f.equipmentHoursLeft != null) {
-    const hrs = f.equipmentHoursLeft;
-    if (hrs <= 2) add(`Equipment power ~${hrs}h left`, W.equipmentUnder2h, 'call');
-    else if (hrs <= 6) add(`Equipment power ~${hrs}h left`, W.equipmentUnder6h, 'call');
-    else if (hrs <= 12) add(`Equipment power ~${hrs}h left`, W.equipmentUnder12h, 'call');
-  }
-  if (f.wantsEvacuation) add('Wants to leave / go to shelter', W.wantsEvacuation, 'call');
-  if (f.reportedOk && !f.needsHelp && !f.trapped) add('Reached — reports OK', W.reportedOk, 'call');
-
-  // Silence
-  if (c.lastContactAt && c.status !== 'safe') {
-    const mins = (now - new Date(c.lastContactAt).getTime()) / 60000;
-    if (mins > 120) add('No contact for 2h+', W.silentOver120m, 'contact');
-    else if (mins > 60) add('No contact for 1h+', W.silentOver60m, 'contact');
-  }
-
-  const score = Math.max(0, factors.reduce((s, x) => s + x.points, 0));
+  const caseWithNeeds = { ...c, needs };
+  const risk = assessBayesianRisk(person, caseWithNeeds, now);
+  const score = Math.round(risk.riskScore * 10) / 10; // percentage, P(serious harm within 30 min)
   let level = score >= THRESHOLDS.CRITICAL ? 'CRITICAL' : score >= THRESHOLDS.HIGH ? 'HIGH' : 'STANDARD';
+  if (risk.immediateOverride) level = 'CRITICAL';
   if (c.status === 'safe') level = 'RESOLVED';
 
-  const top = factors
-    .filter((x) => x.points > 0)
-    .sort((a, b) => b.points - a.points)
-    .slice(0, 2)
-    .map((x) => x.label);
+  const topEvidence = [...risk.evidence].sort((a, b) => b.likelihoodRatio - a.likelihoodRatio).slice(0, 2).map((x) => x.label);
+  const reason = risk.immediateOverride || (topEvidence.join(' · ') || 'No significant risk evidence recorded');
+  const factors = risk.evidence.map((item) => ({
+    label: item.label,
+    likelihoodRatio: Math.round(item.likelihoodRatio * 100) / 100,
+    kind: item.group,
+    explanation: item.explanation,
+  }));
 
   return {
     score,
     level,
-    factors: factors.sort((a, b) => b.points - a.points),
-    reason: top.join(' · ') || 'No risk factors recorded',
+    factors,
+    reason,
+    riskByHorizon: risk.riskByHorizon,
+    uncertainty: risk.uncertainty,
+    reviewRequired: risk.reviewRequired,
+    immediateOverride: risk.immediateOverride,
+    model: risk.model,
+    likelihoodRatio: Math.round(risk.likelihoodRatio * 100) / 100,
+    assumptionsNotice: risk.assumptionsNotice,
   };
 }
 
-/** Sort order for the queue: open cases by score, resolved at the bottom. */
+/** Open cases needing review rank ahead of other cases at the same level, then by risk. */
 export function compareCases(a, b) {
   const ra = a.priority.level === 'RESOLVED' ? 1 : 0;
   const rb = b.priority.level === 'RESOLVED' ? 1 : 0;
   if (ra !== rb) return ra - rb;
+  const levelOrder = { CRITICAL: 0, HIGH: 1, STANDARD: 2, RESOLVED: 3 };
+  const levelDiff = (levelOrder[a.priority.level] ?? 2) - (levelOrder[b.priority.level] ?? 2);
+  if (levelDiff) return levelDiff;
+  if (!!a.priority.reviewRequired !== !!b.priority.reviewRequired) return a.priority.reviewRequired ? -1 : 1;
   return b.priority.score - a.priority.score;
 }

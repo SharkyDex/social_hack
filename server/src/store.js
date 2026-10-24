@@ -17,16 +17,13 @@ import { broadcast } from './events.js';
 import { deriveNeeds } from '../../shared/needs.js';
 import { scoreCase, compareCases } from '../../shared/priority.js';
 
-let people = new Map(); // people with a live case (the working sample)
-let registry = new Map(); // everyone in the dataset, for matching callers
-let byPhone = new Map(); // phone → [ids]
-let byName = new Map(); // normalised name → [ids]
+let people = new Map();
 let scenarios = {};
 let cases = new Map();
 let calls = new Map();
 let responders = new Map();
 let callSeq = 0;
-let newSeq = { IN: 0, AC: 0 };
+let inboundSeq = 0;
 
 // ── Loading ──────────────────────────────────────────────────
 
@@ -81,27 +78,6 @@ const toE164 = (n) => {
   return String(n);
 };
 
-/** A believable age (0–120), or null. Rejects "abc", -3, 200… */
-export function validAge(v) {
-  if (v === null || v === undefined || v === '') return null;
-  let n = typeof v === 'number' ? v : NaN;
-  if (typeof v === 'string') {
-    if (/-\s*\d/.test(v)) return null;
-    const m = v.match(/\d+(\.\d+)?/);
-    n = m ? Number(m[0]) : NaN;
-  }
-  if (!Number.isFinite(n) || n < 0 || n > 120) return null;
-  return Math.round(n);
-}
-
-export const normName = (n) =>
-  String(n || '')
-    .toLowerCase()
-    .replace(/\(.*?\)/g, '')
-    .replace(/[^a-z\s'-]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-
 export function normalizePerson(raw, i) {
   const p = {};
   for (const [k, v] of Object.entries(raw)) {
@@ -110,7 +86,7 @@ export function normalizePerson(raw, i) {
   }
   p.id = String(p.id ?? `P${String(i + 1).padStart(5, '0')}`);
   p.medicalHistory = medicalList(p.medicalHistory);
-  p.age = validAge(p.age);
+  p.age = p.age != null ? Number(p.age) : null;
   if (typeof p.gender === 'string') p.gender = p.gender.charAt(0).toUpperCase() + p.gender.slice(1);
   p.address = p.address || null;
 
@@ -203,20 +179,8 @@ function newCase(person) {
     timeline: [],
     callIds: [],
     origin: 'registry',
-    // registry = from the dataset · unverified = new, not checked · matched_phone /
-    // matched_name = an incoming caller matched to the registry · verified = dispatcher confirmed
-    identity: { status: 'registry' },
-    linked: [], // [{ personId, relation }] e.g. someone who answered this person's phone
-    reachedVia: null, // name of whoever answered instead of the person
     updatedAt: new Date().toISOString(),
   };
-}
-
-function indexPerson(p) {
-  registry.set(p.id, p);
-  const add = (map, key) => key && map.set(key, [...(map.get(key) || []), p.id]);
-  add(byPhone, p.phone);
-  add(byName, normName(p.name));
 }
 
 let datasetSize = 0;
@@ -227,10 +191,6 @@ export function load() {
   datasetSize = rawPeople.length;
   scenarios = readJson(config.scenariosFile, {});
   const all = rawPeople.map((r, i) => normalizePerson(r, i));
-  registry = new Map();
-  byPhone = new Map();
-  byName = new Map();
-  all.forEach(indexPerson);
   const chosen = samplePeople(all, config.peopleSample, config.peopleSampleMode, config.peopleSampleSeed);
   people = new Map(chosen.map((p) => [p.id, p]));
   cases = new Map([...people.values()].map((p) => [p.id, withPriority(newCase(p))]));
@@ -239,7 +199,7 @@ export function load() {
     readJson(config.respondersFile, []).map((r) => [r.id, { ...r, status: 'available', assignedTo: null }]),
   );
   callSeq = 0;
-  newSeq = { IN: 0, AC: 0 };
+  inboundSeq = 0;
   return { people: people.size, datasetSize, responders: responders.size };
 }
 
@@ -307,68 +267,15 @@ export function addTimeline(id, text, kind = 'info') {
   }));
 }
 
-/**
- * Add someone who wasn't in the dataset.
- * origin: 'inbound' (called in) → IN-001 · 'answered_call' (picked up someone else's phone) → AC-001
- */
-export function addPerson(raw, { origin = 'inbound', identity = { status: 'unverified' }, linked = [] } = {}) {
-  const prefix = origin === 'answered_call' ? 'AC' : 'IN';
-  const id = `${prefix}-${String(++newSeq[prefix]).padStart(3, '0')}`;
+/** Add a person who wasn't in the dataset (e.g. from an inbound call). */
+export function addPerson(raw) {
+  const id = `IN-${String(++inboundSeq).padStart(3, '0')}`;
   const person = normalizePerson({ ...raw, id }, 0);
   people.set(id, person);
-  indexPerson(person);
-  const c = withPriority({ ...newCase(person), origin, identity, linked });
+  const c = withPriority({ ...newCase(person), origin: 'inbound' });
   cases.set(id, c);
   broadcast('case', caseView(id));
   return person;
-}
-
-/**
- * Find someone in the WHOLE dataset (not just the working sample).
- * 1. caller ID / phone — only if exactly one person has that number
- *    (the generated data reuses dummy numbers), or if the name also agrees
- * 2. name + age (±1 year)
- * 3. name alone, only if exactly one person has it
- * @returns {{ person, by: 'phone'|'name_age'|'name' } | null}
- */
-export function findPersonMatch({ phone, name, age } = {}) {
-  const ph = phone ? toE164(phone) : null;
-  const nm = normName(name);
-  const ag = validAge(age);
-  const get = (id) => registry.get(id);
-
-  const phoneIds = ph ? byPhone.get(ph) || [] : [];
-  if (phoneIds.length === 1) return { person: get(phoneIds[0]), by: 'phone' };
-  if (phoneIds.length > 1 && nm) {
-    const both = phoneIds.map(get).filter((p) => normName(p.name) === nm);
-    if (both.length === 1) return { person: both[0], by: 'phone' };
-  }
-  if (!nm) return null;
-  const nameMatches = (byName.get(nm) || []).map(get);
-  if (ag != null) {
-    const close = nameMatches.filter((p) => p.age != null && Math.abs(p.age - ag) <= 1);
-    if (close.length === 1) return { person: close[0], by: 'name_age' };
-  }
-  if (nameMatches.length === 1 && (ag == null || nameMatches[0].age == null)) return { person: nameMatches[0], by: 'name' };
-  return null;
-}
-
-/** Make sure a registry person has a live case (they may be outside the working sample). */
-export function ensureCase(person, note) {
-  if (!cases.has(person.id)) {
-    people.set(person.id, person);
-    const c = withPriority(newCase(person));
-    if (note) c.timeline.push({ at: new Date().toISOString(), kind: 'info', text: note });
-    cases.set(person.id, c);
-    broadcast('case', caseView(person.id));
-  }
-  return cases.get(person.id);
-}
-
-/** Two-way link between cases, e.g. a person and whoever answered their phone. */
-export function link(aId, bId, aSays, bSays) {
-  updateCase(aId, (c) => ({ linked: [...c.linked.filter((l) => l.personId !== bId), { personId: bId, relation: aSays }] }));
-  updateCase(bId, (c) => ({ linked: [...c.linked.filter((l) => l.personId !== aId), { personId: aId, relation: bSays }] }));
 }
 
 export function createCall(fields) {

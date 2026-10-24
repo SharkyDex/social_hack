@@ -89,8 +89,10 @@ export function useSortedCases() {
   return useMemo(
     () =>
       Object.values(cases).sort((a, b) => {
-        const r = (LEVEL_ORDER[a.priority.level] === 3) - (LEVEL_ORDER[b.priority.level] === 3);
-        return r || b.priority.score - a.priority.score;
+        const levelDiff = (LEVEL_ORDER[a.priority.level] ?? 2) - (LEVEL_ORDER[b.priority.level] ?? 2);
+        if (levelDiff) return levelDiff;
+        if (!!a.priority.reviewRequired !== !!b.priority.reviewRequired) return a.priority.reviewRequired ? -1 : 1;
+        return b.priority.score - a.priority.score;
       }),
     [cases],
   );

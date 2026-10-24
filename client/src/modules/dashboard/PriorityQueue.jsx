@@ -66,14 +66,10 @@ export default function PriorityQueue({ cases, selectedId, onSelect }) {
                   <span className="row-top">
                     <span className="name">{c.person.name}</span>
                     <span className="muted small">
-                      {c.person.age ?? 'age ?'}
+                      {c.person.age ?? '?'}
                       {c.person.gender ? ` · ${c.person.gender[0]}` : ''}
                     </span>
                     {c.origin === 'inbound' && <span className="tag new">NEW · inbound</span>}
-                    {c.origin === 'answered_call' && <span className="tag new">NEW · answered call</span>}
-                    {['unverified', 'matched_name'].includes(c.identity?.status) && (
-                      <span className="tag warn" title="Identity not verified">ID?</span>
-                    )}
                     {onCall.has(c.personId) && (
                       <span className="tag live">
                         <i className="dot pulse" /> on call
@@ -92,11 +88,11 @@ export default function PriorityQueue({ cases, selectedId, onSelect }) {
                       </span>
                     )}
                   </span>
-                  <span className="reason">{c.card.summary && c.status !== 'not_contacted' ? c.card.summary : c.priority.reason}</span>
+                  <span className="reason">{c.priority.reviewRequired ? '⚠ Verify uncertain case · ' : ''}{c.card.summary && c.status !== 'not_contacted' ? c.card.summary : c.priority.reason}</span>
                 </span>
                 <span className="row-side">
                   <span className={`level-badge lvl-${c.priority.level}`}>
-                    {c.priority.level} <b className="mono">{c.priority.score}</b>
+                    {c.priority.level} <b className="mono">{Number(c.priority.score).toFixed(1)}%</b>
                   </span>
                   <span className={`status-pill tone-${st.tone}`}>{st.label}</span>
                   <span className="meta small muted">

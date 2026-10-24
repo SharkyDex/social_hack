@@ -1,16 +1,14 @@
 // Everything about one person: why they rank where they do, the responder
 // card built from calls, live call, actions, notes and history.
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { api } from '../../api.js';
 import { ACTIVE_CALL, useLive } from '../../LiveState.jsx';
-import { IDENTITY, STATUS, clock, firstName, formatPhone } from '../../format.js';
+import { STATUS, clock, firstName, formatPhone } from '../../format.js';
 import CallTranscript, { callTitle } from '../calls/CallTranscript.jsx';
 
 export default function CaseDetail({ c }) {
-  const { calls, responders, cases } = useLive();
+  const { calls, responders } = useLive();
   const p = c.person;
-  const idTag = IDENTITY[c.identity?.status];
   const st = STATUS[c.status] || { label: c.status, tone: 'muted' };
   const personCalls = useMemo(
     () => c.callIds.map((id) => calls[id]).filter(Boolean).sort((a, b) => b.startedAt.localeCompare(a.startedAt)),
@@ -26,35 +24,9 @@ export default function CaseDetail({ c }) {
           <h2>
             {p.name}
             {c.origin === 'inbound' && <span className="tag new">from inbound call</span>}
-            {c.origin === 'answered_call' && <span className="tag new">answered someone's phone</span>}
           </h2>
-          {idTag && (
-            <p className="identity">
-              <span className={`status-pill tone-${idTag.tone}`}>{idTag.label}</span>
-              {c.identity.note && <span className="muted small"> {c.identity.note}</span>}
-              {c.identity.status !== 'verified' && c.identity.status !== 'matched_phone' && (
-                <button className="btn ghost small" onClick={() => api.verify(c.personId)}>
-                  Confirm identity
-                </button>
-              )}
-            </p>
-          )}
-          {c.linked?.length > 0 && (
-            <p className="linked small">
-              {c.linked.map((l) => {
-                const [before, after = ''] = (l.relation.includes('{link}') ? l.relation : `{link} ${l.relation}`).split('{link}');
-                return (
-                  <span key={l.personId}>
-                    {before}
-                    <Link to={`/?person=${l.personId}`}>{cases[l.personId]?.person.name || l.personId}</Link>
-                    {after}
-                  </span>
-                );
-              })}
-            </p>
-          )}
           <p className="muted">
-            {[p.age != null ? `${p.age}` : 'Age unknown', p.gender, p.address || 'Address not set'].filter(Boolean).join(' · ')}
+            {[p.age != null && `${p.age}`, p.gender, p.address || 'Address not set'].filter(Boolean).join(' · ')}
           </p>
           <p className="muted small mono">
             {formatPhone(p.phone)}
@@ -65,7 +37,7 @@ export default function CaseDetail({ c }) {
         </div>
         <div className="detail-head-side">
           <span className={`level-badge big lvl-${c.priority.level}`}>
-            {c.priority.level} <b className="mono">{c.priority.score}</b>
+            {c.priority.level} <b className="mono">{Number(c.priority.score).toFixed(1)}%</b>
           </span>
           <span className={`status-pill tone-${st.tone}`}>{st.label}</span>
         </div>
@@ -76,9 +48,9 @@ export default function CaseDetail({ c }) {
       {live.map((call) => (
         <div key={call.id} className="live-call">
           <h3 className="section-title">
-            <i className="dot pulse" /> {callTitle(call, cases[call.personId]?.person || p)}
+            <i className="dot pulse" /> {callTitle(call, p)}
           </h3>
-          <CallTranscript call={call} person={cases[call.personId]?.person || p} />
+          <CallTranscript call={call} person={p} />
         </div>
       ))}
 
@@ -96,7 +68,7 @@ export default function CaseDetail({ c }) {
           {past.map((call) => (
             <details key={call.id} className="past-call">
               <summary>
-                <span>{callTitle(call, cases[call.personId]?.person || p)}</span>
+                <span>{callTitle(call, p)}</span>
                 <span className={`call-status s-${call.status}`}>{call.status.replace('_', ' ')}</span>
                 <span className="muted small mono">{clock(call.startedAt)}</span>
               </summary>
@@ -154,7 +126,7 @@ function Actions({ c, responders, hasLive }) {
         {assigned ? (
           <>
             <span className="assigned">
-              <b>{assigned.name}</b> <span className="muted small">{assigned.type}{assigned.crew ? ` · ${assigned.crew} crew` : ''}</span>
+              <b>{assigned.name}</b> <span className="muted small">{assigned.type}</span>
             </span>
             <button className="btn ghost small" onClick={run(() => api.release(id))}>
               Release
@@ -176,7 +148,7 @@ function Actions({ c, responders, hasLive }) {
             </option>
             {free.map((r) => (
               <option key={r.id} value={r.id}>
-                {r.id} · {r.type}{r.crew ? ` · ${r.crew} crew` : ''}
+                {r.name} — {r.type}
               </option>
             ))}
           </select>
@@ -238,55 +210,64 @@ function ResponderCard({ c, responders }) {
               : 'None on file'
           }
         />
-        {c.assignedResponderId && (
-          <Field
-            label="Assigned"
-            value={`${responders[c.assignedResponderId]?.name} (${responders[c.assignedResponderId]?.type}${responders[c.assignedResponderId]?.crew ? `, ${responders[c.assignedResponderId].crew} crew` : ''})`}
-          />
-        )}
+        {c.assignedResponderId && <Field label="Assigned" value={`${responders[c.assignedResponderId]?.name} (${responders[c.assignedResponderId]?.type})`} />}
       </div>
     </section>
   );
 }
 
 function PriorityBreakdown({ priority, hazard }) {
-  const max = Math.max(...priority.factors.map((f) => Math.abs(f.points)), 1);
+  const max = Math.max(...priority.factors.map((f) => f.likelihoodRatio || 1), 1);
+  const horizon = priority.riskByHorizon || {};
+  const uncertainty = priority.uncertainty || {};
   return (
     <section className="sub">
-      <h3 className="section-title">Why this priority</h3>
+      <h3 className="section-title">Bayesian risk assessment</h3>
+      <p className="muted small">Scenario-based P(serious harm), updated from available evidence</p>
+      <div className="risk-horizons">
+        {[15, 30, 60].map((minutes) => (
+          <div className={`risk-horizon ${minutes === 30 ? 'active' : ''}`} key={minutes}>
+            <span className="muted small">{minutes} min</span>
+            <b className="mono">{Number.isFinite(horizon[minutes]) ? `${(horizon[minutes] * 100).toFixed(1)}%` : '—'}</b>
+          </div>
+        ))}
+      </div>
+      {priority.immediateOverride && (
+        <div className="risk-alert"><b>IMMEDIATE RESPONSE</b><span>{priority.immediateOverride}</span></div>
+      )}
+      {priority.reviewRequired && (
+        <div className="risk-review"><b>VERIFY / HUMAN REVIEW</b><span>High uncertainty with meaningful risk or vulnerability. Do not treat missing information as safe.</span></div>
+      )}
+      <div className="risk-uncertainty">
+        <span>Evidence uncertainty <b>{uncertainty.level || 'UNKNOWN'}</b></span>
+        <span className="mono">{Number.isFinite(uncertainty.score) ? `${Math.round(uncertainty.score * 100)}%` : '—'}</span>
+      </div>
+      {Number.isFinite(uncertainty.scenarioUpperBound30) && (
+        <p className="muted small">Sensitivity check: 30-min risk could be about {(uncertainty.scenarioUpperBound30 * 100).toFixed(1)}% under a conservative uncertainty scenario. This is not a confidence interval.</p>
+      )}
+      <h4 className="section-title risk-subtitle">Evidence used</h4>
       <ul className="factors">
         {priority.factors.map((f, i) => (
-          <li key={i} className={`k-${f.kind} ${f.points < 0 ? 'neg' : ''}`}>
-            <span className="f-label">{f.label}</span>
-            <span className="f-bar">
-              <span style={{ width: `${(Math.abs(f.points) / max) * 100}%` }} />
-            </span>
-            <span className="f-pts mono">
-              {f.points > 0 ? '+' : ''}
-              {f.points}
-            </span>
+          <li key={i} className={`k-${f.kind}`} title={f.explanation}>
+            <span className="f-label">{f.label}<small className="factor-explanation">{f.explanation}</small></span>
+            <span className="f-bar"><span style={{ width: `${(Math.log(Math.max(1, f.likelihoodRatio)) / Math.log(Math.max(max, 1.01))) * 100}%` }} /></span>
+            <span className="f-pts mono">×{Number(f.likelihoodRatio).toFixed(2)}</span>
           </li>
         ))}
-        {priority.factors.length === 0 && <li className="muted small">No risk factors.</li>}
+        {priority.factors.length === 0 && <li className="muted small">No positive evidence signals recorded; uncertainty may still require verification.</li>}
       </ul>
       <p className="muted small total">
-        Total <b className="mono">{priority.score}</b> · CRITICAL ≥ 60 · HIGH ≥ 35
+        30-min risk <b className="mono">{Number(priority.score).toFixed(1)}%</b> · HIGH ≥ 15% · CRITICAL ≥ 35%; direct life-threat overrides apply.
+      </p>
+      <p className="muted small">
+        Model: {priority.model || '—'} · Combined evidence LR ×{priority.likelihoodRatio ?? '—'}
       </p>
       <p className="muted small hazard-note">
-        Damage at home:{' '}
-        {[
-          hazard?.buildingDamage && hazard.buildingDamage !== 'none' ? `building ${hazard.buildingDamage}` : null,
-          hazard?.intensity ? `shaking MMI ${hazard.intensity}` : null,
-          hazard?.gasLeak ? 'gas leak' : null,
-          hazard?.fire ? 'fire' : null,
-          hazard?.powerOut ? 'power out' : null,
-          hazard?.roadsBlocked ? 'roads blocked' : null,
-        ]
-          .filter(Boolean)
-          .join(' · ') || 'none reported'}
-        {' — '}
-        {hazard?.source === 'simulation' ? 'live from the simulation' : hazard?.source === 'sample' ? 'sample placeholder until the simulation is connected' : 'no data'}
+        Earthquake evidence: {[hazard?.buildingDamage && hazard.buildingDamage !== 'none' ? `building ${hazard.buildingDamage}` : null, hazard?.intensity != null ? `shaking MMI ${hazard.intensity}` : null, hazard?.gasLeak ? 'gas leak' : null, hazard?.fire ? 'fire' : null, hazard?.powerOut ? 'power out' : null, hazard?.roadsBlocked ? 'roads blocked' : null].filter(Boolean).join(' · ') || 'no hazard signal reported'}
+        {' — '}{hazard?.source === 'simulation' ? 'live from simulation' : hazard?.source === 'sample' ? 'sample scenario data' : 'hazard data unavailable'}
       </p>
+      <p className="muted small model-notice">{priority.assumptionsNotice || 'Scenario assumptions; not validated for real-world casualty prediction.'}</p>
+      {uncertainty.reasons?.length > 0 && <p className="muted small">Uncertainty sources: {uncertainty.reasons.join(' · ')}</p>}
     </section>
   );
 }
