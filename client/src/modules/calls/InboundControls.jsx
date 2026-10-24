@@ -24,6 +24,10 @@ export default function InboundControls() {
             <strong>911 busy → AI intake, you're the caller</strong>
             <span>Type the caller's answers</span>
           </button>
+          <button onClick={() => go({ mode: 'auto', registered: true })}>
+            <strong>Someone in the registry calls in</strong>
+            <span>Shows the caller being matched to their card</span>
+          </button>
           <button onClick={() => go({ operatorAvailable: true })}>
             <strong>911 operator answers</strong>
             <span>Call is handed over; AI stays out</span>

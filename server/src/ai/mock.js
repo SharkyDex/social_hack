@@ -27,6 +27,24 @@ export function mockConversation(person, needs, scenario, { target = 'resident',
   const R = (text) => ({ speaker: 'resident', text });
   const sit = scenario?.says || scenario?.situation || 'I\'m alright. Things fell off the shelves but the house looks OK.';
 
+  // Someone else picks up the phone
+  const ab = scenario?.answeredBy;
+  if (ab) {
+    const O = (text) => ({ speaker: 'other', text });
+    const opening = channel === 'sms'
+      ? D(`${config.agencyName} (automated welfare check): Hi ${name}, are you safe? Reply SAFE or HELP, or tell us what's happening. If in immediate danger, contact 911.`)
+      : D(`Hello, this is an automated assistant from ${config.agencyName}, calling to check on ${person.name}. Is this ${name}?`);
+    return [
+      opening,
+      O(ab.firstLine || `No, this is ${ab.name}, ${name}'s ${ab.relationship}.`),
+      D(`Thank you, ${first(ab.name)}. Is ${name} there with you, and are they safe?`),
+      O(sit),
+      D(`And how about you — are you hurt, and are you at the same address? Can I take your age?`),
+      O(ab.says || `I'm ${ab.age}. I'm fine, I'm here with ${name}.`),
+      D(`Thank you. If there's an aftershock, drop, cover and hold on. A human dispatcher has this for both of you and will follow up. [END]`),
+    ];
+  }
+
   if (channel === 'sms') {
     return [
       D(`${config.agencyName} (automated welfare check): Hi ${name}, are you safe? Reply SAFE or HELP, or tell us what's happening. If in immediate danger, contact 911.`),
@@ -72,6 +90,16 @@ export function mockExtraction(person, needs, scenario, { target = 'resident', a
       communication_guide: null, resources_needed: null, time_sensitive: null,
     };
   }
+  const ab = scenario?.answeredBy;
+  const answeredBy = ab
+    ? {
+        name: ab.name, age: ab.age, gender: ab.gender || null, relationship: ab.relationship, phone: ab.phone || null,
+        at_same_location: !!ab.sameLocation, in_affected_area: ab.inAffectedArea ?? !!ab.sameLocation,
+        medical_history: ab.medicalHistory || [],
+        needs_help: !!ab.truth?.needsHelp, trapped: !!ab.truth?.trapped, injured: !!ab.truth?.injured, distress: !!ab.truth?.distress,
+        summary: ab.situation,
+      }
+    : null;
   const problems = [];
   if (t.trapped) problems.push('Trapped — cannot get out');
   if (t.gasOrFire) problems.push('Smells gas / sees fire');
@@ -82,7 +110,8 @@ export function mockExtraction(person, needs, scenario, { target = 'resident', a
   if (t.wantsEvacuation) problems.push('Needs to leave the building');
   if (t.distress) problems.push('Distressed');
   return {
-    reached_person: answered,
+    reached_person: answered && !ab,
+    answered_by: answeredBy,
     needs_help: !!t.needsHelp || !!t.trapped,
     trapped: !!t.trapped,
     injured: !!t.injured,
@@ -111,9 +140,32 @@ export function mockExtraction(person, needs, scenario, { target = 'resident', a
   };
 }
 
-export function mockIntake() {
+export function mockIntake(caller = null, scenario = null) {
   const D = (text) => ({ speaker: 'dispatcher', text });
   const C = (text) => ({ speaker: 'caller', text });
+  if (caller) {
+    // A registered person calls in — used to show registry matching
+    const t = scenario?.truth || {};
+    const transcript = [
+      D(`This is an automated assistant from ${config.agencyName}. No 911 operator is free right now, so I'm answering. If anyone is in immediate danger, please stay on the line. What's your name and age?`),
+      C(`${caller.name}. I'm ${caller.age ?? 'not sure'}.`),
+      D(`Thank you. What's happening right now?`),
+      C(scenario?.says || 'The building shook badly and I need someone to check on me.'),
+      D('Are you hurt or trapped, and do you smell gas?'),
+      C(`${t.injured ? 'I\'m hurt.' : 'I\'m not hurt.'} ${t.trapped ? 'I can\'t get out.' : ''} ${t.gasOrFire ? 'I think I smell gas.' : 'No gas.'}`.replace(/\s+/g, ' ').trim()),
+      D('Thank you. A human dispatcher has your details and will follow up. [END]'),
+    ];
+    const extracted = {
+      name: caller.name, age: caller.age, gender: caller.gender, address: caller.address,
+      medical_history: caller.medicalHistory, emergency_contact_name: null, emergency_contact_number: null, lives_alone: null,
+      needs_help: !!t.needsHelp || !!t.trapped, trapped: !!t.trapped, injured: !!t.injured, distress: !!t.distress,
+      gas_or_fire: !!t.gasOrFire, building_unsafe: !!t.buildingUnsafe, power_out: t.powerOut ?? null,
+      equipment_hours_left: t.equipmentHoursLeft ?? null, wants_evacuation: t.wantsEvacuation ?? null, reported_ok: !!t.reportedOk,
+      summary: scenario?.situation || 'Called in for a welfare check.', problems: [], alerts: [], immediate_actions: [], do_not: [],
+      communication_guide: null, resources_needed: null, time_sensitive: null,
+    };
+    return { transcript, extracted };
+  }
   const transcript = [
     D(`This is an automated assistant from ${config.agencyName}. No 911 operator is free right now, so I'm answering. If anyone is in immediate danger, please stay on the line. What's your name?`),
     C('It\'s Dorothy Evans. I\'m 76.'),
@@ -174,6 +226,15 @@ export function mockNextDispatcherTurn(goals, turnIndex, { intake = false } = {}
     : [`Hello, this is an automated assistant from ${config.agencyName} doing a welfare check. ${asked[0]}`, ...asked.slice(1)];
   if (turnIndex < qs.length) return qs[turnIndex];
   return 'Thank you. A human dispatcher has your details and will follow up. If things get worse, call 911. [END]';
+}
+
+/** Best-effort name and age from what a caller said, e.g. "My name is Bob Smith, I'm 81". */
+export function parseNameAge(transcript) {
+  const said = transcript.split('\n').filter((l) => !/^DISPATCHER:/i.test(l)).map((l) => l.replace(/^\w+:\s*/, '')).join(' ');
+  const nm = said.match(/(?:[Mm]y name is|[Nn]ame's|[Tt]his is|I am|I'm|[Ii]t's)\s+([A-Z][a-z'-]+(?:\s+[A-Z][a-z'-]+)+)/);
+  const bare = said.match(/^([A-Z][a-z'-]+(?:\s+[A-Z][a-z'-]+)+)[,.]/);
+  const age = said.match(/(?:i'?m|i am|aged?)\s+(\d{1,3})\b|\b(\d{1,3})\s*(?:years? old|yrs?)\b|,\s*(\d{1,3})\b/i);
+  return { name: (nm || bare)?.[1] || null, age: age ? Number(age[1] || age[2] || age[3]) : null };
 }
 
 /** Mock-mode extraction from a real transcript (interactive or live calls). */

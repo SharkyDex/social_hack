@@ -8,7 +8,7 @@ import { join } from 'node:path';
 import { config, ROOT } from './config.js';
 import * as store from './store.js';
 import { sseHandler } from './events.js';
-import { aiMode } from './ai/groq.js';
+import { aiMode, keyCount } from './ai/groq.js';
 import { provider } from './telephony/index.js';
 import * as engine from './calls/engine.js';
 
@@ -21,6 +21,7 @@ setInterval(store.rescoreAll, 60_000).unref(); // "no contact for 1h+" changes w
 const meta = () => ({
   aiMode: aiMode(),
   model: aiMode() === 'groq' ? config.groqModel : null,
+  aiKeys: keyCount(),
   telephony: provider().name,
   demoNumberSet: Boolean(config.demoPhoneNumber),
   maxAttempts: config.maxAttempts,
@@ -67,7 +68,7 @@ app.post('/api/calls/:id/reply', ok((req) => engine.replyToCall(req.params.id, S
 app.post('/api/calls/:id/hangup', ok((req) => engine.hangUp(req.params.id)));
 app.post('/api/rounds/start', ok((req) => engine.startRound(req.body || {}) && engine.getRound()));
 app.post('/api/rounds/stop', ok(() => engine.stopRound() && engine.getRound()));
-// body: { mode: 'auto'|'interactive', operatorAvailable?: boolean }
+// body: { mode: 'auto'|'interactive', operatorAvailable?: boolean, registered?: boolean }
 app.post('/api/inbound/simulate', ok((req) => engine.simulateInbound(req.body || {})));
 
 // ── Dispatcher actions ───────────────────────────────────────
@@ -75,6 +76,7 @@ app.post('/api/cases/:id/assign', ok((req) => engine.assignResponder(req.params.
 app.post('/api/cases/:id/release', ok((req) => engine.releaseResponder(req.params.id)));
 app.post('/api/cases/:id/safe', ok((req) => engine.markSafe(req.params.id)));
 app.post('/api/cases/:id/reopen', ok((req) => engine.reopen(req.params.id)));
+app.post('/api/cases/:id/verify', ok((req) => engine.verifyIdentity(req.params.id)));
 app.post('/api/cases/:id/notes', ok((req) => engine.addNote(req.params.id, req.body?.text)));
 
 // ── Integration hooks for the other modules ─────────────────

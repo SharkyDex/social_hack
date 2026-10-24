@@ -2,41 +2,49 @@
   {
     "id": "E-12",
     "name": "Engine 12",
-    "type": "Fire engine"
+    "type": "Fire engine",
+    "crew": 4
   },
   {
     "id": "USAR-1",
     "name": "Rescue 1",
-    "type": "Urban search & rescue team"
+    "type": "Urban search & rescue team",
+    "crew": 6
   },
   {
     "id": "M-4",
     "name": "Medic 4",
-    "type": "Ambulance (advanced life support)"
+    "type": "Ambulance (advanced life support)",
+    "crew": 2
   },
   {
     "id": "M-7",
     "name": "Medic 7",
-    "type": "Ambulance"
+    "type": "Ambulance",
+    "crew": 2
   },
   {
     "id": "GAS-2",
     "name": "Utility 2",
-    "type": "Gas & electric crew"
+    "type": "Gas & electric crew",
+    "crew": 2
   },
   {
     "id": "PT-3",
     "name": "Paratransit 3",
-    "type": "Wheelchair-accessible van"
+    "type": "Wheelchair-accessible van",
+    "crew": 2
   },
   {
     "id": "P-21",
     "name": "Patrol 21",
-    "type": "Police"
+    "type": "Police",
+    "crew": 2
   },
   {
     "id": "CERT-5",
     "name": "CERT Team 5",
-    "type": "Volunteer welfare team"
+    "type": "Volunteer welfare team",
+    "crew": 3
   }
 ]

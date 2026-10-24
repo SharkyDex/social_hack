@@ -15,7 +15,7 @@ function StatusBadges() {
         <i className="dot" /> {connected ? 'Live' : 'Reconnecting'}
       </span>
       <span className={`badge ${meta.aiMode === 'groq' ? 'info' : 'warn'}`} title={meta.aiMode === 'groq' ? meta.model : 'No GROQ_API_KEY — scripted calls'}>
-        AI · {meta.aiMode === 'groq' ? 'Groq' : 'Mock'}
+        AI · {meta.aiMode === 'groq' ? `Groq${meta.aiKeys > 1 ? ` ×${meta.aiKeys}` : ''}` : 'Mock'}
       </span>
       <span className="badge muted" title="Phone service">
         Phone · {meta.telephony === 'simulated' ? 'Simulated' : meta.telephony}

@@ -30,6 +30,7 @@ export const api = {
   markSafe: (id) => request('POST', `/cases/${id}/safe`),
   reopen: (id) => request('POST', `/cases/${id}/reopen`),
   addNote: (id, text) => request('POST', `/cases/${id}/notes`, { text }),
+  verify: (id) => request('POST', `/cases/${id}/verify`),
 
   reset: () => request('POST', '/reset'),
 };

@@ -66,10 +66,14 @@ export default function PriorityQueue({ cases, selectedId, onSelect }) {
                   <span className="row-top">
                     <span className="name">{c.person.name}</span>
                     <span className="muted small">
-                      {c.person.age ?? '?'}
+                      {c.person.age ?? 'age ?'}
                       {c.person.gender ? ` · ${c.person.gender[0]}` : ''}
                     </span>
                     {c.origin === 'inbound' && <span className="tag new">NEW · inbound</span>}
+                    {c.origin === 'answered_call' && <span className="tag new">NEW · answered call</span>}
+                    {['unverified', 'matched_name'].includes(c.identity?.status) && (
+                      <span className="tag warn" title="Identity not verified">ID?</span>
+                    )}
                     {onCall.has(c.personId) && (
                       <span className="tag live">
                         <i className="dot pulse" /> on call

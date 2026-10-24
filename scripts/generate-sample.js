@@ -32,7 +32,11 @@ const P = [
   ['James Robinson', 58, 'Male', ['C4 quadriplegia', 'Ventilator dependent', 'Requires suction every 2 hours'], '18 Heron St', false, ['Carol Robinson', 'wife'],
     { a: [true], sit: 'His caregiver can\'t get through — the road is blocked by a fallen building front. The power is out and the ventilator is on battery, about 6 hours left. The house itself is fine. Calm, direct, medically precise.', t: { needsHelp: true, equipmentHoursLeft: 6, wantsEvacuation: true, powerOut: true }, hz: { buildingDamage: 'minor', intensity: 7, roadsBlocked: true, powerOut: true } }],
   ['Aisha Mensah', 31, 'Female', ['Autism spectrum', 'Non-verbal (uses AAC device)', 'Sensory sensitivity to noise and crowds'], '77 Magnolia Ave', false, ['Grace Mensah', 'mother'],
-    { a: [true], sit: 'Her mother Grace replies from Aisha\'s phone. There are new cracks in the walls and every aftershock sets off car alarms; Aisha is overwhelmed. They need a quiet, low-stimulation shelter, not a crowded gym.', t: { needsHelp: true, distress: true, wantsEvacuation: true, buildingUnsafe: true }, hz: { buildingDamage: 'moderate', intensity: 7 } }],
+    { a: [true], sit: 'There are new cracks in the walls and every aftershock sets off car alarms; Aisha is overwhelmed. They need a quiet, low-stimulation shelter, not a crowded gym.', t: { needsHelp: true, distress: true, wantsEvacuation: true, buildingUnsafe: true }, hz: { buildingDamage: 'moderate', intensity: 7 },
+      ab: { name: 'Grace Mensah', age: 58, gender: 'Female', relationship: 'mother', sameLocation: true, medicalHistory: ['Hypertension'],
+        firstLine: 'This is Grace, Aisha\'s mother. She can\'t reply herself right now.',
+        situation: 'Grace is with Aisha. Not hurt, but exhausted, and her blood pressure tablets are in the car, which she can\'t reach.',
+        says: 'I\'m 58. I\'m not hurt, just exhausted. My blood pressure tablets are in the car and I can\'t get to it.', truth: { needsHelp: true } } }],
   ['Robert Chen', 84, 'Male', ["Alzheimer's disease (moderate)", 'Type 2 diabetes'], '9 Lakeview Rd', true, ['Kevin Chen', 'son'],
     { a: [false, false, false], ca: true, ck: 'Kevin hasn\'t reached his father since the earthquake. Robert lives alone in an old brick house and often doesn\'t answer or understand the phone. Kevin is two hours away and the highway is closed.', t: {}, hz: { buildingDamage: 'severe', intensity: 8 } }],
   ['Dolores Ramirez', 71, 'Female', ['End-stage kidney disease', 'Home dialysis', 'Hypertension'], '230 Willow Creek Dr', false, ['Elena Ramirez', 'daughter'],
@@ -76,7 +80,11 @@ const P = [
   ['Luis Hernandez', 38, 'Male', ['Spinal cord injury — wheelchair user', 'Pressure sores'], '12 Lakeview Rd, Apt 4D', true, ['Ana Hernandez', 'sister'],
     { a: [true], sit: 'He\'s on the 4th floor, the elevator is dead and there are big cracks in the stairwell. He can smell smoke somewhere in the building and can\'t get down the stairs in his chair.', t: { needsHelp: true, distress: true, wantsEvacuation: true, gasOrFire: true, buildingUnsafe: true }, hz: { buildingDamage: 'severe', intensity: 8, fire: true } }],
   ['Agnes Wright', 95, 'Female', ['Frail elderly', 'Hard of hearing', 'Heart failure'], '4 Magnolia Ave', false, ['Tom Wright', 'son'],
-    { a: [true], sit: 'Her son Tom is with her and they are fine. She speaks very slowly.', t: { reportedOk: true }, hz: { buildingDamage: 'minor' } }],
+    { a: [true], sit: 'Agnes is asleep in her chair, shaken but not hurt. The house is OK.', t: { reportedOk: true }, hz: { buildingDamage: 'minor' },
+      ab: { name: 'Tom Wright', age: 66, gender: 'Male', relationship: 'son', sameLocation: true, medicalHistory: ['Heart disease'],
+        firstLine: 'Hello? No, this is Tom, her son. Mum\'s asleep.',
+        situation: 'Tom is staying with his mother. He has a heart condition and his medication is at his own house across town; he has one day left.',
+        says: 'I\'m 66. I\'m alright, but I have a heart condition and my pills are at my house across town. I\'ve got about a day\'s worth.', truth: { needsHelp: true } } }],
   ['Brian Foster', 47, 'Male', ['PTSD', 'Traumatic brain injury'], '140 Pecan Ct', true, ['Kelly Foster', 'sister'],
     { a: [false, false, true], ca: false, sit: 'Disoriented; the shaking is bringing back bad memories. Not sure what to do. Hasn\'t eaten.', t: { distress: true, needsHelp: true }, hz: { buildingDamage: 'moderate' } }],
   ['Chloe Martin', 26, 'Female', ['Deaf', 'Uses ASL'], '85 Willow Creek Dr', false, ['Emma Martin', 'mother'],
@@ -93,7 +101,7 @@ const P = [
 const SAYS = {
   'Margaret Thompson': 'The power went out with the quake. My oxygen battery has maybe four hours. A bookcase fell in the hallway and I can\'t get past it with my walker. I\'m scared, and I won\'t leave Buddy.',
   'James Robinson': 'My caregiver can\'t get through, the road\'s blocked. Power\'s out, the ventilator is on battery, roughly six hours left. The house itself is fine.',
-  'Aisha Mensah': 'This is Grace, Aisha\'s mother. There are new cracks in the walls and every aftershock sets off the alarms. Aisha is overwhelmed. We need somewhere quiet, not a crowded gym.',
+  'Aisha Mensah': 'She\'s here with me. There are new cracks in the walls and every aftershock sets off the alarms. She\'s overwhelmed. We need somewhere quiet, not a crowded gym.',
   'Dolores Ramirez': 'The power is out so my dialysis machine won\'t run. I missed today\'s session and I feel weak. My husband is here but the garage door fell on our car.',
   'Thomas Okafor': 'I\'m OK but I can see smoke down the street. Power is out and my insulin is getting warm. I have about a day of it.',
   'Evelyn Brooks': 'I fell out of my chair when it started shaking. My ankle is swollen and I can\'t get back in the chair. Everything is broken on the floor.',
@@ -112,7 +120,7 @@ const SAYS = {
   'Kenneth Moore': 'We\'re fine, the house is OK and my wife is here.',
   'Patricia Young': 'I\'m fine, just some broken plates. My son is coming to get me.',
   'Luis Hernandez': 'I\'m on the fourth floor, the elevator is dead and there are big cracks in the stairwell. I can smell smoke somewhere in the building. I can\'t get down the stairs in my chair.',
-  'Agnes Wright': 'My son Tom is here with me. We are... fine, dear.',
+  'Agnes Wright': 'Mum\'s asleep in her chair. She\'s shaken but not hurt, and the house is OK.',
   'Brian Foster': 'I don\'t know. The shaking... it brought it all back. I don\'t know what to do. I haven\'t eaten.',
   'Chloe Martin': 'I\'m with my roommate, we\'re both fine. Heading to the Ridge Rd shelter now.',
   'Henry Liu': 'My dialysis machine needs power and I have a session tonight. I\'m sure it will be fine, but I thought I should mention it.',
@@ -142,6 +150,7 @@ P.forEach(([name, age, gender, medicalHistory, street, livesAlone, contact, sc],
     contactAnswers: sc.ca ?? true,
     situation: sc.sit || null,
     says: SAYS[name] || null,
+    answeredBy: sc.ab || null, // someone else picks up the phone
     contactKnows: sc.ck || null,
     truth: {
       needsHelp: false, trapped: false, injured: false, distress: false, gasOrFire: false,
@@ -155,16 +164,18 @@ P.forEach(([name, age, gender, medicalHistory, street, livesAlone, contact, sc],
   };
 });
 
+// The number in a unit's name is its call sign (Engine 12 = fire engine no. 12),
+// not a count. `crew` is how many people that one unit sends.
 const responders = [
-  ['E-12', 'Engine 12', 'Fire engine'],
-  ['USAR-1', 'Rescue 1', 'Urban search & rescue team'],
-  ['M-4', 'Medic 4', 'Ambulance (advanced life support)'],
-  ['M-7', 'Medic 7', 'Ambulance'],
-  ['GAS-2', 'Utility 2', 'Gas & electric crew'],
-  ['PT-3', 'Paratransit 3', 'Wheelchair-accessible van'],
-  ['P-21', 'Patrol 21', 'Police'],
-  ['CERT-5', 'CERT Team 5', 'Volunteer welfare team'],
-].map(([id, name, type]) => ({ id, name, type }));
+  ['E-12', 'Engine 12', 'Fire engine', 4],
+  ['USAR-1', 'Rescue 1', 'Urban search & rescue team', 6],
+  ['M-4', 'Medic 4', 'Ambulance (advanced life support)', 2],
+  ['M-7', 'Medic 7', 'Ambulance', 2],
+  ['GAS-2', 'Utility 2', 'Gas & electric crew', 2],
+  ['PT-3', 'Paratransit 3', 'Wheelchair-accessible van', 2],
+  ['P-21', 'Patrol 21', 'Police', 2],
+  ['CERT-5', 'CERT Team 5', 'Volunteer welfare team', 3],
+].map(([id, name, type, crew]) => ({ id, name, type, crew }));
 
 writeFileSync(join(OUT, 'people.sample.json'), JSON.stringify(people, null, 2) + '\n');
 writeFileSync(join(OUT, 'scenarios.sample.json'), JSON.stringify(scenarios, null, 2) + '\n');

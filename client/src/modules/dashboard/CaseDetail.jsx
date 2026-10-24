@@ -1,14 +1,16 @@
 // Everything about one person: why they rank where they do, the responder
 // card built from calls, live call, actions, notes and history.
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../../api.js';
 import { ACTIVE_CALL, useLive } from '../../LiveState.jsx';
-import { STATUS, clock, firstName, formatPhone } from '../../format.js';
+import { IDENTITY, STATUS, clock, firstName, formatPhone } from '../../format.js';
 import CallTranscript, { callTitle } from '../calls/CallTranscript.jsx';
 
 export default function CaseDetail({ c }) {
-  const { calls, responders } = useLive();
+  const { calls, responders, cases } = useLive();
   const p = c.person;
+  const idTag = IDENTITY[c.identity?.status];
   const st = STATUS[c.status] || { label: c.status, tone: 'muted' };
   const personCalls = useMemo(
     () => c.callIds.map((id) => calls[id]).filter(Boolean).sort((a, b) => b.startedAt.localeCompare(a.startedAt)),
@@ -24,9 +26,35 @@ export default function CaseDetail({ c }) {
           <h2>
             {p.name}
             {c.origin === 'inbound' && <span className="tag new">from inbound call</span>}
+            {c.origin === 'answered_call' && <span className="tag new">answered someone's phone</span>}
           </h2>
+          {idTag && (
+            <p className="identity">
+              <span className={`status-pill tone-${idTag.tone}`}>{idTag.label}</span>
+              {c.identity.note && <span className="muted small"> {c.identity.note}</span>}
+              {c.identity.status !== 'verified' && c.identity.status !== 'matched_phone' && (
+                <button className="btn ghost small" onClick={() => api.verify(c.personId)}>
+                  Confirm identity
+                </button>
+              )}
+            </p>
+          )}
+          {c.linked?.length > 0 && (
+            <p className="linked small">
+              {c.linked.map((l) => {
+                const [before, after = ''] = (l.relation.includes('{link}') ? l.relation : `{link} ${l.relation}`).split('{link}');
+                return (
+                  <span key={l.personId}>
+                    {before}
+                    <Link to={`/?person=${l.personId}`}>{cases[l.personId]?.person.name || l.personId}</Link>
+                    {after}
+                  </span>
+                );
+              })}
+            </p>
+          )}
           <p className="muted">
-            {[p.age != null && `${p.age}`, p.gender, p.address || 'Address not set'].filter(Boolean).join(' · ')}
+            {[p.age != null ? `${p.age}` : 'Age unknown', p.gender, p.address || 'Address not set'].filter(Boolean).join(' · ')}
           </p>
           <p className="muted small mono">
             {formatPhone(p.phone)}
@@ -48,9 +76,9 @@ export default function CaseDetail({ c }) {
       {live.map((call) => (
         <div key={call.id} className="live-call">
           <h3 className="section-title">
-            <i className="dot pulse" /> {callTitle(call, p)}
+            <i className="dot pulse" /> {callTitle(call, cases[call.personId]?.person || p)}
           </h3>
-          <CallTranscript call={call} person={p} />
+          <CallTranscript call={call} person={cases[call.personId]?.person || p} />
         </div>
       ))}
 
@@ -68,7 +96,7 @@ export default function CaseDetail({ c }) {
           {past.map((call) => (
             <details key={call.id} className="past-call">
               <summary>
-                <span>{callTitle(call, p)}</span>
+                <span>{callTitle(call, cases[call.personId]?.person || p)}</span>
                 <span className={`call-status s-${call.status}`}>{call.status.replace('_', ' ')}</span>
                 <span className="muted small mono">{clock(call.startedAt)}</span>
               </summary>
@@ -126,7 +154,7 @@ function Actions({ c, responders, hasLive }) {
         {assigned ? (
           <>
             <span className="assigned">
-              <b>{assigned.name}</b> <span className="muted small">{assigned.type}</span>
+              <b>{assigned.name}</b> <span className="muted small">{assigned.type}{assigned.crew ? ` · ${assigned.crew} crew` : ''}</span>
             </span>
             <button className="btn ghost small" onClick={run(() => api.release(id))}>
               Release
@@ -148,7 +176,7 @@ function Actions({ c, responders, hasLive }) {
             </option>
             {free.map((r) => (
               <option key={r.id} value={r.id}>
-                {r.name} — {r.type}
+                {r.id} · {r.type}{r.crew ? ` · ${r.crew} crew` : ''}
               </option>
             ))}
           </select>
@@ -210,7 +238,12 @@ function ResponderCard({ c, responders }) {
               : 'None on file'
           }
         />
-        {c.assignedResponderId && <Field label="Assigned" value={`${responders[c.assignedResponderId]?.name} (${responders[c.assignedResponderId]?.type})`} />}
+        {c.assignedResponderId && (
+          <Field
+            label="Assigned"
+            value={`${responders[c.assignedResponderId]?.name} (${responders[c.assignedResponderId]?.type}${responders[c.assignedResponderId]?.crew ? `, ${responders[c.assignedResponderId].crew} crew` : ''})`}
+          />
+        )}
       </div>
     </section>
   );

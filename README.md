@@ -22,12 +22,17 @@ With no `GROQ_API_KEY` the app runs in **mock mode**: calls follow a script, so 
 
 1. The AI calls the person, or texts them if they're Deaf or non-verbal.
 2. **No answer:** it retries up to 3 times and adds +8 priority after each miss. After the first miss it also calls the emergency contact. After 3 misses the person is marked *Unreachable* so the dispatcher can send someone.
-3. **Answered:** the conversation runs, then the AI pulls out the problems (injured, equipment battery left, wants evacuation…). Those update the responder card and the priority.
-4. The dispatcher decides: assign a unit, call again, text, add a note, or mark safe.
+3. **Answered:** the conversation runs, then the AI pulls out the problems (trapped, injured, gas, equipment battery left…). Those update the responder card and the priority.
+4. **Someone else answered:** what they say about the person goes on the person's card, marked "Someone else answered" (a second-hand "they're fine" doesn't lower priority). If the person who answered is with them or elsewhere in the affected area, they get their own linked card, flagged "identity not verified".
+5. The dispatcher decides: assign a unit, call again, text, add a note, or mark safe.
 
-**Incoming calls** from people not in the registry ring 911 first. The AI intake only answers if no operator picks up, and the caller becomes a new card.
+**Incoming calls** ring 911 first. The AI intake only answers if no operator picks up. The caller is then matched to the registry (all 100k, not just the sample): by caller ID first, then name + age. A match updates their existing card; otherwise they get a new card flagged "identity not verified", which the dispatcher can confirm.
 
 **Interactive mode** ("Call — I'll answer"): you type the resident's replies. This is good for the live demo.
+
+**Several AI keys:** put them in `GROQ_API_KEY` separated by commas. Requests rotate across them, and a key that hits its rate limit rests while the others carry on.
+
+**Responder units:** the number in a unit's name is its call sign (Engine 12 = fire engine no. 12). The menu also shows how many crew that unit sends.
 
 ## Priority
 

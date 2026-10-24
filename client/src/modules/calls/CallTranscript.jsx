@@ -9,6 +9,7 @@ const SPEAKER_LABEL = {
   resident: 'Resident',
   contact: 'Emergency contact',
   caller: 'Caller',
+  other: 'Answered by',
   system: 'System',
 };
 

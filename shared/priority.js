@@ -31,6 +31,7 @@ export const WEIGHTS = {
   // Contact status
   perFailedAttempt: 8,
   unreachable: 12,
+  reachedViaOther: 5,
   // What the welfare call found
   trapped: 45,
   needsHelp: 25,
@@ -112,6 +113,7 @@ export function scoreCase(person, c = {}, now = Date.now()) {
   const failed = c.failedAttempts || 0;
   if (failed > 0) add(`${failed} unanswered attempt${failed > 1 ? 's' : ''}`, failed * W.perFailedAttempt, 'contact');
   if (c.status === 'unreachable') add('Unreachable — all attempts failed', W.unreachable, 'contact');
+  if (c.status === 'reached_other') add(`Not reached directly — only via ${c.reachedVia || 'someone else'}`, W.reachedViaOther, 'contact');
 
   // What the call found
   const f = c.findings || {};

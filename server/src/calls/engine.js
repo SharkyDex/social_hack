@@ -32,7 +32,7 @@ function personFor(call) {
   return call.contactName ? { ...person, emergencyContactName: call.contactName } : person;
 }
 
-const SPEAKER = { DISPATCHER: 'dispatcher', RESIDENT: 'resident', CONTACT: 'contact', CALLER: 'caller' };
+const SPEAKER = { DISPATCHER: 'dispatcher', RESIDENT: 'resident', CONTACT: 'contact', CALLER: 'caller', ANSWERER: 'other' };
 
 function pace(text, channel) {
   const ms = channel === 'sms' ? 1800 : Math.min(3200, 650 + text.length * 22);
@@ -43,7 +43,7 @@ function pace(text, channel) {
 export function parseTranscript(raw) {
   const out = [];
   for (const line of raw.split('\n')) {
-    const m = line.match(/^\s*[*_]*\s*(DISPATCHER|RESIDENT|CONTACT|CALLER)\s*[*_]*\s*:\s*[*_]*\s*(.+)$/i);
+    const m = line.match(/^\s*[*_]*\s*(DISPATCHER|RESIDENT|CONTACT|CALLER|ANSWERER)\s*[*_]*\s*:\s*[*_]*\s*(.+)$/i);
     if (m) out.push({ speaker: SPEAKER[m[1].toUpperCase()], text: m[2].trim() });
     else if (out.length && line.trim()) out.at(-1).text += ' ' + line.trim();
   }
@@ -358,7 +358,14 @@ function uniqMerge(a = [], b = []) {
 
 function applyExtraction(personId, ex, call) {
   const isContact = call.target === 'emergency_contact';
-  const prefix = isContact ? `${first(call.contactName || 'Contact')} (contact): ` : '';
+  // Did we speak to the person themselves, or did someone else pick up?
+  const direct = !isContact && ex.reached_person !== false;
+  const answerer = !isContact && !direct ? ex.answered_by || {} : null;
+  const prefix = isContact
+    ? `${first(call.contactName || 'Contact')} (contact): `
+    : answerer
+      ? `Via ${first(answerer.name || 'someone else')}: `
+      : '';
 
   store.updateCase(personId, (c) => {
     const card = {
@@ -385,39 +392,140 @@ function applyExtraction(personId, ex, call) {
     if (ex.equipment_hours_left != null && !Number.isNaN(Number(ex.equipment_hours_left))) {
       f.equipmentHoursLeft = Number(ex.equipment_hours_left);
     }
-    f.reportedOk = !!ex.reported_ok && !f.needsHelp && !f.injured && !f.trapped;
+    // "They're fine" from someone else isn't the same as hearing it from them.
+    f.reportedOk = direct && !!ex.reported_ok && !f.needsHelp && !f.injured && !f.trapped;
 
+    const urgent = f.needsHelp || f.injured || f.trapped || f.gasOrFire;
     const status = c.status === 'safe' ? 'safe'
       : c.assignedResponderId ? 'responder_assigned'
-      : f.needsHelp || f.injured || f.trapped || f.gasOrFire ? 'needs_help'
+      : urgent ? 'needs_help'
+      : !direct ? 'reached_other'
       : f.reportedOk ? 'reached_ok'
       : 'reached';
-    return { card, findings: f, status, attempts: c.attempts + 1, lastContactAt: now() };
+    return {
+      card,
+      findings: f,
+      status,
+      attempts: c.attempts + 1,
+      lastContactAt: now(),
+      reachedVia: direct ? null : answerer.name || 'someone else',
+    };
   });
 
   if (!isContact) clearRetry(personId);
-  const label = isContact ? 'Emergency contact reached' : `Reached by ${call.channel === 'sms' ? 'text' : 'phone'}`;
+  const label = isContact
+    ? 'Emergency contact reached'
+    : answerer
+      ? `Answered by ${answerer.name || 'someone else'}${answerer.relationship ? ` (${answerer.relationship})` : ''}, not ${first(store.getPerson(personId).name)}`
+      : `Reached by ${call.channel === 'sms' ? 'text' : 'phone'}`;
   const urgent = ex.needs_help || ex.injured || ex.trapped || ex.gas_or_fire;
-  store.addTimeline(personId, `${label} — ${ex.summary || 'see transcript'}`, urgent ? 'alert' : 'success');
+  store.addTimeline(personId, `${label} — ${ex.summary || 'see transcript'}`, urgent ? 'alert' : answerer ? 'info' : 'success');
+
+  if (answerer) cardForAnswerer(personId, answerer, call);
+}
+
+/**
+ * Someone else answered the person's phone. If they're in the disaster area
+ * (with the person, or elsewhere in the affected area), they get a card too.
+ */
+function cardForAnswerer(personId, ab, call) {
+  const person = store.getPerson(personId);
+  if (!ab.name) {
+    store.addTimeline(personId, 'Whoever answered did not give a name — no card created for them', 'info');
+    return;
+  }
+  const inArea = ab.at_same_location || ab.in_affected_area;
+  if (!inArea) {
+    store.addTimeline(personId, `${ab.name} answered from outside the affected area — no card created for them`, 'info');
+    return;
+  }
+
+  const match = store.findPersonMatch({ phone: ab.phone, name: ab.name, age: ab.age });
+  if (match?.person.id === personId) return; // extraction confused them with the person
+  let otherId;
+  if (match) {
+    store.ensureCase(match.person, `Added from the registry: answered ${person.name}'s phone`);
+    otherId = match.person.id;
+  } else {
+    otherId = store.addPerson(
+      {
+        name: ab.name,
+        age: ab.age,
+        gender: ab.gender || null,
+        phone: ab.phone || (ab.at_same_location ? person.phone : null),
+        address: ab.at_same_location ? person.address : null,
+        medicalHistory: ab.medical_history || [],
+      },
+      { origin: 'answered_call', identity: { status: 'unverified', note: `Gave their details while answering ${person.name}'s phone` } },
+    ).id;
+  }
+
+  store.updateCase(otherId, (c) => ({ callIds: [...new Set([...c.callIds, call.id])] }));
+  // "{link}" is replaced by the other person's name (as a link) on the dashboard
+  store.link(personId, otherId, `{link} answered the phone${ab.relationship ? ` (${ab.relationship})` : ''}`, `Answered {link}'s phone`);
+  if (ab.at_same_location) {
+    // Same building → same damage, gas, power situation
+    store.updateCase(otherId, { hazard: { ...store.getCaseRaw(personId).hazard } });
+  }
+  store.addTimeline(personId, `${match ? 'Linked' : 'Card created'} for ${ab.name}, who answered and is ${ab.at_same_location ? 'at the same address' : 'in the affected area'}`, 'info');
+
+  const problems = [
+    ab.trapped && 'Trapped',
+    ab.injured && 'Injured',
+    ab.needs_help && 'Needs help',
+    ab.distress && 'Distressed',
+  ].filter(Boolean);
+  const okay = !ab.needs_help && !ab.injured && !ab.trapped;
+  applyExtraction(
+    otherId,
+    {
+      reached_person: true,
+      needs_help: !!ab.needs_help,
+      trapped: !!ab.trapped,
+      injured: !!ab.injured,
+      distress: !!ab.distress,
+      reported_ok: okay && !ab.distress,
+      summary: ab.summary || `Answered ${person.name}'s phone.`,
+      problems,
+    },
+    { ...call, target: 'resident' },
+  );
 }
 
 // ── Inbound calls: 911 first, AI intake if nobody answers ───
 
-export function simulateInbound({ mode = 'auto', operatorAvailable = false } = {}) {
+const UNREGISTERED_CALLER = '+16125550199';
+
+/**
+ * @param {{mode?:'auto'|'interactive', operatorAvailable?:boolean, registered?:boolean}} opts
+ *   registered: a person from the registry calls in (shows caller matching)
+ */
+export function simulateInbound({ mode = 'auto', operatorAvailable = false, registered = false } = {}) {
   const gen = generation;
+  let caller = null;
+  if (registered) {
+    const pool = store.listCases().filter((c) => {
+      const sc = store.getScenario(c.personId);
+      return c.origin === 'registry' && c.status !== 'safe' && sc?.says && !sc.answeredBy;
+    });
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    caller = pick ? store.getPerson(pick.personId) : null;
+  }
+  const from = caller?.phone || UNREGISTERED_CALLER;
   const call = store.createCall({
     personId: null,
     target: 'inbound',
     channel: 'voice',
     mode,
     attempt: 1,
-    from: '+17135550199',
+    from,
+    simulatedCallerId: caller?.id || null, // simulation only — lets mock mode script the caller
     to: config.agencyName,
     provider: provider().name,
     status: 'forwarding',
   });
   (async () => {
-    store.addTurn(call.id, 'system', 'Incoming call from +1 (713) 555-0199 — no match in the registry.');
+    store.addTurn(call.id, 'system', `Incoming call from ${from.replace(/^\+1(\d{3})(\d{3})(\d{4})$/, '($1) $2-$3')}.`);
     await sleep(1200);
     const target = config.inboundForwardNumber ? `forwarding to ${config.inboundForwardNumber}` : 'simulated — INBOUND_FORWARD_NUMBER not set';
     store.addTurn(call.id, 'system', `Ringing 911 dispatch first (${target})…`);
@@ -433,15 +541,16 @@ export function simulateInbound({ mode = 'auto', operatorAvailable = false } = {
 
     if (mode === 'interactive') return startInteractive(call.id, { intake: true });
 
+    const scenario = caller ? store.getScenario(caller.id) : null;
     let turns = null;
     if (aiMode() === 'groq') {
       try {
-        turns = parseTranscript(await chat(P.simulatedIntakePrompt(), { maxTokens: 1000, temperature: 0.8 }));
+        turns = parseTranscript(await chat(P.simulatedIntakePrompt(caller, scenario?.situation), { maxTokens: 1000, temperature: 0.8 }));
       } catch (e) {
         console.warn('[engine] AI intake failed, using mock:', e.message);
       }
     }
-    if (!turns || turns.length < 2) turns = mock.mockIntake().transcript;
+    if (!turns || turns.length < 2) turns = mock.mockIntake(caller, scenario).transcript;
     for (const t of turns) {
       await sleep(pace(t.text, 'voice'));
       if (gen !== generation || store.getCall(call.id)?.status !== 'in_progress') return;
@@ -467,24 +576,48 @@ async function finishInbound(callId) {
     }
   }
   if (!ex) {
-    ex = call.mode === 'auto' ? mock.mockIntake().extracted : { ...mock.heuristicExtraction(transcript), name: null, medical_history: [] };
+    if (call.mode === 'auto') {
+      const caller = call.simulatedCallerId ? store.getPerson(call.simulatedCallerId) : null;
+      ex = mock.mockIntake(caller, caller ? store.getScenario(caller.id) : null).extracted;
+    } else {
+      ex = { ...mock.heuristicExtraction(transcript), ...mock.parseNameAge(transcript), medical_history: [] };
+    }
   }
+  ex.age = store.validAge(ex.age);
 
-  const person = store.addPerson({
-    name: ex.name || `Unknown caller (${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })})`,
-    age: ex.age ?? null,
-    gender: ex.gender ?? null,
-    phone: call.from,
-    address: ex.address || null,
-    medicalHistory: ex.medical_history || [],
-    emergencyContactName: ex.emergency_contact_name || null,
-    emergencyContactNumber: ex.emergency_contact_number || null,
-    livesAlone: ex.lives_alone ?? null,
-  });
-  store.updateCall(callId, { personId: person.id, status: 'completed', endedAt: now(), extracted: ex, extracting: false });
-  store.updateCase(person.id, (c) => ({ callIds: [...c.callIds, callId] }));
-  store.addTimeline(person.id, 'Added from an inbound call (not in registry)', 'call');
-  applyExtraction(person.id, ex, { ...call, target: 'resident' });
+  // Is this someone we already know? Caller ID first, then name + age.
+  const match = store.findPersonMatch({ phone: call.from, name: ex.name, age: ex.age });
+  let personId;
+  if (match) {
+    const by = { phone: 'caller ID', name_age: 'name and age', name: 'name only' }[match.by];
+    store.ensureCase(match.person, 'Added from the registry after calling in');
+    personId = match.person.id;
+    store.updateCase(personId, (c) => ({
+      callIds: [...c.callIds, callId],
+      identity: { status: match.by === 'phone' ? 'matched_phone' : 'matched_name', note: `Caller matched by ${by}` },
+    }));
+    store.addTimeline(personId, `Called in — matched to the registry by ${by}${match.by === 'phone' ? '' : '; confirm identity'}`, 'call');
+  } else {
+    const person = store.addPerson(
+      {
+        name: ex.name || `Unknown caller (${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })})`,
+        age: ex.age,
+        gender: ex.gender ?? null,
+        phone: call.from,
+        address: ex.address || null,
+        medicalHistory: ex.medical_history || [],
+        emergencyContactName: ex.emergency_contact_name || null,
+        emergencyContactNumber: ex.emergency_contact_number || null,
+        livesAlone: ex.lives_alone ?? null,
+      },
+      { origin: 'inbound', identity: { status: 'unverified', note: 'Not found in the registry' } },
+    );
+    personId = person.id;
+    store.updateCase(personId, (c) => ({ callIds: [...c.callIds, callId] }));
+    store.addTimeline(personId, 'Added from an inbound call — not in the registry, identity not verified', 'call');
+  }
+  store.updateCall(callId, { personId, status: 'completed', endedAt: now(), extracted: ex, extracting: false });
+  applyExtraction(personId, { ...ex, reached_person: true }, { ...call, target: 'resident' });
 }
 
 // ── Welfare rounds: check everyone not yet contacted ────────
@@ -578,6 +711,12 @@ export function reopen(personId) {
   const status = c.findings.needsHelp || c.findings.injured || c.findings.trapped ? 'needs_help' : c.lastContactAt ? 'reached' : 'not_contacted';
   store.updateCase(personId, { status });
   store.addTimeline(personId, 'Case reopened by dispatcher', 'info');
+  return store.caseView(personId);
+}
+
+export function verifyIdentity(personId) {
+  store.updateCase(personId, { identity: { status: 'verified', note: 'Confirmed by dispatcher' } });
+  store.addTimeline(personId, 'Identity confirmed by dispatcher', 'success');
   return store.caseView(personId);
 }
 

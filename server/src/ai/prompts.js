@@ -72,6 +72,7 @@ ${personFacts(person, needs)}
 Find out:
 ${goals.map((g) => `- ${g}`).join('\n')}
 
+${contact ? '' : `If someone other than ${first(person.name)} answers: ask who they are and how they know ${first(person.name)}, whether ${first(person.name)} is there and safe, and get the answers above about ${first(person.name)} from them. Then ask about the person who answered too: their name and age, whether they are at the same address or elsewhere in the area affected by ${config.disasterName}, whether they are hurt, trapped or need help, and any medical needs.`}
 ${communicationTips(needs).join('\n')}
 Rules: this is a ${channel === 'sms' ? 'text message conversation — keep each message under 300 characters' : 'phone call — at most 2-3 short sentences per turn'}. Ask one or two questions at a time. Never promise a specific arrival time. Tell them their information is going to a human dispatcher.
 When you have what you need, thank them, say a dispatcher will follow up, and end your final message with [END].`;
@@ -83,16 +84,22 @@ When you have what you need, thank them, say a dispatcher will follow up, and en
  */
 export function simulatedConversationPrompt(person, needs, scenario, { target = 'resident', channel = 'voice' } = {}) {
   const contact = target === 'emergency_contact';
-  const other = contact ? 'CONTACT' : 'RESIDENT';
-  const truth = contact
+  const ab = !contact ? scenario?.answeredBy : null; // someone else picks up the phone
+  const other = contact ? 'CONTACT' : ab ? 'ANSWERER' : 'RESIDENT';
+  let truth = contact
     ? scenario?.contactKnows || `The contact has not heard from ${first(person.name)} today and is worried.`
     : scenario?.situation || `Invent a realistic situation consistent with their medical history in the hours after ${config.disasterName}.`;
+  if (ab) {
+    truth = `${person.name} does NOT answer. ${ab.name} (${ab.age}, ${ab.relationship}) answers instead, ${ab.sameLocation ? `and is at the same address as ${first(person.name)}` : 'from elsewhere'}.
+What ${ab.name} says about ${first(person.name)}: ${scenario.situation}
+${ab.name}'s own situation: ${ab.situation}`;
+  }
   const medium = channel === 'sms' ? 'text message exchange (4-7 short messages)' : 'phone call (10-14 lines)';
   return [
     { role: 'system', content: dispatcherSystem(person, needs, { target, channel }) },
     {
       role: 'user',
-      content: `Write the full ${medium} between the DISPATCHER (you, the automated assistant) and the ${other}${contact ? ` (${person.emergencyContactName})` : ` (${person.name})`}.
+      content: `Write the full ${medium} between the DISPATCHER (you, the automated assistant) and the ${other}${contact ? ` (${person.emergencyContactName})` : ab ? ` (${ab.name})` : ` (${person.name})`}.
 The ${other}'s real situation — they reveal it naturally when asked, in their own voice:
 ${truth}
 
@@ -113,14 +120,14 @@ export function extractionPrompt(person, transcript, { target = 'resident' } = {
     {
       role: 'user',
       content: `Person: ${person.name}${person.age ? `, ${person.age}` : ''}. Known medical history: ${person.medicalHistory.join('; ') || 'none'}.
-${contact ? `This was a call with their emergency contact, ${person.emergencyContactName}, NOT with the person.` : 'This was a conversation with the person (or someone answering their phone).'}
+${contact ? `This was a call with their emergency contact, ${person.emergencyContactName}, NOT with the person.` : `This was a call to ${first(person.name)}'s phone. Check who actually answered. All the fields below describe ${first(person.name)}, even if someone else reported them.`}
 
 Transcript:
 ${transcript}
 
 Return JSON with exactly these keys:
 {
-  "reached_person": boolean,          // did we actually talk to ${first(person.name)} (or their phone)?
+  "reached_person": boolean,          // did we actually talk to ${first(person.name)} THEMSELVES?
   "needs_help": boolean,              // they need responders or supplies sent
   "trapped": boolean,                 // stuck under debris or unable to get out
   "injured": boolean,
@@ -138,7 +145,17 @@ Return JSON with exactly these keys:
   "do_not": ["things responders must avoid"],
   "communication_guide": "how to talk to this person, or null",
   "resources_needed": "equipment/transport/shelter type needed, or null",
-  "time_sensitive": "the most time-critical fact, or null"
+  "time_sensitive": "the most time-critical fact, or null",
+  "answered_by": null or {            // ONLY if someone other than ${first(person.name)} answered
+    "name": string|null, "age": number|null, "gender": string|null,
+    "relationship": "e.g. neighbour, daughter, caregiver",
+    "phone": string|null,             // their own number, if they gave it
+    "at_same_location": boolean,      // physically with ${first(person.name)} / at the same address
+    "in_affected_area": boolean,      // somewhere affected by the disaster (true if at the same location)
+    "medical_history": ["their own conditions, if mentioned"],
+    "needs_help": boolean, "trapped": boolean, "injured": boolean, "distress": boolean,
+    "summary": "one sentence about the person who answered"
+  }
 }`,
     },
   ];
@@ -154,12 +171,16 @@ ${SAFETY_LINES}
 Be warm and calm. One or two questions at a time, at most 2-3 short sentences per turn. When done, say a dispatcher will follow up and end with [END].`;
 }
 
-export function simulatedIntakePrompt() {
+/** @param caller optional registry person who is calling in (tests registry matching) */
+export function simulatedIntakePrompt(caller = null, situation = null) {
+  const who = caller
+    ? `The caller is ${caller.name}, ${caller.age}, ${caller.address || 'address unknown'}, with: ${caller.medicalHistory.join('; ') || 'no recorded conditions'}. Their situation: ${situation || `invent one consistent with their conditions after ${config.disasterName}`}. They give their name and age early.`
+    : `The caller is not in the registry: invent a realistic person in the hours after ${config.disasterName} who has a disability or medical need and a problem that needs help (e.g. building damage, trapped family member, equipment without power). They give their name, age, address on a street in Cypress Bend, conditions, and an emergency contact with a 612-555-01XX number.`;
   return [
     { role: 'system', content: intakeSystem() },
     {
       role: 'user',
-      content: `Write the full inbound phone call (12-16 lines) between DISPATCHER (you) and CALLER. The caller is not in the registry: invent a realistic person in the hours after ${config.disasterName} who has a disability or medical need and a problem that needs help (e.g. building damage, trapped family member, equipment without power). They give their name, age, address on a street in Cypress Bend, conditions, and an emergency contact with a 713-555-01XX number.
+      content: `Write the full inbound phone call (12-16 lines) between DISPATCHER (you) and CALLER. ${who}
 Format: one line per turn starting with "DISPATCHER:" or "CALLER:". Nothing else. The last dispatcher line ends with [END].`,
     },
   ];
