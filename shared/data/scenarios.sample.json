@@ -1,0 +1,646 @@
+{
+  "P001": {
+    "answers": [
+      true
+    ],
+    "contactAnswers": true,
+    "situation": "Power has been out since 2pm. Portable oxygen battery has about 4 hours left. Water is covering the street. Anxious. Has a small dog named Buddy and will not leave without him.",
+    "contactKnows": null,
+    "truth": {
+      "needsHelp": true,
+      "injured": false,
+      "distress": true,
+      "equipmentHoursLeft": 4,
+      "wantsEvacuation": true,
+      "reportedOk": false
+    },
+    "hazard": {
+      "minutesUntilFlood": 45,
+      "homeFlooded": false,
+      "roadsCutOff": false
+    }
+  },
+  "P002": {
+    "answers": [
+      true
+    ],
+    "contactAnswers": true,
+    "situation": "Caregiver could not get through flooded roads. Ventilator running on battery, about 6 hours left. Calm, direct, medically precise.",
+    "contactKnows": null,
+    "truth": {
+      "needsHelp": true,
+      "injured": false,
+      "distress": false,
+      "equipmentHoursLeft": 6,
+      "wantsEvacuation": true,
+      "reportedOk": false
+    },
+    "hazard": {
+      "minutesUntilFlood": 90,
+      "homeFlooded": false,
+      "roadsCutOff": true
+    }
+  },
+  "P003": {
+    "answers": [
+      true
+    ],
+    "contactAnswers": true,
+    "situation": "Her mother Grace replies from Aisha's phone. Power is out, Aisha is overwhelmed by the storm noise. They need a quiet, autism-friendly shelter, not a crowded one.",
+    "contactKnows": null,
+    "truth": {
+      "needsHelp": true,
+      "injured": false,
+      "distress": true,
+      "equipmentHoursLeft": null,
+      "wantsEvacuation": true,
+      "reportedOk": false
+    },
+    "hazard": {
+      "minutesUntilFlood": 150,
+      "homeFlooded": false,
+      "roadsCutOff": false
+    }
+  },
+  "P004": {
+    "answers": [
+      false,
+      false,
+      false
+    ],
+    "contactAnswers": true,
+    "situation": null,
+    "contactKnows": "Kevin has not reached his father since 8am. Robert often does not answer the phone and may not understand evacuation warnings. Kevin is two hours away and cannot get there.",
+    "truth": {
+      "needsHelp": false,
+      "injured": false,
+      "distress": false,
+      "equipmentHoursLeft": null,
+      "wantsEvacuation": false,
+      "reportedOk": false
+    },
+    "hazard": {
+      "minutesUntilFlood": 30,
+      "homeFlooded": false,
+      "roadsCutOff": false
+    }
+  },
+  "P005": {
+    "answers": [
+      false,
+      true
+    ],
+    "contactAnswers": true,
+    "situation": "Missed today's dialysis because the power is out. Feels weak and swollen. Husband is with her but cannot drive in the flooding.",
+    "contactKnows": "Elena spoke to her mother last night; she was worried about missing dialysis.",
+    "truth": {
+      "needsHelp": true,
+      "injured": false,
+      "distress": false,
+      "equipmentHoursLeft": null,
+      "wantsEvacuation": true,
+      "reportedOk": false
+    },
+    "hazard": {
+      "minutesUntilFlood": null,
+      "homeFlooded": false,
+      "roadsCutOff": false
+    }
+  },
+  "P006": {
+    "answers": [
+      true
+    ],
+    "contactAnswers": true,
+    "situation": "Fridge is off, insulin getting warm, about a day of supply. Water rising in the yard. Otherwise OK.",
+    "contactKnows": null,
+    "truth": {
+      "needsHelp": true,
+      "injured": false,
+      "distress": false,
+      "equipmentHoursLeft": null,
+      "wantsEvacuation": false,
+      "reportedOk": false
+    },
+    "hazard": {
+      "minutesUntilFlood": 60,
+      "homeFlooded": false,
+      "roadsCutOff": false
+    }
+  },
+  "P007": {
+    "answers": [
+      true
+    ],
+    "contactAnswers": true,
+    "situation": "Slipped while moving from bed to wheelchair this morning. Ankle swollen, cannot transfer on her own. Short of breath when upset.",
+    "contactKnows": null,
+    "truth": {
+      "needsHelp": true,
+      "injured": true,
+      "distress": true,
+      "equipmentHoursLeft": null,
+      "wantsEvacuation": true,
+      "reportedOk": false
+    },
+    "hazard": {
+      "minutesUntilFlood": 120,
+      "homeFlooded": false,
+      "roadsCutOff": false
+    }
+  },
+  "P008": {
+    "answers": [
+      true
+    ],
+    "contactAnswers": true,
+    "situation": "Fine. Has his own accessible van and is driving to a friend's house on Ridge Rd within the hour.",
+    "contactKnows": null,
+    "truth": {
+      "needsHelp": false,
+      "injured": false,
+      "distress": false,
+      "equipmentHoursLeft": null,
+      "wantsEvacuation": false,
+      "reportedOk": true
+    },
+    "hazard": {
+      "minutesUntilFlood": 180,
+      "homeFlooded": false,
+      "roadsCutOff": false
+    }
+  },
+  "P009": {
+    "answers": [
+      true
+    ],
+    "contactAnswers": true,
+    "situation": "Safe for now but cannot read the evacuation notices or see the water level. Wants to evacuate with her guide dog and needs someone to guide her.",
+    "contactKnows": null,
+    "truth": {
+      "needsHelp": true,
+      "injured": false,
+      "distress": false,
+      "equipmentHoursLeft": null,
+      "wantsEvacuation": true,
+      "reportedOk": false
+    },
+    "hazard": {
+      "minutesUntilFlood": 75,
+      "homeFlooded": false,
+      "roadsCutOff": false
+    }
+  },
+  "P010": {
+    "answers": [
+      false,
+      false,
+      true
+    ],
+    "contactAnswers": false,
+    "situation": "Water is coming in on the ground floor. He and his wife Helen (88) are trying to get upstairs but he cannot manage the stairs quickly.",
+    "contactKnows": null,
+    "truth": {
+      "needsHelp": true,
+      "injured": false,
+      "distress": true,
+      "equipmentHoursLeft": null,
+      "wantsEvacuation": true,
+      "reportedOk": false
+    },
+    "hazard": {
+      "minutesUntilFlood": null,
+      "homeFlooded": true,
+      "roadsCutOff": false
+    }
+  },
+  "P011": {
+    "answers": [
+      true
+    ],
+    "contactAnswers": true,
+    "situation": "Alone at home — husband stuck across town at work. Some tightening in her belly, probably practice contractions, but scared. Wants to get to higher ground near the hospital.",
+    "contactKnows": null,
+    "truth": {
+      "needsHelp": false,
+      "injured": false,
+      "distress": true,
+      "equipmentHoursLeft": null,
+      "wantsEvacuation": true,
+      "reportedOk": false
+    },
+    "hazard": {
+      "minutesUntilFlood": 100,
+      "homeFlooded": false,
+      "roadsCutOff": false
+    }
+  },
+  "P012": {
+    "answers": [
+      true
+    ],
+    "contactAnswers": true,
+    "situation": "Power is out but he has a generator running and plenty of supplies. On high ground. Gruff but fine.",
+    "contactKnows": null,
+    "truth": {
+      "needsHelp": false,
+      "injured": false,
+      "distress": false,
+      "equipmentHoursLeft": null,
+      "wantsEvacuation": false,
+      "reportedOk": true
+    },
+    "hazard": {
+      "minutesUntilFlood": null,
+      "homeFlooded": false,
+      "roadsCutOff": false
+    }
+  },
+  "P013": {
+    "answers": [
+      true
+    ],
+    "contactAnswers": true,
+    "situation": "Confused about who is calling, worried it is a scam. Does not realise the street is flooding. Keeps asking for her daughter Carmen.",
+    "contactKnows": null,
+    "truth": {
+      "needsHelp": true,
+      "injured": false,
+      "distress": true,
+      "equipmentHoursLeft": null,
+      "wantsEvacuation": false,
+      "reportedOk": false
+    },
+    "hazard": {
+      "minutesUntilFlood": 40,
+      "homeFlooded": false,
+      "roadsCutOff": false
+    }
+  },
+  "P014": {
+    "answers": [
+      false,
+      false,
+      false
+    ],
+    "contactAnswers": true,
+    "situation": null,
+    "contactKnows": "Funmi is working a hospital shift and cannot reach him. He struggles to use the phone since his stroke. She is very worried.",
+    "truth": {
+      "needsHelp": false,
+      "injured": false,
+      "distress": false,
+      "equipmentHoursLeft": null,
+      "wantsEvacuation": false,
+      "reportedOk": false
+    },
+    "hazard": {
+      "minutesUntilFlood": 70,
+      "homeFlooded": false,
+      "roadsCutOff": false
+    }
+  },
+  "P015": {
+    "answers": [
+      true
+    ],
+    "contactAnswers": true,
+    "situation": "Her home health aide did not come today. Feeding pump battery has about 8 hours. Speaks slowly and weakly. Cannot get out of bed alone.",
+    "contactKnows": null,
+    "truth": {
+      "needsHelp": true,
+      "injured": false,
+      "distress": false,
+      "equipmentHoursLeft": 8,
+      "wantsEvacuation": true,
+      "reportedOk": false
+    },
+    "hazard": {
+      "minutesUntilFlood": 110,
+      "homeFlooded": false,
+      "roadsCutOff": false
+    }
+  },
+  "P016": {
+    "answers": [
+      true
+    ],
+    "contactAnswers": true,
+    "situation": "Staying put, has food, water and medication for three days. Feels OK.",
+    "contactKnows": null,
+    "truth": {
+      "needsHelp": false,
+      "injured": false,
+      "distress": false,
+      "equipmentHoursLeft": null,
+      "wantsEvacuation": false,
+      "reportedOk": true
+    },
+    "hazard": {
+      "minutesUntilFlood": 160,
+      "homeFlooded": false,
+      "roadsCutOff": false
+    }
+  },
+  "P017": {
+    "answers": [
+      false,
+      true
+    ],
+    "contactAnswers": true,
+    "situation": "Insulin is in a cooler with ice. Fine, but cannot see how high the water is outside.",
+    "contactKnows": "Sean talked to her an hour ago, she was fine.",
+    "truth": {
+      "needsHelp": false,
+      "injured": false,
+      "distress": false,
+      "equipmentHoursLeft": null,
+      "wantsEvacuation": false,
+      "reportedOk": true
+    },
+    "hazard": {
+      "minutesUntilFlood": 140,
+      "homeFlooded": false,
+      "roadsCutOff": false
+    }
+  },
+  "P018": {
+    "answers": [
+      false,
+      false,
+      false
+    ],
+    "contactAnswers": true,
+    "situation": null,
+    "contactKnows": "Tasha last talked to her father yesterday evening. His phone goes straight to voicemail. He cannot leave the house without help.",
+    "truth": {
+      "needsHelp": false,
+      "injured": false,
+      "distress": false,
+      "equipmentHoursLeft": null,
+      "wantsEvacuation": false,
+      "reportedOk": false
+    },
+    "hazard": {
+      "minutesUntilFlood": 20,
+      "homeFlooded": false,
+      "roadsCutOff": false
+    }
+  },
+  "P019": {
+    "answers": [
+      true
+    ],
+    "contactAnswers": true,
+    "situation": "Physically fine but panicking about the storm, talking fast, has not slept. Wants someone to tell her what to do and would go to a shelter.",
+    "contactKnows": null,
+    "truth": {
+      "needsHelp": false,
+      "injured": false,
+      "distress": true,
+      "equipmentHoursLeft": null,
+      "wantsEvacuation": true,
+      "reportedOk": false
+    },
+    "hazard": {
+      "minutesUntilFlood": 130,
+      "homeFlooded": false,
+      "roadsCutOff": false
+    }
+  },
+  "P020": {
+    "answers": [
+      true
+    ],
+    "contactAnswers": true,
+    "situation": "Has backup oxygen cylinders for about 12 hours. Wife Ingrid is with him. Fine for now.",
+    "contactKnows": null,
+    "truth": {
+      "needsHelp": false,
+      "injured": false,
+      "distress": false,
+      "equipmentHoursLeft": 12,
+      "wantsEvacuation": false,
+      "reportedOk": true
+    },
+    "hazard": {
+      "minutesUntilFlood": null,
+      "homeFlooded": false,
+      "roadsCutOff": false
+    }
+  },
+  "P021": {
+    "answers": [
+      true
+    ],
+    "contactAnswers": true,
+    "situation": "Home alone, mum is at work and the roads are closed. Cheerful but a little scared of the thunder. Water is in the garden.",
+    "contactKnows": null,
+    "truth": {
+      "needsHelp": true,
+      "injured": false,
+      "distress": true,
+      "equipmentHoursLeft": null,
+      "wantsEvacuation": false,
+      "reportedOk": false
+    },
+    "hazard": {
+      "minutesUntilFlood": 80,
+      "homeFlooded": false,
+      "roadsCutOff": false
+    }
+  },
+  "P022": {
+    "answers": [
+      true
+    ],
+    "contactAnswers": true,
+    "situation": "Fine. On high ground with his wife.",
+    "contactKnows": null,
+    "truth": {
+      "needsHelp": false,
+      "injured": false,
+      "distress": false,
+      "equipmentHoursLeft": null,
+      "wantsEvacuation": false,
+      "reportedOk": true
+    },
+    "hazard": {
+      "minutesUntilFlood": null,
+      "homeFlooded": false,
+      "roadsCutOff": false
+    }
+  },
+  "P023": {
+    "answers": [
+      true
+    ],
+    "contactAnswers": true,
+    "situation": "Fine, son is coming to pick her up.",
+    "contactKnows": null,
+    "truth": {
+      "needsHelp": false,
+      "injured": false,
+      "distress": false,
+      "equipmentHoursLeft": null,
+      "wantsEvacuation": false,
+      "reportedOk": true
+    },
+    "hazard": {
+      "minutesUntilFlood": 170,
+      "homeFlooded": false,
+      "roadsCutOff": false
+    }
+  },
+  "P024": {
+    "answers": [
+      true
+    ],
+    "contactAnswers": true,
+    "situation": "Water is coming into the ground floor and his power chair cannot go through it. He is on the couch with his phone, about 10 cm of water on the floor and rising.",
+    "contactKnows": null,
+    "truth": {
+      "needsHelp": true,
+      "injured": false,
+      "distress": true,
+      "equipmentHoursLeft": null,
+      "wantsEvacuation": true,
+      "reportedOk": false
+    },
+    "hazard": {
+      "minutesUntilFlood": null,
+      "homeFlooded": true,
+      "roadsCutOff": false
+    }
+  },
+  "P025": {
+    "answers": [
+      true
+    ],
+    "contactAnswers": true,
+    "situation": "Her son Tom is with her and they are fine. She speaks very slowly.",
+    "contactKnows": null,
+    "truth": {
+      "needsHelp": false,
+      "injured": false,
+      "distress": false,
+      "equipmentHoursLeft": null,
+      "wantsEvacuation": false,
+      "reportedOk": true
+    },
+    "hazard": {
+      "minutesUntilFlood": 150,
+      "homeFlooded": false,
+      "roadsCutOff": false
+    }
+  },
+  "P026": {
+    "answers": [
+      false,
+      false,
+      true
+    ],
+    "contactAnswers": false,
+    "situation": "Disoriented, the storm is bringing back memories. Not sure what to do. Has not eaten.",
+    "contactKnows": null,
+    "truth": {
+      "needsHelp": true,
+      "injured": false,
+      "distress": true,
+      "equipmentHoursLeft": null,
+      "wantsEvacuation": false,
+      "reportedOk": false
+    },
+    "hazard": {
+      "minutesUntilFlood": 95,
+      "homeFlooded": false,
+      "roadsCutOff": false
+    }
+  },
+  "P027": {
+    "answers": [
+      true
+    ],
+    "contactAnswers": true,
+    "situation": "With her roommate, both fine, heading to the Ridge Rd shelter now.",
+    "contactKnows": null,
+    "truth": {
+      "needsHelp": false,
+      "injured": false,
+      "distress": false,
+      "equipmentHoursLeft": null,
+      "wantsEvacuation": false,
+      "reportedOk": true
+    },
+    "hazard": {
+      "minutesUntilFlood": 120,
+      "homeFlooded": false,
+      "roadsCutOff": false
+    }
+  },
+  "P028": {
+    "answers": [
+      true
+    ],
+    "contactAnswers": true,
+    "situation": "His dialysis machine cannot run without power and he needs tonight's session. Polite, understates the problem.",
+    "contactKnows": null,
+    "truth": {
+      "needsHelp": true,
+      "injured": false,
+      "distress": false,
+      "equipmentHoursLeft": 2,
+      "wantsEvacuation": true,
+      "reportedOk": false
+    },
+    "hazard": {
+      "minutesUntilFlood": 100,
+      "homeFlooded": false,
+      "roadsCutOff": false
+    }
+  },
+  "P029": {
+    "answers": [
+      false,
+      false,
+      false
+    ],
+    "contactAnswers": true,
+    "situation": null,
+    "contactKnows": null,
+    "truth": {
+      "needsHelp": false,
+      "injured": false,
+      "distress": false,
+      "equipmentHoursLeft": null,
+      "wantsEvacuation": false,
+      "reportedOk": false
+    },
+    "hazard": {
+      "minutesUntilFlood": null,
+      "homeFlooded": false,
+      "roadsCutOff": false
+    }
+  },
+  "P030": {
+    "answers": [
+      true
+    ],
+    "contactAnswers": true,
+    "situation": "Power is out. BiPAP battery has about 3 hours and he needs it to sleep. Wife Maria is with him, both elderly.",
+    "contactKnows": null,
+    "truth": {
+      "needsHelp": true,
+      "injured": false,
+      "distress": false,
+      "equipmentHoursLeft": 3,
+      "wantsEvacuation": true,
+      "reportedOk": false
+    },
+    "hazard": {
+      "minutesUntilFlood": 85,
+      "homeFlooded": false,
+      "roadsCutOff": false
+    }
+  }
+}

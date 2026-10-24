@@ -1,0 +1,460 @@
+[
+  {
+    "id": "P001",
+    "name": "Margaret Thompson",
+    "age": 78,
+    "gender": "Female",
+    "phone": "+17135550101",
+    "address": "142 Bayou Ln, Cypress Bend",
+    "medicalHistory": [
+      "COPD",
+      "Home oxygen concentrator",
+      "Hard of hearing",
+      "Uses walker"
+    ],
+    "emergencyContactName": "Sarah Thompson (daughter)",
+    "emergencyContactNumber": "+17135550131",
+    "livesAlone": true
+  },
+  {
+    "id": "P002",
+    "name": "James Robinson",
+    "age": 58,
+    "gender": "Male",
+    "phone": "+17135550102",
+    "address": "18 Heron St, Cypress Bend",
+    "medicalHistory": [
+      "C4 quadriplegia",
+      "Ventilator dependent",
+      "Requires suction every 2 hours"
+    ],
+    "emergencyContactName": "Carol Robinson (wife)",
+    "emergencyContactNumber": "+17135550132",
+    "livesAlone": false
+  },
+  {
+    "id": "P003",
+    "name": "Aisha Mensah",
+    "age": 31,
+    "gender": "Female",
+    "phone": "+17135550103",
+    "address": "77 Magnolia Ave, Cypress Bend",
+    "medicalHistory": [
+      "Autism spectrum",
+      "Non-verbal (uses AAC device)",
+      "Sensory sensitivity to noise and crowds"
+    ],
+    "emergencyContactName": "Grace Mensah (mother)",
+    "emergencyContactNumber": "+17135550133",
+    "livesAlone": false
+  },
+  {
+    "id": "P004",
+    "name": "Robert Chen",
+    "age": 84,
+    "gender": "Male",
+    "phone": "+17135550104",
+    "address": "9 Levee Rd, Cypress Bend",
+    "medicalHistory": [
+      "Alzheimer's disease (moderate)",
+      "Type 2 diabetes"
+    ],
+    "emergencyContactName": "Kevin Chen (son)",
+    "emergencyContactNumber": "+17135550134",
+    "livesAlone": true
+  },
+  {
+    "id": "P005",
+    "name": "Dolores Ramirez",
+    "age": 71,
+    "gender": "Female",
+    "phone": "+17135550105",
+    "address": "230 Willow Creek Dr, Cypress Bend",
+    "medicalHistory": [
+      "End-stage kidney disease",
+      "Home dialysis",
+      "Hypertension"
+    ],
+    "emergencyContactName": "Elena Ramirez (daughter)",
+    "emergencyContactNumber": "+17135550135",
+    "livesAlone": false
+  },
+  {
+    "id": "P006",
+    "name": "Thomas Okafor",
+    "age": 45,
+    "gender": "Male",
+    "phone": "+17135550106",
+    "address": "51 Pecan Ct, Cypress Bend",
+    "medicalHistory": [
+      "Deaf (profound hearing loss)",
+      "Type 1 diabetes — insulin"
+    ],
+    "emergencyContactName": "Ngozi Okafor (sister)",
+    "emergencyContactNumber": "+17135550136",
+    "livesAlone": true
+  },
+  {
+    "id": "P007",
+    "name": "Evelyn Brooks",
+    "age": 89,
+    "gender": "Female",
+    "phone": "+17135550107",
+    "address": "3 Oak Hollow Way, Cypress Bend",
+    "medicalHistory": [
+      "Heart failure",
+      "Pacemaker",
+      "Uses wheelchair"
+    ],
+    "emergencyContactName": "Diane Brooks (niece)",
+    "emergencyContactNumber": "+17135550137",
+    "livesAlone": true
+  },
+  {
+    "id": "P008",
+    "name": "Marcus Williams",
+    "age": 34,
+    "gender": "Male",
+    "phone": "+17135550108",
+    "address": "88 Mill St, Cypress Bend",
+    "medicalHistory": [
+      "T6 paraplegia — wheelchair user"
+    ],
+    "emergencyContactName": "Jasmine Williams (partner)",
+    "emergencyContactNumber": "+17135550138",
+    "livesAlone": true
+  },
+  {
+    "id": "P009",
+    "name": "Linda Park",
+    "age": 67,
+    "gender": "Female",
+    "phone": "+17135550109",
+    "address": "120 Heron St, Cypress Bend",
+    "medicalHistory": [
+      "Blind (retinitis pigmentosa)",
+      "Has a guide dog"
+    ],
+    "emergencyContactName": "Daniel Park (son)",
+    "emergencyContactNumber": "+17135550139",
+    "livesAlone": true
+  },
+  {
+    "id": "P010",
+    "name": "George Novak",
+    "age": 92,
+    "gender": "Male",
+    "phone": "+17135550110",
+    "address": "15 Bayou Ln, Cypress Bend",
+    "medicalHistory": [
+      "Parkinson's disease",
+      "Uses walker",
+      "Hard of hearing"
+    ],
+    "emergencyContactName": "Peter Novak (son)",
+    "emergencyContactNumber": "+17135550140",
+    "livesAlone": false
+  },
+  {
+    "id": "P011",
+    "name": "Priya Shah",
+    "age": 29,
+    "gender": "Female",
+    "phone": "+17135550111",
+    "address": "64 Magnolia Ave, Cypress Bend",
+    "medicalHistory": [
+      "Pregnant (36 weeks)",
+      "Gestational diabetes"
+    ],
+    "emergencyContactName": "Raj Shah (husband)",
+    "emergencyContactNumber": "+17135550141",
+    "livesAlone": false
+  },
+  {
+    "id": "P012",
+    "name": "Harold Jenkins",
+    "age": 76,
+    "gender": "Male",
+    "phone": "+17135550112",
+    "address": "201 Ridge Rd, Cypress Bend",
+    "medicalHistory": [
+      "COPD",
+      "CPAP for sleep apnea"
+    ],
+    "emergencyContactName": "Mary Jenkins (daughter)",
+    "emergencyContactNumber": "+17135550142",
+    "livesAlone": true
+  },
+  {
+    "id": "P013",
+    "name": "Rosa Delgado",
+    "age": 81,
+    "gender": "Female",
+    "phone": "+17135550113",
+    "address": "42 Levee Rd, Cypress Bend",
+    "medicalHistory": [
+      "Dementia (early stage)",
+      "Hip replacement"
+    ],
+    "emergencyContactName": "Carmen Delgado (daughter)",
+    "emergencyContactNumber": "+17135550143",
+    "livesAlone": true
+  },
+  {
+    "id": "P014",
+    "name": "Samuel Adeyemi",
+    "age": 63,
+    "gender": "Male",
+    "phone": "+17135550114",
+    "address": "19 Willow Creek Dr, Cypress Bend",
+    "medicalHistory": [
+      "Stroke with aphasia",
+      "Right-side weakness, uses cane"
+    ],
+    "emergencyContactName": "Funmi Adeyemi (wife)",
+    "emergencyContactNumber": "+17135550144",
+    "livesAlone": false
+  },
+  {
+    "id": "P015",
+    "name": "Betty Lou Harper",
+    "age": 87,
+    "gender": "Female",
+    "phone": "+17135550115",
+    "address": "6 Oak Hollow Way, Cypress Bend",
+    "medicalHistory": [
+      "Bed-bound after stroke",
+      "Feeding tube (PEG) with pump",
+      "Requires home health aide"
+    ],
+    "emergencyContactName": "Ray Harper (son)",
+    "emergencyContactNumber": "+17135550145",
+    "livesAlone": false
+  },
+  {
+    "id": "P016",
+    "name": "Daniel Kim",
+    "age": 52,
+    "gender": "Male",
+    "phone": "+17135550116",
+    "address": "33 Pecan Ct, Cypress Bend",
+    "medicalHistory": [
+      "Multiple sclerosis",
+      "Uses wheelchair part-time"
+    ],
+    "emergencyContactName": "Grace Kim (sister)",
+    "emergencyContactNumber": "+17135550146",
+    "livesAlone": true
+  },
+  {
+    "id": "P017",
+    "name": "Mary O'Brien",
+    "age": 73,
+    "gender": "Female",
+    "phone": "+17135550117",
+    "address": "99 Mill St, Cypress Bend",
+    "medicalHistory": [
+      "Type 1 diabetes — insulin",
+      "Low vision (macular degeneration)"
+    ],
+    "emergencyContactName": "Sean O'Brien (son)",
+    "emergencyContactNumber": "+17135550147",
+    "livesAlone": true
+  },
+  {
+    "id": "P018",
+    "name": "Jerome Washington",
+    "age": 69,
+    "gender": "Male",
+    "phone": "+17135550118",
+    "address": "27 Bayou Ln, Cypress Bend",
+    "medicalHistory": [
+      "Leg amputee (left)",
+      "Uses wheelchair",
+      "Heart failure"
+    ],
+    "emergencyContactName": "Tasha Washington (daughter)",
+    "emergencyContactNumber": "+17135550148",
+    "livesAlone": true
+  },
+  {
+    "id": "P019",
+    "name": "Nancy Fields",
+    "age": 58,
+    "gender": "Female",
+    "phone": "+17135550119",
+    "address": "71 Heron St, Cypress Bend",
+    "medicalHistory": [
+      "Bipolar disorder",
+      "Severe anxiety"
+    ],
+    "emergencyContactName": "Paul Fields (brother)",
+    "emergencyContactNumber": "+17135550149",
+    "livesAlone": true
+  },
+  {
+    "id": "P020",
+    "name": "Walter Schmidt",
+    "age": 80,
+    "gender": "Male",
+    "phone": "+17135550120",
+    "address": "150 Willow Creek Dr, Cypress Bend",
+    "medicalHistory": [
+      "Home oxygen at night",
+      "Wears hearing aid"
+    ],
+    "emergencyContactName": "Karen Schmidt (daughter)",
+    "emergencyContactNumber": "+17135550150",
+    "livesAlone": false
+  },
+  {
+    "id": "P021",
+    "name": "Layla Hassan",
+    "age": 19,
+    "gender": "Female",
+    "phone": "+17135550121",
+    "address": "11 Magnolia Ave, Cypress Bend",
+    "medicalHistory": [
+      "Down syndrome",
+      "Congenital heart condition"
+    ],
+    "emergencyContactName": "Fatima Hassan (mother)",
+    "emergencyContactNumber": "+17135550151",
+    "livesAlone": false
+  },
+  {
+    "id": "P022",
+    "name": "Kenneth Moore",
+    "age": 66,
+    "gender": "Male",
+    "phone": "+17135550122",
+    "address": "210 Ridge Rd, Cypress Bend",
+    "medicalHistory": [
+      "Recent hip replacement",
+      "Uses walker"
+    ],
+    "emergencyContactName": "Sharon Moore (wife)",
+    "emergencyContactNumber": "+17135550152",
+    "livesAlone": false
+  },
+  {
+    "id": "P023",
+    "name": "Patricia Young",
+    "age": 74,
+    "gender": "Female",
+    "phone": "+17135550123",
+    "address": "58 Mill St, Cypress Bend",
+    "medicalHistory": [
+      "Hypertension",
+      "Arthritis"
+    ],
+    "emergencyContactName": "Mark Young (son)",
+    "emergencyContactNumber": "+17135550153",
+    "livesAlone": true
+  },
+  {
+    "id": "P024",
+    "name": "Luis Hernandez",
+    "age": 38,
+    "gender": "Male",
+    "phone": "+17135550124",
+    "address": "12 Levee Rd, Cypress Bend",
+    "medicalHistory": [
+      "Spinal cord injury — wheelchair user",
+      "Pressure sores"
+    ],
+    "emergencyContactName": "Ana Hernandez (sister)",
+    "emergencyContactNumber": "+17135550154",
+    "livesAlone": true
+  },
+  {
+    "id": "P025",
+    "name": "Agnes Wright",
+    "age": 95,
+    "gender": "Female",
+    "phone": "+17135550125",
+    "address": "4 Magnolia Ave, Cypress Bend",
+    "medicalHistory": [
+      "Frail elderly",
+      "Hard of hearing",
+      "Heart failure"
+    ],
+    "emergencyContactName": "Tom Wright (son)",
+    "emergencyContactNumber": "+17135550155",
+    "livesAlone": false
+  },
+  {
+    "id": "P026",
+    "name": "Brian Foster",
+    "age": 47,
+    "gender": "Male",
+    "phone": "+17135550126",
+    "address": "140 Pecan Ct, Cypress Bend",
+    "medicalHistory": [
+      "PTSD",
+      "Traumatic brain injury"
+    ],
+    "emergencyContactName": "Kelly Foster (sister)",
+    "emergencyContactNumber": "+17135550156",
+    "livesAlone": true
+  },
+  {
+    "id": "P027",
+    "name": "Chloe Martin",
+    "age": 26,
+    "gender": "Female",
+    "phone": "+17135550127",
+    "address": "85 Willow Creek Dr, Cypress Bend",
+    "medicalHistory": [
+      "Deaf",
+      "Uses ASL"
+    ],
+    "emergencyContactName": "Emma Martin (mother)",
+    "emergencyContactNumber": "+17135550157",
+    "livesAlone": false
+  },
+  {
+    "id": "P028",
+    "name": "Henry Liu",
+    "age": 79,
+    "gender": "Male",
+    "phone": "+17135550128",
+    "address": "23 Oak Hollow Way, Cypress Bend",
+    "medicalHistory": [
+      "Home dialysis (peritoneal)",
+      "Type 2 diabetes"
+    ],
+    "emergencyContactName": "Amy Liu (daughter)",
+    "emergencyContactNumber": "+17135550158",
+    "livesAlone": true
+  },
+  {
+    "id": "P029",
+    "name": "Joan Patel",
+    "age": 70,
+    "gender": "Female",
+    "phone": "+17135550129",
+    "address": "190 Ridge Rd, Cypress Bend",
+    "medicalHistory": [
+      "Parkinson's disease"
+    ],
+    "emergencyContactName": null,
+    "emergencyContactNumber": null,
+    "livesAlone": true
+  },
+  {
+    "id": "P030",
+    "name": "Frank Russo",
+    "age": 83,
+    "gender": "Male",
+    "phone": "+17135550130",
+    "address": "36 Heron St, Cypress Bend",
+    "medicalHistory": [
+      "BiPAP ventilation at night",
+      "ALS (early stage)"
+    ],
+    "emergencyContactName": "Angela Russo (daughter)",
+    "emergencyContactNumber": "+17135550159",
+    "livesAlone": false
+  }
+]

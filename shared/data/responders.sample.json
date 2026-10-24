@@ -1,0 +1,42 @@
+[
+  {
+    "id": "E-12",
+    "name": "Engine 12",
+    "type": "Fire engine"
+  },
+  {
+    "id": "M-4",
+    "name": "Medic 4",
+    "type": "Ambulance (advanced life support)"
+  },
+  {
+    "id": "M-7",
+    "name": "Medic 7",
+    "type": "Ambulance"
+  },
+  {
+    "id": "HW-2",
+    "name": "High-Water Rescue 2",
+    "type": "High-clearance truck"
+  },
+  {
+    "id": "B-1",
+    "name": "Boat 1",
+    "type": "Rescue boat"
+  },
+  {
+    "id": "PT-3",
+    "name": "Paratransit 3",
+    "type": "Wheelchair-accessible van"
+  },
+  {
+    "id": "P-21",
+    "name": "Patrol 21",
+    "type": "Police"
+  },
+  {
+    "id": "CERT-5",
+    "name": "CERT Team 5",
+    "type": "Volunteer welfare team"
+  }
+]
