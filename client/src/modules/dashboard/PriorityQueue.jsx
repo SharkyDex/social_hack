@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useActiveCalls, useLive } from '../../LiveState.jsx';
 import { STATUS, timeAgo } from '../../format.js';
+import { scoreCase } from '../../../../shared/priority.js';
 
 const FILTERS = [
   ['open', 'Open', (c) => c.status !== 'safe'],
@@ -17,7 +18,7 @@ export default function PriorityQueue({ cases, selectedId, onSelect }) {
   const [filter, setFilter] = useState('open');
   const [q, setQ] = useState('');
   const [, tick] = useState(0);
-  const { responders } = useLive();
+  const { responders, simulation } = useLive();
   const activeCalls = useActiveCalls();
   const onCall = useMemo(() => new Set(activeCalls.map((c) => c.personId)), [activeCalls]);
 
@@ -28,7 +29,41 @@ export default function PriorityQueue({ cases, selectedId, onSelect }) {
 
   const test = FILTERS.find((f) => f[0] === filter)[2];
   const needle = q.trim().toLowerCase();
-  const shown = cases.filter(
+
+  // This is a non-mutating preview: real case records and dispatch actions stay untouched.
+  const simulationStage = simulation.minute >= 60
+    ? { minute: 60, label: 'Collapse + secondary hazards', hazard: { buildingDamage: 'collapsed', intensity: 9, gasLeak: true, fire: false, roadsBlocked: true, powerOut: true } }
+    : simulation.minute >= 45
+      ? { minute: 45, label: 'Gas leak / unsafe building', hazard: { buildingDamage: 'severe', intensity: 8, gasLeak: true, fire: false, roadsBlocked: true, powerOut: true } }
+      : simulation.minute >= 30
+        ? { minute: 30, label: 'Severe damage / access blocked', hazard: { buildingDamage: 'severe', intensity: 8, gasLeak: false, fire: false, roadsBlocked: true, powerOut: true } }
+        : simulation.minute >= 15
+          ? { minute: 15, label: 'Strong shaking / moderate damage', hazard: { buildingDamage: 'moderate', intensity: 7, gasLeak: false, fire: false, roadsBlocked: false, powerOut: false } }
+          : null;
+
+  const displayCases = simulationStage
+    ? cases.map((c) => {
+        const base = scoreCase(c.person, c, Date.now());
+        const previewCase = {
+          ...c,
+          status: c.status === 'safe' ? 'not_contacted' : c.status,
+          hazard: { ...(c.hazard || {}), ...simulationStage.hazard, source: 'accelerated-simulation-preview' },
+          // Hazards are shared across the scenario; person-specific findings remain person-specific.
+          findings: { ...(c.findings || {}) },
+        };
+        const preview = scoreCase(c.person, previewCase, Date.now());
+        return { ...c, simulationPreview: { base, result: preview, stage: simulationStage } };
+      }).sort((a, b) => {
+        const pa = a.simulationPreview.result;
+        const pb = b.simulationPreview.result;
+        const order = { CRITICAL: 0, HIGH: 1, STANDARD: 2, RESOLVED: 3 };
+        return (order[pa.level] ?? 2) - (order[pb.level] ?? 2)
+          || Number(pb.reviewRequired) - Number(pa.reviewRequired)
+          || pb.score - pa.score;
+      })
+    : cases;
+
+  const shown = displayCases.filter(
     (c) =>
       test(c) &&
       (!needle ||
@@ -39,6 +74,12 @@ export default function PriorityQueue({ cases, selectedId, onSelect }) {
 
   return (
     <section className="panel queue" aria-label="Priority queue">
+      {simulation.running || simulation.minute > 0 ? (
+        <div className="queue-sim-banner">
+          <strong>{simulation.running ? '60-minute simulation running' : 'Simulation complete'}</strong>
+          <span>T+{simulation.minute}/60 min · prioritisation preview for all residents · live records unchanged</span>
+        </div>
+      ) : null}
       <div className="queue-head">
         <div className="tabs small">
           {FILTERS.map(([k, label, fn]) => (
@@ -52,16 +93,17 @@ export default function PriorityQueue({ cases, selectedId, onSelect }) {
 
       <ol className="rows">
         {shown.map((c) => {
-          const rank = cases.indexOf(c) + 1;
+          const rank = displayCases.indexOf(c) + 1;
           const st = STATUS[c.status] || { label: c.status, tone: 'muted' };
+          const rowLevel = c.simulationPreview?.result.level || c.priority.level;
           const responder = c.assignedResponderId ? responders[c.assignedResponderId] : null;
           return (
             <li key={c.personId}>
               <button
-                className={`row lvl-${c.priority.level} ${selectedId === c.personId ? 'selected' : ''}`}
+                className={`row lvl-${rowLevel} ${selectedId === c.personId ? 'selected' : ''}`}
                 onClick={() => onSelect(c.personId)}
               >
-                <span className="rank mono">{c.priority.level === 'RESOLVED' ? '✓' : rank}</span>
+                <span className="rank mono">{rowLevel === 'RESOLVED' ? '✓' : rank}</span>
                 <span className="row-main">
                   <span className="row-top">
                     <span className="name">{c.person.name}</span>
@@ -88,11 +130,13 @@ export default function PriorityQueue({ cases, selectedId, onSelect }) {
                       </span>
                     )}
                   </span>
-                  <span className="reason">{c.priority.reviewRequired ? '⚠ Verify uncertain case · ' : ''}{c.card.summary && c.status !== 'not_contacted' ? c.card.summary : c.priority.reason}</span>
+                  <span className="reason">{c.simulationPreview
+                    ? `Simulation T+${c.simulationPreview.stage.minute}: ${c.simulationPreview.stage.label}. ${((c.simulationPreview.result.score - c.simulationPreview.base.score) / 10) > 0.05 ? `Risk +${((c.simulationPreview.result.score - c.simulationPreview.base.score) / 10).toFixed(1)}/10` : ((c.simulationPreview.result.score - c.simulationPreview.base.score) / 10) < -0.05 ? `Risk ${((c.simulationPreview.result.score - c.simulationPreview.base.score) / 10).toFixed(1)}/10` : 'Risk unchanged'} · preview only`
+                    : `${c.priority.reviewRequired ? '⚠ Verify uncertain case · ' : ''}${c.card.summary && c.status !== 'not_contacted' ? c.card.summary : c.priority.reason}`}</span>
                 </span>
                 <span className="row-side">
-                  <span className={`level-badge lvl-${c.priority.level}`}>
-                    {c.priority.level} <b className="mono">{Number(c.priority.score).toFixed(1)}%</b>
+                  <span className={`level-badge lvl-${c.simulationPreview ? c.simulationPreview.result.level : c.priority.level}`}>
+                    {c.simulationPreview ? c.simulationPreview.result.level : c.priority.level} <b className="mono">{(Number(c.simulationPreview ? c.simulationPreview.result.score : c.priority.score) / 10).toFixed(1)}/10</b>
                   </span>
                   <span className={`status-pill tone-${st.tone}`}>{st.label}</span>
                   <span className="meta small muted">

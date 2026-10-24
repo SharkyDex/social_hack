@@ -31,13 +31,14 @@ With no `GROQ_API_KEY` the app runs in **mock mode**: calls follow a script, so 
 
 ## Earthquake triage priority
 
-The queue now uses a transparent, scenario-based Bayesian evidence model in `shared/bayesian-risk.js`, wrapped by `shared/priority.js`. It estimates the probability of serious harm within 15, 30 and 60 minutes, and the displayed priority score is the estimated 30-minute probability as a percentage. This is a hackathon decision-support model, **not a clinically validated or empirically calibrated casualty predictor**.
+The queue now uses a transparent, scenario-based Bayesian evidence model in `shared/bayesian-risk.js`, wrapped by `shared/priority.js`. It estimates the probability of serious harm within 15, 30 and 60 minutes, and the displayed risk score is shown on a 0–10 scale (the underlying model still computes an illustrative probability). This is a hackathon decision-support model, **not a clinically validated or empirically calibrated casualty predictor**.
 
 - `shared/bayesian-risk.js` exposes all baseline priors, likelihood ratios, thresholds and uncertainty assumptions in `BAYESIAN_ASSUMPTIONS`.
 - Evidence is grouped (structural, acute, environmental, vulnerability, contact) to reduce double-counting of correlated signals. Structural damage and acute-call signals use the strongest signal in their group; environmental/vulnerability evidence is capped.
 - Confirmed trapped reports and building-collapse reports trigger deterministic `CRITICAL` overrides. A reported `OK` can never cancel severe hazard evidence.
 - Missing or stale hazard/contact information produces an explicit uncertainty level and may trigger a **VERIFY / HUMAN REVIEW** flag. The displayed upper-bound sensitivity estimate is a scenario stress check, **not a statistical confidence interval**.
-- The dashboard shows 15/30/60-minute estimates, evidence likelihood ratios, uncertainty sources and the assumptions notice.
+- The dashboard shows 15/30/60-minute risk scores on a 0–10 display scale, evidence likelihood ratios, uncertainty sources and the assumptions notice. Evidence uncertainty remains a separate percentage.
+- The Simulation tab includes an accelerated 60-minute scenario: 1 real second advances 1 simulated minute, with scripted evidence updates at minutes 15, 30, 45 and 60. During the run, the dashboard shows a non-mutating prioritisation preview for all residents and reorders the preview queue; underlying live case records and dispatch actions are unchanged.
 - `POST /api/hazards` stamps simulation updates with `observedAt`; old observations can be flagged as stale.
 
 The initial 2% / 4% / 8% horizon priors and all likelihood ratios are illustrative scenario assumptions chosen for transparent demo behavior. They must be reviewed against domain-expert input and validated data before any real-world use. The synthetic scenarios test software behavior and relative ordering, not real-world predictive accuracy.

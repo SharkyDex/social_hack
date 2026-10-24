@@ -5,7 +5,8 @@ import { api } from './api.js';
 
 const LiveContext = createContext(null);
 
-const initial = { loaded: false, connected: false, meta: null, cases: {}, calls: {}, responders: {}, round: null, error: null };
+const initial = { loaded: false, connected: false, meta: null, cases: {}, calls: {}, responders: {}, round: null, error: null,
+  simulation: { running: false, minute: 0 } };
 
 const byKey = (list, key) => Object.fromEntries(list.map((x) => [x[key], x]));
 
@@ -39,6 +40,16 @@ function reducer(state, { type, data }) {
       return { ...state, responders: { ...state.responders, [data.id]: data } };
     case 'round':
       return { ...state, round: data };
+    case 'simulation-start':
+      return { ...state, simulation: { running: true, minute: 0 } };
+    case 'simulation-tick': {
+      const minute = Math.min(60, state.simulation.minute + 1);
+      return { ...state, simulation: { running: minute < 60, minute } };
+    }
+    case 'simulation-stop':
+      return { ...state, simulation: { ...state.simulation, running: false } };
+    case 'simulation-reset':
+      return { ...state, simulation: { running: false, minute: 0 } };
     default:
       return state;
   }
@@ -46,6 +57,12 @@ function reducer(state, { type, data }) {
 
 export function LiveStateProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initial);
+
+  useEffect(() => {
+    if (!state.simulation.running) return undefined;
+    const timer = setInterval(() => dispatch({ type: 'simulation-tick' }), 1000);
+    return () => clearInterval(timer);
+  }, [state.simulation.running]);
 
   useEffect(() => {
     let es;
@@ -74,7 +91,13 @@ export function LiveStateProvider({ children }) {
     };
   }, []);
 
-  return <LiveContext.Provider value={state}>{children}</LiveContext.Provider>;
+  const value = useMemo(() => ({
+    ...state,
+    startSimulation: () => dispatch({ type: 'simulation-start' }),
+    stopSimulation: () => dispatch({ type: 'simulation-stop' }),
+    resetSimulation: () => dispatch({ type: 'simulation-reset' }),
+  }), [state]);
+  return <LiveContext.Provider value={value}>{children}</LiveContext.Provider>;
 }
 
 export function useLive() {

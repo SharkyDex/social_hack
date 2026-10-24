@@ -371,6 +371,25 @@ input:focus, select:focus { outline: 2px solid color-mix(in srgb, var(--info) 60
 .k-contact .f-bar span { background: var(--violet); }
 .model-notice { border-top: 1px dashed var(--line-2); padding-top: 8px; margin-top: 8px; }
 
+
+.accelerated-sim { display: grid; gap: 12px; padding: 13px; border: 1px solid var(--line-2); border-radius: 9px; background: var(--panel-2); }
+.accelerated-sim-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; }
+.accelerated-sim-head .section-title { margin-bottom: 4px; }
+.accelerated-sim-actions { display: flex; flex-wrap: wrap; gap: 7px; }
+.accelerated-sim-actions .btn:disabled { opacity: .7; cursor: progress; }
+.sim-progress-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.sim-progress-track { height: 8px; background: var(--line-2); border-radius: 999px; overflow: hidden; }
+.sim-progress-fill { height: 100%; background: var(--info); border-radius: inherit; transition: width .2s linear; }
+.sim-timeline { display: grid; gap: 0; }
+.sim-timeline-item { display: grid; grid-template-columns: 82px minmax(0, 1fr); gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+.sim-timeline-time { color: var(--info); font-family: var(--mono); font-size: 12px; font-weight: 700; }
+.sim-timeline-content { display: grid; gap: 4px; }
+.sim-timeline-content > strong { font-size: 13px; }
+.sim-timeline-content p { margin: 0; }
+.sim-timeline-score { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+.sim-complete { margin: 0; color: var(--ok); font-size: 12px; font-weight: 600; }
+@media (max-width: 620px) { .accelerated-sim-head { flex-direction: column; } .sim-timeline-item { grid-template-columns: 70px minmax(0, 1fr); gap: 8px; } }
+
 /* ── Earthquake scenario comparison lab ────────── */
 .simulation-page { display: grid; gap: 14px; align-content: start; }
 .simulation-handoff { padding: 14px 16px; display: grid; gap: 6px; }
@@ -436,3 +455,18 @@ input:focus, select:focus { outline: 2px solid color-mix(in srgb, var(--info) 60
   .scenario-main-number { font-size: 29px; }
   .scenario-evidence-head { align-items: flex-start; flex-direction: column; }
 }
+
+/* Live, non-mutating simulation overlay in the dispatcher priority queue. */
+.queue-sim-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+  padding: 10px 13px;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--info) 9%, transparent);
+  font-size: 12px;
+}
+.queue-sim-banner strong { color: var(--info); }
+.queue-sim-banner span { color: var(--muted); }

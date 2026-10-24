@@ -37,7 +37,7 @@ export default function CaseDetail({ c }) {
         </div>
         <div className="detail-head-side">
           <span className={`level-badge big lvl-${c.priority.level}`}>
-            {c.priority.level} <b className="mono">{Number(c.priority.score).toFixed(1)}%</b>
+            {c.priority.level} <b className="mono">{(Number(c.priority.score) / 10).toFixed(1)}/10</b>
           </span>
           <span className={`status-pill tone-${st.tone}`}>{st.label}</span>
         </div>
@@ -222,13 +222,13 @@ function PriorityBreakdown({ priority, hazard }) {
   const uncertainty = priority.uncertainty || {};
   return (
     <section className="sub">
-      <h3 className="section-title">Bayesian risk assessment</h3>
-      <p className="muted small">Scenario-based P(serious harm), updated from available evidence</p>
+      <h3 className="section-title">Risk assessment</h3>
+      <p className="muted small">Scenario-based risk score, updated from available evidence (0–10 scale)</p>
       <div className="risk-horizons">
         {[15, 30, 60].map((minutes) => (
           <div className={`risk-horizon ${minutes === 30 ? 'active' : ''}`} key={minutes}>
             <span className="muted small">{minutes} min</span>
-            <b className="mono">{Number.isFinite(horizon[minutes]) ? `${(horizon[minutes] * 100).toFixed(1)}%` : '—'}</b>
+            <b className="mono">{Number.isFinite(horizon[minutes]) ? `${(horizon[minutes] * 10).toFixed(1)}/10` : '—'}</b>
           </div>
         ))}
       </div>
@@ -243,7 +243,7 @@ function PriorityBreakdown({ priority, hazard }) {
         <span className="mono">{Number.isFinite(uncertainty.score) ? `${Math.round(uncertainty.score * 100)}%` : '—'}</span>
       </div>
       {Number.isFinite(uncertainty.scenarioUpperBound30) && (
-        <p className="muted small">Sensitivity check: 30-min risk could be about {(uncertainty.scenarioUpperBound30 * 100).toFixed(1)}% under a conservative uncertainty scenario. This is not a confidence interval.</p>
+        <p className="muted small">Sensitivity check: 30-min risk score could be about {(uncertainty.scenarioUpperBound30 * 10).toFixed(1)}/10 under a conservative uncertainty scenario. This is not a confidence interval.</p>
       )}
       <h4 className="section-title risk-subtitle">Evidence used</h4>
       <ul className="factors">
@@ -257,7 +257,7 @@ function PriorityBreakdown({ priority, hazard }) {
         {priority.factors.length === 0 && <li className="muted small">No positive evidence signals recorded; uncertainty may still require verification.</li>}
       </ul>
       <p className="muted small total">
-        30-min risk <b className="mono">{Number(priority.score).toFixed(1)}%</b> · HIGH ≥ 15% · CRITICAL ≥ 35%; direct life-threat overrides apply.
+        30-min risk score <b className="mono">{(Number(priority.score) / 10).toFixed(1)}/10</b> · HIGH ≥ 1.5/10 · CRITICAL ≥ 3.5/10; direct life-threat overrides apply.
       </p>
       <p className="muted small">
         Model: {priority.model || '—'} · Combined evidence LR ×{priority.likelihoodRatio ?? '—'}
