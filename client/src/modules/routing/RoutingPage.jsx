@@ -5,7 +5,7 @@ export default function RoutingPage() {
   return (
     <main className="page placeholder-page">
       <h1>Responder routing</h1>
-      <p className="muted">Owned by the routing teammate. Finds open roads for a responder to reach a person, then a shelter or hospital.</p>
+      <p className="muted">Owned by the routing teammate. Finds roads still open after the earthquake (avoiding debris, collapsed buildings and closed bridges) for a responder to reach a person, then a shelter or hospital.</p>
       <section className="panel">
         <h3 className="section-title">Likely hand-off with the dashboard (decide at integration)</h3>
         <p>

@@ -5,6 +5,11 @@
     "type": "Fire engine"
   },
   {
+    "id": "USAR-1",
+    "name": "Rescue 1",
+    "type": "Urban search & rescue team"
+  },
+  {
     "id": "M-4",
     "name": "Medic 4",
     "type": "Ambulance (advanced life support)"
@@ -15,14 +20,9 @@
     "type": "Ambulance"
   },
   {
-    "id": "HW-2",
-    "name": "High-Water Rescue 2",
-    "type": "High-clearance truck"
-  },
-  {
-    "id": "B-1",
-    "name": "Boat 1",
-    "type": "Rescue boat"
+    "id": "GAS-2",
+    "name": "Utility 2",
+    "type": "Gas & electric crew"
   },
   {
     "id": "PT-3",

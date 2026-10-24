@@ -4,20 +4,28 @@
       true
     ],
     "contactAnswers": true,
-    "situation": "Power has been out since 2pm. Portable oxygen battery has about 4 hours left. Water is covering the street. Anxious. Has a small dog named Buddy and will not leave without him.",
+    "situation": "The power went out with the earthquake. Her portable oxygen battery has about 4 hours left. A bookcase fell across the hallway and she can't get past it with her walker. Anxious. Has a small dog named Buddy and won't leave without him.",
+    "says": "The power went out with the quake. My oxygen battery has maybe four hours. A bookcase fell in the hallway and I can't get past it with my walker. I'm scared, and I won't leave Buddy.",
     "contactKnows": null,
     "truth": {
       "needsHelp": true,
+      "trapped": false,
       "injured": false,
       "distress": true,
+      "gasOrFire": false,
+      "buildingUnsafe": false,
+      "powerOut": true,
       "equipmentHoursLeft": 4,
       "wantsEvacuation": true,
       "reportedOk": false
     },
     "hazard": {
-      "minutesUntilFlood": 45,
-      "homeFlooded": false,
-      "roadsCutOff": false
+      "buildingDamage": "moderate",
+      "intensity": 7,
+      "gasLeak": false,
+      "fire": false,
+      "roadsBlocked": false,
+      "powerOut": true
     }
   },
   "P002": {
@@ -25,20 +33,28 @@
       true
     ],
     "contactAnswers": true,
-    "situation": "Caregiver could not get through flooded roads. Ventilator running on battery, about 6 hours left. Calm, direct, medically precise.",
+    "situation": "His caregiver can't get through — the road is blocked by a fallen building front. The power is out and the ventilator is on battery, about 6 hours left. The house itself is fine. Calm, direct, medically precise.",
+    "says": "My caregiver can't get through, the road's blocked. Power's out, the ventilator is on battery, roughly six hours left. The house itself is fine.",
     "contactKnows": null,
     "truth": {
       "needsHelp": true,
+      "trapped": false,
       "injured": false,
       "distress": false,
+      "gasOrFire": false,
+      "buildingUnsafe": false,
+      "powerOut": true,
       "equipmentHoursLeft": 6,
       "wantsEvacuation": true,
       "reportedOk": false
     },
     "hazard": {
-      "minutesUntilFlood": 90,
-      "homeFlooded": false,
-      "roadsCutOff": true
+      "buildingDamage": "minor",
+      "intensity": 7,
+      "gasLeak": false,
+      "fire": false,
+      "roadsBlocked": true,
+      "powerOut": true
     }
   },
   "P003": {
@@ -46,20 +62,28 @@
       true
     ],
     "contactAnswers": true,
-    "situation": "Her mother Grace replies from Aisha's phone. Power is out, Aisha is overwhelmed by the storm noise. They need a quiet, autism-friendly shelter, not a crowded one.",
+    "situation": "Her mother Grace replies from Aisha's phone. There are new cracks in the walls and every aftershock sets off car alarms; Aisha is overwhelmed. They need a quiet, low-stimulation shelter, not a crowded gym.",
+    "says": "This is Grace, Aisha's mother. There are new cracks in the walls and every aftershock sets off the alarms. Aisha is overwhelmed. We need somewhere quiet, not a crowded gym.",
     "contactKnows": null,
     "truth": {
       "needsHelp": true,
+      "trapped": false,
       "injured": false,
       "distress": true,
+      "gasOrFire": false,
+      "buildingUnsafe": true,
+      "powerOut": null,
       "equipmentHoursLeft": null,
       "wantsEvacuation": true,
       "reportedOk": false
     },
     "hazard": {
-      "minutesUntilFlood": 150,
-      "homeFlooded": false,
-      "roadsCutOff": false
+      "buildingDamage": "moderate",
+      "intensity": 7,
+      "gasLeak": false,
+      "fire": false,
+      "roadsBlocked": false,
+      "powerOut": false
     }
   },
   "P004": {
@@ -70,19 +94,27 @@
     ],
     "contactAnswers": true,
     "situation": null,
-    "contactKnows": "Kevin has not reached his father since 8am. Robert often does not answer the phone and may not understand evacuation warnings. Kevin is two hours away and cannot get there.",
+    "says": null,
+    "contactKnows": "Kevin hasn't reached his father since the earthquake. Robert lives alone in an old brick house and often doesn't answer or understand the phone. Kevin is two hours away and the highway is closed.",
     "truth": {
       "needsHelp": false,
+      "trapped": false,
       "injured": false,
       "distress": false,
+      "gasOrFire": false,
+      "buildingUnsafe": false,
+      "powerOut": null,
       "equipmentHoursLeft": null,
       "wantsEvacuation": false,
       "reportedOk": false
     },
     "hazard": {
-      "minutesUntilFlood": 30,
-      "homeFlooded": false,
-      "roadsCutOff": false
+      "buildingDamage": "severe",
+      "intensity": 8,
+      "gasLeak": false,
+      "fire": false,
+      "roadsBlocked": false,
+      "powerOut": false
     }
   },
   "P005": {
@@ -91,20 +123,28 @@
       true
     ],
     "contactAnswers": true,
-    "situation": "Missed today's dialysis because the power is out. Feels weak and swollen. Husband is with her but cannot drive in the flooding.",
+    "situation": "The power is out so her dialysis machine won't run, and she has missed today's session. Feels weak and swollen. Her husband is with her but the garage door collapsed on their car.",
+    "says": "The power is out so my dialysis machine won't run. I missed today's session and I feel weak. My husband is here but the garage door fell on our car.",
     "contactKnows": "Elena spoke to her mother last night; she was worried about missing dialysis.",
     "truth": {
       "needsHelp": true,
+      "trapped": false,
       "injured": false,
       "distress": false,
+      "gasOrFire": false,
+      "buildingUnsafe": false,
+      "powerOut": true,
       "equipmentHoursLeft": null,
       "wantsEvacuation": true,
       "reportedOk": false
     },
     "hazard": {
-      "minutesUntilFlood": null,
-      "homeFlooded": false,
-      "roadsCutOff": false
+      "buildingDamage": "minor",
+      "intensity": null,
+      "gasLeak": false,
+      "fire": false,
+      "roadsBlocked": false,
+      "powerOut": true
     }
   },
   "P006": {
@@ -112,20 +152,28 @@
       true
     ],
     "contactAnswers": true,
-    "situation": "Fridge is off, insulin getting warm, about a day of supply. Water rising in the yard. Otherwise OK.",
+    "situation": "He can't hear alarms, but he can see smoke down the street. The power is out and his insulin is getting warm, about a day's supply. House looks OK.",
+    "says": "I'm OK but I can see smoke down the street. Power is out and my insulin is getting warm. I have about a day of it.",
     "contactKnows": null,
     "truth": {
       "needsHelp": true,
+      "trapped": false,
       "injured": false,
       "distress": false,
+      "gasOrFire": true,
+      "buildingUnsafe": false,
+      "powerOut": true,
       "equipmentHoursLeft": null,
       "wantsEvacuation": false,
       "reportedOk": false
     },
     "hazard": {
-      "minutesUntilFlood": 60,
-      "homeFlooded": false,
-      "roadsCutOff": false
+      "buildingDamage": "minor",
+      "intensity": null,
+      "gasLeak": false,
+      "fire": true,
+      "roadsBlocked": false,
+      "powerOut": true
     }
   },
   "P007": {
@@ -133,20 +181,28 @@
       true
     ],
     "contactAnswers": true,
-    "situation": "Slipped while moving from bed to wheelchair this morning. Ankle swollen, cannot transfer on her own. Short of breath when upset.",
+    "situation": "She fell out of her wheelchair when the shaking started. Her ankle is swollen and she can't get back into the chair. Short of breath when upset. Dishes and pictures smashed everywhere.",
+    "says": "I fell out of my chair when it started shaking. My ankle is swollen and I can't get back in the chair. Everything is broken on the floor.",
     "contactKnows": null,
     "truth": {
       "needsHelp": true,
+      "trapped": false,
       "injured": true,
       "distress": true,
+      "gasOrFire": false,
+      "buildingUnsafe": false,
+      "powerOut": null,
       "equipmentHoursLeft": null,
       "wantsEvacuation": true,
       "reportedOk": false
     },
     "hazard": {
-      "minutesUntilFlood": 120,
-      "homeFlooded": false,
-      "roadsCutOff": false
+      "buildingDamage": "moderate",
+      "intensity": 7,
+      "gasLeak": false,
+      "fire": false,
+      "roadsBlocked": false,
+      "powerOut": false
     }
   },
   "P008": {
@@ -154,20 +210,28 @@
       true
     ],
     "contactAnswers": true,
-    "situation": "Fine. Has his own accessible van and is driving to a friend's house on Ridge Rd within the hour.",
+    "situation": "He's fine and has supplies. The elevator is out so he's staying in his 7th-floor apartment; the building manager says the structure is OK.",
+    "says": "I'm fine. The elevator is out so I'm staying up here on the seventh floor. The manager says the building is OK and I have supplies.",
     "contactKnows": null,
     "truth": {
       "needsHelp": false,
+      "trapped": false,
       "injured": false,
       "distress": false,
+      "gasOrFire": false,
+      "buildingUnsafe": false,
+      "powerOut": null,
       "equipmentHoursLeft": null,
       "wantsEvacuation": false,
       "reportedOk": true
     },
     "hazard": {
-      "minutesUntilFlood": 180,
-      "homeFlooded": false,
-      "roadsCutOff": false
+      "buildingDamage": "minor",
+      "intensity": 6,
+      "gasLeak": false,
+      "fire": false,
+      "roadsBlocked": false,
+      "powerOut": false
     }
   },
   "P009": {
@@ -175,20 +239,28 @@
       true
     ],
     "contactAnswers": true,
-    "situation": "Safe for now but cannot read the evacuation notices or see the water level. Wants to evacuate with her guide dog and needs someone to guide her.",
+    "situation": "Windows broke and there is glass all over the floor; she can't tell where it is and her guide dog is frightened. Not hurt yet. Wants someone to guide her out with the dog.",
+    "says": "The windows broke and there's glass on the floor but I can't see where. My guide dog is frightened. I'm not hurt, but I need someone to walk us out.",
     "contactKnows": null,
     "truth": {
       "needsHelp": true,
+      "trapped": false,
       "injured": false,
       "distress": false,
+      "gasOrFire": false,
+      "buildingUnsafe": false,
+      "powerOut": null,
       "equipmentHoursLeft": null,
       "wantsEvacuation": true,
       "reportedOk": false
     },
     "hazard": {
-      "minutesUntilFlood": 75,
-      "homeFlooded": false,
-      "roadsCutOff": false
+      "buildingDamage": "moderate",
+      "intensity": 7,
+      "gasLeak": false,
+      "fire": false,
+      "roadsBlocked": false,
+      "powerOut": false
     }
   },
   "P010": {
@@ -198,20 +270,28 @@
       true
     ],
     "contactAnswers": false,
-    "situation": "Water is coming in on the ground floor. He and his wife Helen (88) are trying to get upstairs but he cannot manage the stairs quickly.",
+    "situation": "Part of the living room ceiling came down. His wife Helen (88) is pinned under a fallen dresser in the bedroom and he isn't strong enough to move it. He's shaking and frightened.",
+    "says": "Part of the ceiling came down. My wife Helen is stuck under the dresser in the bedroom and I can't lift it. Please, I'm shaking.",
     "contactKnows": null,
     "truth": {
       "needsHelp": true,
-      "injured": false,
+      "trapped": true,
+      "injured": true,
       "distress": true,
+      "gasOrFire": false,
+      "buildingUnsafe": true,
+      "powerOut": null,
       "equipmentHoursLeft": null,
-      "wantsEvacuation": true,
+      "wantsEvacuation": false,
       "reportedOk": false
     },
     "hazard": {
-      "minutesUntilFlood": null,
-      "homeFlooded": true,
-      "roadsCutOff": false
+      "buildingDamage": "severe",
+      "intensity": 8,
+      "gasLeak": false,
+      "fire": false,
+      "roadsBlocked": false,
+      "powerOut": false
     }
   },
   "P011": {
@@ -219,20 +299,28 @@
       true
     ],
     "contactAnswers": true,
-    "situation": "Alone at home — husband stuck across town at work. Some tightening in her belly, probably practice contractions, but scared. Wants to get to higher ground near the hospital.",
+    "situation": "Alone — her husband is stuck across town because the bridge is closed. Some tightening in her belly, probably practice contractions, but she's scared. Wants to get to the hospital.",
+    "says": "I'm on my own, my husband can't get back because the bridge is closed. I'm 36 weeks and I keep getting tightening. I'm scared. I want to get to the hospital.",
     "contactKnows": null,
     "truth": {
       "needsHelp": false,
+      "trapped": false,
       "injured": false,
       "distress": true,
+      "gasOrFire": false,
+      "buildingUnsafe": false,
+      "powerOut": null,
       "equipmentHoursLeft": null,
       "wantsEvacuation": true,
       "reportedOk": false
     },
     "hazard": {
-      "minutesUntilFlood": 100,
-      "homeFlooded": false,
-      "roadsCutOff": false
+      "buildingDamage": "minor",
+      "intensity": null,
+      "gasLeak": false,
+      "fire": false,
+      "roadsBlocked": true,
+      "powerOut": false
     }
   },
   "P012": {
@@ -240,20 +328,28 @@
       true
     ],
     "contactAnswers": true,
-    "situation": "Power is out but he has a generator running and plenty of supplies. On high ground. Gruff but fine.",
+    "situation": "House came through fine. Power is out but he has a generator running and plenty of supplies. Gruff but fine.",
+    "says": "House is fine. Power's out but the generator is running and I've got plenty. Don't worry about me.",
     "contactKnows": null,
     "truth": {
       "needsHelp": false,
+      "trapped": false,
       "injured": false,
       "distress": false,
+      "gasOrFire": false,
+      "buildingUnsafe": false,
+      "powerOut": true,
       "equipmentHoursLeft": null,
       "wantsEvacuation": false,
       "reportedOk": true
     },
     "hazard": {
-      "minutesUntilFlood": null,
-      "homeFlooded": false,
-      "roadsCutOff": false
+      "buildingDamage": "none",
+      "intensity": null,
+      "gasLeak": false,
+      "fire": false,
+      "roadsBlocked": false,
+      "powerOut": true
     }
   },
   "P013": {
@@ -261,20 +357,28 @@
       true
     ],
     "contactAnswers": true,
-    "situation": "Confused about who is calling, worried it is a scam. Does not realise the street is flooding. Keeps asking for her daughter Carmen.",
+    "situation": "Confused about who is calling, worried it's a scam. Mentions a funny smell in the kitchen \"like when the stove is on\" but doesn't know why. Keeps asking for her daughter Carmen.",
+    "says": "Who is this? Is this a scam? There's a funny smell in the kitchen, like when the stove is on. Where is Carmen? Can you get Carmen?",
     "contactKnows": null,
     "truth": {
       "needsHelp": true,
+      "trapped": false,
       "injured": false,
       "distress": true,
+      "gasOrFire": true,
+      "buildingUnsafe": false,
+      "powerOut": null,
       "equipmentHoursLeft": null,
       "wantsEvacuation": false,
       "reportedOk": false
     },
     "hazard": {
-      "minutesUntilFlood": 40,
-      "homeFlooded": false,
-      "roadsCutOff": false
+      "buildingDamage": "moderate",
+      "intensity": null,
+      "gasLeak": true,
+      "fire": false,
+      "roadsBlocked": false,
+      "powerOut": false
     }
   },
   "P014": {
@@ -285,19 +389,27 @@
     ],
     "contactAnswers": true,
     "situation": null,
-    "contactKnows": "Funmi is working a hospital shift and cannot reach him. He struggles to use the phone since his stroke. She is very worried.",
+    "says": null,
+    "contactKnows": "Funmi is working a hospital shift and can't reach him. Since his stroke he struggles to use the phone. Their house is old and she's very worried.",
     "truth": {
       "needsHelp": false,
+      "trapped": false,
       "injured": false,
       "distress": false,
+      "gasOrFire": false,
+      "buildingUnsafe": false,
+      "powerOut": null,
       "equipmentHoursLeft": null,
       "wantsEvacuation": false,
       "reportedOk": false
     },
     "hazard": {
-      "minutesUntilFlood": 70,
-      "homeFlooded": false,
-      "roadsCutOff": false
+      "buildingDamage": "severe",
+      "intensity": 8,
+      "gasLeak": false,
+      "fire": false,
+      "roadsBlocked": false,
+      "powerOut": false
     }
   },
   "P015": {
@@ -305,20 +417,28 @@
       true
     ],
     "contactAnswers": true,
-    "situation": "Her home health aide did not come today. Feeding pump battery has about 8 hours. Speaks slowly and weakly. Cannot get out of bed alone.",
+    "situation": "Her home health aide didn't come. The power is out and the feeding pump battery has about 8 hours. Speaks slowly and weakly. Can't get out of bed alone.",
+    "says": "My aide... didn't come today. The power is off. The feeding pump says eight hours. I can't get out of bed.",
     "contactKnows": null,
     "truth": {
       "needsHelp": true,
+      "trapped": false,
       "injured": false,
       "distress": false,
+      "gasOrFire": false,
+      "buildingUnsafe": false,
+      "powerOut": true,
       "equipmentHoursLeft": 8,
       "wantsEvacuation": true,
       "reportedOk": false
     },
     "hazard": {
-      "minutesUntilFlood": 110,
-      "homeFlooded": false,
-      "roadsCutOff": false
+      "buildingDamage": "minor",
+      "intensity": null,
+      "gasLeak": false,
+      "fire": false,
+      "roadsBlocked": false,
+      "powerOut": true
     }
   },
   "P016": {
@@ -326,20 +446,28 @@
       true
     ],
     "contactAnswers": true,
-    "situation": "Staying put, has food, water and medication for three days. Feels OK.",
+    "situation": "Staying put, house is OK, has food, water and medication for three days.",
+    "says": "I'm staying put. The house is OK and I have food, water and my meds for three days.",
     "contactKnows": null,
     "truth": {
       "needsHelp": false,
+      "trapped": false,
       "injured": false,
       "distress": false,
+      "gasOrFire": false,
+      "buildingUnsafe": false,
+      "powerOut": null,
       "equipmentHoursLeft": null,
       "wantsEvacuation": false,
       "reportedOk": true
     },
     "hazard": {
-      "minutesUntilFlood": 160,
-      "homeFlooded": false,
-      "roadsCutOff": false
+      "buildingDamage": "minor",
+      "intensity": null,
+      "gasLeak": false,
+      "fire": false,
+      "roadsBlocked": false,
+      "powerOut": false
     }
   },
   "P017": {
@@ -348,20 +476,28 @@
       true
     ],
     "contactAnswers": true,
-    "situation": "Insulin is in a cooler with ice. Fine, but cannot see how high the water is outside.",
+    "situation": "Insulin is in a cooler with ice. She's fine, but can't see well enough to tell if anything is damaged.",
+    "says": "I'm fine, my insulin is in a cooler with ice. I just can't see well enough to tell if anything is damaged.",
     "contactKnows": "Sean talked to her an hour ago, she was fine.",
     "truth": {
       "needsHelp": false,
+      "trapped": false,
       "injured": false,
       "distress": false,
+      "gasOrFire": false,
+      "buildingUnsafe": false,
+      "powerOut": null,
       "equipmentHoursLeft": null,
       "wantsEvacuation": false,
       "reportedOk": true
     },
     "hazard": {
-      "minutesUntilFlood": 140,
-      "homeFlooded": false,
-      "roadsCutOff": false
+      "buildingDamage": "minor",
+      "intensity": null,
+      "gasLeak": false,
+      "fire": false,
+      "roadsBlocked": false,
+      "powerOut": false
     }
   },
   "P018": {
@@ -372,19 +508,27 @@
     ],
     "contactAnswers": true,
     "situation": null,
-    "contactKnows": "Tasha last talked to her father yesterday evening. His phone goes straight to voicemail. He cannot leave the house without help.",
+    "says": null,
+    "contactKnows": "Tasha last talked to her father yesterday evening. Since the quake his phone goes straight to voicemail. He lives in an old wood-frame house and can't leave without help.",
     "truth": {
       "needsHelp": false,
+      "trapped": false,
       "injured": false,
       "distress": false,
+      "gasOrFire": false,
+      "buildingUnsafe": false,
+      "powerOut": null,
       "equipmentHoursLeft": null,
       "wantsEvacuation": false,
       "reportedOk": false
     },
     "hazard": {
-      "minutesUntilFlood": 20,
-      "homeFlooded": false,
-      "roadsCutOff": false
+      "buildingDamage": "severe",
+      "intensity": 8,
+      "gasLeak": false,
+      "fire": false,
+      "roadsBlocked": false,
+      "powerOut": false
     }
   },
   "P019": {
@@ -392,20 +536,28 @@
       true
     ],
     "contactAnswers": true,
-    "situation": "Physically fine but panicking about the storm, talking fast, has not slept. Wants someone to tell her what to do and would go to a shelter.",
+    "situation": "Physically fine but panicking about aftershocks, talking fast, hasn't slept. Wants someone to tell her what to do and would go to a shelter.",
+    "says": "I can't stop shaking, every aftershock I think it's happening again. I haven't slept. Just tell me what to do. I'll go to a shelter.",
     "contactKnows": null,
     "truth": {
       "needsHelp": false,
+      "trapped": false,
       "injured": false,
       "distress": true,
+      "gasOrFire": false,
+      "buildingUnsafe": false,
+      "powerOut": null,
       "equipmentHoursLeft": null,
       "wantsEvacuation": true,
       "reportedOk": false
     },
     "hazard": {
-      "minutesUntilFlood": 130,
-      "homeFlooded": false,
-      "roadsCutOff": false
+      "buildingDamage": "minor",
+      "intensity": null,
+      "gasLeak": false,
+      "fire": false,
+      "roadsBlocked": false,
+      "powerOut": false
     }
   },
   "P020": {
@@ -413,20 +565,28 @@
       true
     ],
     "contactAnswers": true,
-    "situation": "Has backup oxygen cylinders for about 12 hours. Wife Ingrid is with him. Fine for now.",
+    "situation": "Power is out but he has backup oxygen cylinders for about 12 hours. His wife Ingrid is with him. Fine for now.",
+    "says": "Power is out but I have oxygen cylinders for about twelve hours. Ingrid is with me. We're alright for now.",
     "contactKnows": null,
     "truth": {
       "needsHelp": false,
+      "trapped": false,
       "injured": false,
       "distress": false,
+      "gasOrFire": false,
+      "buildingUnsafe": false,
+      "powerOut": true,
       "equipmentHoursLeft": 12,
       "wantsEvacuation": false,
       "reportedOk": true
     },
     "hazard": {
-      "minutesUntilFlood": null,
-      "homeFlooded": false,
-      "roadsCutOff": false
+      "buildingDamage": "none",
+      "intensity": null,
+      "gasLeak": false,
+      "fire": false,
+      "roadsBlocked": false,
+      "powerOut": true
     }
   },
   "P021": {
@@ -434,20 +594,28 @@
       true
     ],
     "contactAnswers": true,
-    "situation": "Home alone, mum is at work and the roads are closed. Cheerful but a little scared of the thunder. Water is in the garden.",
+    "situation": "Home alone — mum is at work and can't get back because roads are blocked. Cheerful but scared of the aftershocks. Picture frames broke in the hallway.",
+    "says": "Mum is at work and she can't come home, the roads are blocked. The pictures fell down. I don't like the shaking.",
     "contactKnows": null,
     "truth": {
       "needsHelp": true,
+      "trapped": false,
       "injured": false,
       "distress": true,
+      "gasOrFire": false,
+      "buildingUnsafe": false,
+      "powerOut": null,
       "equipmentHoursLeft": null,
       "wantsEvacuation": false,
       "reportedOk": false
     },
     "hazard": {
-      "minutesUntilFlood": 80,
-      "homeFlooded": false,
-      "roadsCutOff": false
+      "buildingDamage": "minor",
+      "intensity": null,
+      "gasLeak": false,
+      "fire": false,
+      "roadsBlocked": true,
+      "powerOut": false
     }
   },
   "P022": {
@@ -455,20 +623,28 @@
       true
     ],
     "contactAnswers": true,
-    "situation": "Fine. On high ground with his wife.",
+    "situation": "Fine. House is OK and his wife is with him.",
+    "says": "We're fine, the house is OK and my wife is here.",
     "contactKnows": null,
     "truth": {
       "needsHelp": false,
+      "trapped": false,
       "injured": false,
       "distress": false,
+      "gasOrFire": false,
+      "buildingUnsafe": false,
+      "powerOut": null,
       "equipmentHoursLeft": null,
       "wantsEvacuation": false,
       "reportedOk": true
     },
     "hazard": {
-      "minutesUntilFlood": null,
-      "homeFlooded": false,
-      "roadsCutOff": false
+      "buildingDamage": "none",
+      "intensity": null,
+      "gasLeak": false,
+      "fire": false,
+      "roadsBlocked": false,
+      "powerOut": false
     }
   },
   "P023": {
@@ -476,20 +652,28 @@
       true
     ],
     "contactAnswers": true,
-    "situation": "Fine, son is coming to pick her up.",
+    "situation": "Fine, a few broken plates. Her son is coming to pick her up.",
+    "says": "I'm fine, just some broken plates. My son is coming to get me.",
     "contactKnows": null,
     "truth": {
       "needsHelp": false,
+      "trapped": false,
       "injured": false,
       "distress": false,
+      "gasOrFire": false,
+      "buildingUnsafe": false,
+      "powerOut": null,
       "equipmentHoursLeft": null,
       "wantsEvacuation": false,
       "reportedOk": true
     },
     "hazard": {
-      "minutesUntilFlood": 170,
-      "homeFlooded": false,
-      "roadsCutOff": false
+      "buildingDamage": "minor",
+      "intensity": null,
+      "gasLeak": false,
+      "fire": false,
+      "roadsBlocked": false,
+      "powerOut": false
     }
   },
   "P024": {
@@ -497,20 +681,28 @@
       true
     ],
     "contactAnswers": true,
-    "situation": "Water is coming into the ground floor and his power chair cannot go through it. He is on the couch with his phone, about 10 cm of water on the floor and rising.",
+    "situation": "He's on the 4th floor, the elevator is dead and there are big cracks in the stairwell. He can smell smoke somewhere in the building and can't get down the stairs in his chair.",
+    "says": "I'm on the fourth floor, the elevator is dead and there are big cracks in the stairwell. I can smell smoke somewhere in the building. I can't get down the stairs in my chair.",
     "contactKnows": null,
     "truth": {
       "needsHelp": true,
+      "trapped": false,
       "injured": false,
       "distress": true,
+      "gasOrFire": true,
+      "buildingUnsafe": true,
+      "powerOut": null,
       "equipmentHoursLeft": null,
       "wantsEvacuation": true,
       "reportedOk": false
     },
     "hazard": {
-      "minutesUntilFlood": null,
-      "homeFlooded": true,
-      "roadsCutOff": false
+      "buildingDamage": "severe",
+      "intensity": 8,
+      "gasLeak": false,
+      "fire": true,
+      "roadsBlocked": false,
+      "powerOut": false
     }
   },
   "P025": {
@@ -519,19 +711,27 @@
     ],
     "contactAnswers": true,
     "situation": "Her son Tom is with her and they are fine. She speaks very slowly.",
+    "says": "My son Tom is here with me. We are... fine, dear.",
     "contactKnows": null,
     "truth": {
       "needsHelp": false,
+      "trapped": false,
       "injured": false,
       "distress": false,
+      "gasOrFire": false,
+      "buildingUnsafe": false,
+      "powerOut": null,
       "equipmentHoursLeft": null,
       "wantsEvacuation": false,
       "reportedOk": true
     },
     "hazard": {
-      "minutesUntilFlood": 150,
-      "homeFlooded": false,
-      "roadsCutOff": false
+      "buildingDamage": "minor",
+      "intensity": null,
+      "gasLeak": false,
+      "fire": false,
+      "roadsBlocked": false,
+      "powerOut": false
     }
   },
   "P026": {
@@ -541,20 +741,28 @@
       true
     ],
     "contactAnswers": false,
-    "situation": "Disoriented, the storm is bringing back memories. Not sure what to do. Has not eaten.",
+    "situation": "Disoriented; the shaking is bringing back bad memories. Not sure what to do. Hasn't eaten.",
+    "says": "I don't know. The shaking... it brought it all back. I don't know what to do. I haven't eaten.",
     "contactKnows": null,
     "truth": {
       "needsHelp": true,
+      "trapped": false,
       "injured": false,
       "distress": true,
+      "gasOrFire": false,
+      "buildingUnsafe": false,
+      "powerOut": null,
       "equipmentHoursLeft": null,
       "wantsEvacuation": false,
       "reportedOk": false
     },
     "hazard": {
-      "minutesUntilFlood": 95,
-      "homeFlooded": false,
-      "roadsCutOff": false
+      "buildingDamage": "moderate",
+      "intensity": null,
+      "gasLeak": false,
+      "fire": false,
+      "roadsBlocked": false,
+      "powerOut": false
     }
   },
   "P027": {
@@ -563,19 +771,27 @@
     ],
     "contactAnswers": true,
     "situation": "With her roommate, both fine, heading to the Ridge Rd shelter now.",
+    "says": "I'm with my roommate, we're both fine. Heading to the Ridge Rd shelter now.",
     "contactKnows": null,
     "truth": {
       "needsHelp": false,
+      "trapped": false,
       "injured": false,
       "distress": false,
+      "gasOrFire": false,
+      "buildingUnsafe": false,
+      "powerOut": null,
       "equipmentHoursLeft": null,
       "wantsEvacuation": false,
       "reportedOk": true
     },
     "hazard": {
-      "minutesUntilFlood": 120,
-      "homeFlooded": false,
-      "roadsCutOff": false
+      "buildingDamage": "minor",
+      "intensity": null,
+      "gasLeak": false,
+      "fire": false,
+      "roadsBlocked": false,
+      "powerOut": false
     }
   },
   "P028": {
@@ -583,20 +799,28 @@
       true
     ],
     "contactAnswers": true,
-    "situation": "His dialysis machine cannot run without power and he needs tonight's session. Polite, understates the problem.",
+    "situation": "His dialysis machine can't run without power and he needs tonight's session. Polite, understates the problem.",
+    "says": "My dialysis machine needs power and I have a session tonight. I'm sure it will be fine, but I thought I should mention it.",
     "contactKnows": null,
     "truth": {
       "needsHelp": true,
+      "trapped": false,
       "injured": false,
       "distress": false,
+      "gasOrFire": false,
+      "buildingUnsafe": false,
+      "powerOut": true,
       "equipmentHoursLeft": 2,
       "wantsEvacuation": true,
       "reportedOk": false
     },
     "hazard": {
-      "minutesUntilFlood": 100,
-      "homeFlooded": false,
-      "roadsCutOff": false
+      "buildingDamage": "minor",
+      "intensity": null,
+      "gasLeak": false,
+      "fire": false,
+      "roadsBlocked": false,
+      "powerOut": true
     }
   },
   "P029": {
@@ -607,19 +831,27 @@
     ],
     "contactAnswers": true,
     "situation": null,
+    "says": null,
     "contactKnows": null,
     "truth": {
       "needsHelp": false,
+      "trapped": false,
       "injured": false,
       "distress": false,
+      "gasOrFire": false,
+      "buildingUnsafe": false,
+      "powerOut": null,
       "equipmentHoursLeft": null,
       "wantsEvacuation": false,
       "reportedOk": false
     },
     "hazard": {
-      "minutesUntilFlood": null,
-      "homeFlooded": false,
-      "roadsCutOff": false
+      "buildingDamage": "moderate",
+      "intensity": null,
+      "gasLeak": false,
+      "fire": false,
+      "roadsBlocked": false,
+      "powerOut": false
     }
   },
   "P030": {
@@ -627,20 +859,28 @@
       true
     ],
     "contactAnswers": true,
-    "situation": "Power is out. BiPAP battery has about 3 hours and he needs it to sleep. Wife Maria is with him, both elderly.",
+    "situation": "The power is out. His BiPAP battery has about 3 hours and he needs it to sleep. His wife Maria is with him; both elderly.",
+    "says": "The power is out. My BiPAP battery has about three hours and I need it to sleep. Maria is here with me.",
     "contactKnows": null,
     "truth": {
       "needsHelp": true,
+      "trapped": false,
       "injured": false,
       "distress": false,
+      "gasOrFire": false,
+      "buildingUnsafe": false,
+      "powerOut": true,
       "equipmentHoursLeft": 3,
       "wantsEvacuation": true,
       "reportedOk": false
     },
     "hazard": {
-      "minutesUntilFlood": 85,
-      "homeFlooded": false,
-      "roadsCutOff": false
+      "buildingDamage": "minor",
+      "intensity": null,
+      "gasLeak": false,
+      "fire": false,
+      "roadsBlocked": false,
+      "powerOut": true
     }
   }
 }

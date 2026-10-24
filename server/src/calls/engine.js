@@ -76,7 +76,7 @@ export function startWelfareCheck(personId, { mode = 'auto', target = 'resident'
   if (reason !== 'manual' && c.status === 'safe') return { call: null, done: Promise.resolve() };
   if (target === 'resident') clearRetry(personId);
 
-  const ch = channel || (target === 'resident' ? c.needs.preferredContact : 'voice');
+  const ch = channel || (target === 'resident' ? (c.needs.preferredContact === 'sms' ? 'sms' : config.firstContact) : 'voice');
   const contacts = person.emergencyContacts?.length
     ? person.emergencyContacts
     : person.emergencyContactNumber ? [{ name: person.emergencyContactName, number: person.emergencyContactNumber }] : [];
@@ -375,17 +375,21 @@ function applyExtraction(personId, ex, call) {
 
     const f = { ...c.findings };
     if (ex.needs_help) f.needsHelp = true;
+    if (ex.trapped) f.trapped = true;
     if (ex.injured) f.injured = true;
+    if (ex.gas_or_fire) f.gasOrFire = true;
+    if (ex.building_unsafe) f.buildingUnsafe = true;
+    if (ex.power_out != null) f.powerOut = !!ex.power_out;
     if (ex.distress) f.distress = true;
     if (ex.wants_evacuation != null) f.wantsEvacuation = !!ex.wants_evacuation;
     if (ex.equipment_hours_left != null && !Number.isNaN(Number(ex.equipment_hours_left))) {
       f.equipmentHoursLeft = Number(ex.equipment_hours_left);
     }
-    f.reportedOk = !!ex.reported_ok && !f.needsHelp && !f.injured;
+    f.reportedOk = !!ex.reported_ok && !f.needsHelp && !f.injured && !f.trapped;
 
     const status = c.status === 'safe' ? 'safe'
       : c.assignedResponderId ? 'responder_assigned'
-      : f.needsHelp || f.injured ? 'needs_help'
+      : f.needsHelp || f.injured || f.trapped || f.gasOrFire ? 'needs_help'
       : f.reportedOk ? 'reached_ok'
       : 'reached';
     return { card, findings: f, status, attempts: c.attempts + 1, lastContactAt: now() };
@@ -393,7 +397,8 @@ function applyExtraction(personId, ex, call) {
 
   if (!isContact) clearRetry(personId);
   const label = isContact ? 'Emergency contact reached' : `Reached by ${call.channel === 'sms' ? 'text' : 'phone'}`;
-  store.addTimeline(personId, `${label} — ${ex.summary || 'see transcript'}`, ex.needs_help || ex.injured ? 'alert' : 'success');
+  const urgent = ex.needs_help || ex.injured || ex.trapped || ex.gas_or_fire;
+  store.addTimeline(personId, `${label} — ${ex.summary || 'see transcript'}`, urgent ? 'alert' : 'success');
 }
 
 // ── Inbound calls: 911 first, AI intake if nobody answers ───
@@ -554,7 +559,7 @@ export function releaseResponder(personId, { quiet = false } = {}) {
   if (!c.assignedResponderId) return store.caseView(personId);
   const r = store.getResponder(c.assignedResponderId);
   store.setResponder(c.assignedResponderId, { status: 'available', assignedTo: null, assignedAt: null });
-  const fallback = c.findings.needsHelp || c.findings.injured ? 'needs_help' : c.lastContactAt ? 'reached' : 'not_contacted';
+  const fallback = c.findings.needsHelp || c.findings.injured || c.findings.trapped ? 'needs_help' : c.lastContactAt ? 'reached' : 'not_contacted';
   store.updateCase(personId, { assignedResponderId: null, status: c.status === 'safe' ? 'safe' : fallback });
   if (!quiet) store.addTimeline(personId, `${r?.name || 'Responder'} released`, 'responder');
   return store.caseView(personId);
@@ -570,7 +575,7 @@ export function markSafe(personId) {
 
 export function reopen(personId) {
   const c = store.getCaseRaw(personId);
-  const status = c.findings.needsHelp || c.findings.injured ? 'needs_help' : c.lastContactAt ? 'reached' : 'not_contacted';
+  const status = c.findings.needsHelp || c.findings.injured || c.findings.trapped ? 'needs_help' : c.lastContactAt ? 'reached' : 'not_contacted';
   store.updateCase(personId, { status });
   store.addTimeline(personId, 'Case reopened by dispatcher', 'info');
   return store.caseView(personId);
@@ -583,7 +588,11 @@ export function addNote(personId, text) {
   return store.caseView(personId);
 }
 
-/** Integration hook for the 3D simulation: push danger-at-home values. */
+/**
+ * Integration hook for the 3D simulation: push danger-at-home values.
+ * [{ personId, buildingDamage: 'none'|'minor'|'moderate'|'severe'|'collapsed',
+ *    intensity (MMI 1-10), gasLeak, fire, roadsBlocked, powerOut }]
+ */
 export function applyHazards(list = []) {
   let n = 0;
   for (const h of list) {

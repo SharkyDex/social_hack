@@ -1,4 +1,4 @@
-# Simulation module (3D flood)
+# Simulation module (3D earthquake)
 
 **Owner:** simulation teammate
 
@@ -12,10 +12,20 @@ The dashboard's priority rules already score "danger at home". Push values with:
 ```
 POST /api/hazards
 [
-  { "personId": "P004", "minutesUntilFlood": 25 },
-  { "personId": "P010", "homeFlooded": true },
-  { "personId": "P002", "roadsCutOff": true }
+  { "personId": "P004", "buildingDamage": "severe", "intensity": 8 },
+  { "personId": "P013", "gasLeak": true },
+  { "personId": "P002", "roadsBlocked": true, "powerOut": true }
 ]
 ```
 
-All fields optional. Scoring (see `shared/priority.js`): flooding now +35, floods within 30/60/120 min +30/+20/+10, roads cut off +10.
+All fields optional:
+
+| Field | Values | Priority points |
+|---|---|---|
+| `buildingDamage` | `none` / `minor` / `moderate` / `severe` / `collapsed` | 0 / +5 / +15 / +30 / +45 |
+| `intensity` | shaking at the home, MMI 1–10 (used only if no damage estimate) | ≥7 +5, ≥8 +10 |
+| `gasLeak` or `fire` | true / false | +20 |
+| `roadsBlocked` | true / false | +10 |
+| `powerOut` | true / false | +20 if they rely on powered medical equipment |
+
+Weights live in `shared/priority.js`.

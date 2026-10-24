@@ -240,8 +240,19 @@ function PriorityBreakdown({ priority, hazard }) {
         Total <b className="mono">{priority.score}</b> · CRITICAL ≥ 60 · HIGH ≥ 35
       </p>
       <p className="muted small hazard-note">
-        Flood data:{' '}
-        {hazard?.source === 'simulation' ? 'live from the simulation' : hazard?.source === 'sample' ? 'sample placeholder until the simulation is connected' : 'none'}
+        Damage at home:{' '}
+        {[
+          hazard?.buildingDamage && hazard.buildingDamage !== 'none' ? `building ${hazard.buildingDamage}` : null,
+          hazard?.intensity ? `shaking MMI ${hazard.intensity}` : null,
+          hazard?.gasLeak ? 'gas leak' : null,
+          hazard?.fire ? 'fire' : null,
+          hazard?.powerOut ? 'power out' : null,
+          hazard?.roadsBlocked ? 'roads blocked' : null,
+        ]
+          .filter(Boolean)
+          .join(' · ') || 'none reported'}
+        {' — '}
+        {hazard?.source === 'simulation' ? 'live from the simulation' : hazard?.source === 'sample' ? 'sample placeholder until the simulation is connected' : 'no data'}
       </p>
     </section>
   );

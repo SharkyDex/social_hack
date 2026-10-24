@@ -28,6 +28,9 @@ export const config = {
     publicBaseUrl: process.env.PUBLIC_BASE_URL || '',
   },
 
+  // After an earthquake voice networks jam first; texts often still get through.
+  // 'sms' texts everyone first; 'voice' calls unless they're Deaf / non-verbal.
+  firstContact: process.env.FIRST_CONTACT === 'sms' ? 'sms' : 'voice',
   maxAttempts: num(process.env.MAX_CALL_ATTEMPTS, 3),
   retryDelayMs: num(process.env.RETRY_DELAY_SECONDS, 8) * 1000,
   contactEmergencyAfter: num(process.env.CONTACT_EMERGENCY_AFTER_ATTEMPT, 1),
@@ -46,5 +49,5 @@ export const config = {
   peopleSampleSeed: num(process.env.PEOPLE_SAMPLE_SEED, 7),
 
   agencyName: process.env.AGENCY_NAME || 'Cypress Bend Emergency Services',
-  disasterName: process.env.DISASTER_NAME || 'the flooding',
+  disasterName: process.env.DISASTER_NAME || 'the earthquake',
 };

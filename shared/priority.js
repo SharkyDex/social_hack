@@ -18,18 +18,25 @@ export const WEIGHTS = {
   age75: 8,
   age65: 4,
   livesAlone: 10,
-  // Danger at home — fed by the 3D simulation once integrated
-  homeFlooded: 35,
-  floodWithin30: 30,
-  floodWithin60: 20,
-  floodWithin120: 10,
-  roadsCutOff: 10,
+  // Danger at home after the earthquake — fed by the 3D simulation once integrated
+  buildingCollapsed: 45,
+  buildingSevere: 30,
+  buildingModerate: 15,
+  buildingMinor: 5,
+  shakingSevere: 10, // used only when no damage estimate exists
+  shakingStrong: 5,
+  gasOrFire: 20,
+  roadsBlocked: 10,
+  powerOutDependent: 20, // power cut AND they rely on powered equipment
   // Contact status
   perFailedAttempt: 8,
   unreachable: 12,
   // What the welfare call found
+  trapped: 45,
   needsHelp: 25,
   injured: 20,
+  reportsGasOrFire: 20,
+  reportsBuildingUnsafe: 10,
   distress: 10,
   equipmentUnder2h: 30,
   equipmentUnder6h: 20,
@@ -88,14 +95,18 @@ export function scoreCase(person, c = {}, now = Date.now()) {
 
   // Danger at home (placeholder until the simulation feeds real values)
   const h = c.hazard || {};
-  if (h.homeFlooded) add('Home flooding now', W.homeFlooded, 'hazard');
-  else if (h.minutesUntilFlood != null) {
-    const m = h.minutesUntilFlood;
-    if (m <= 30) add(`Home floods in ~${m} min`, W.floodWithin30, 'hazard');
-    else if (m <= 60) add(`Home floods in ~${m} min`, W.floodWithin60, 'hazard');
-    else if (m <= 120) add(`Home floods in ~${m} min`, W.floodWithin120, 'hazard');
-  }
-  if (h.roadsCutOff) add('Roads to home cut off', W.roadsCutOff, 'hazard');
+  const damage = {
+    collapsed: ['Building collapsed', W.buildingCollapsed],
+    severe: ['Building severely damaged', W.buildingSevere],
+    moderate: ['Building moderately damaged', W.buildingModerate],
+    minor: ['Minor building damage', W.buildingMinor],
+  }[h.buildingDamage];
+  if (damage) add(damage[0], damage[1], 'hazard');
+  else if (h.intensity >= 8) add(`Severe shaking (MMI ${h.intensity})`, W.shakingSevere, 'hazard');
+  else if (h.intensity >= 7) add(`Strong shaking (MMI ${h.intensity})`, W.shakingStrong, 'hazard');
+  if (h.gasLeak || h.fire) add(h.fire ? 'Fire nearby' : 'Gas leak nearby', W.gasOrFire, 'hazard');
+  if (h.roadsBlocked) add('Roads to home blocked', W.roadsBlocked, 'hazard');
+  if (h.powerOut && needs.powerDependent) add('Power out — relies on powered equipment', W.powerOutDependent, 'hazard');
 
   // Contact attempts
   const failed = c.failedAttempts || 0;
@@ -104,8 +115,11 @@ export function scoreCase(person, c = {}, now = Date.now()) {
 
   // What the call found
   const f = c.findings || {};
+  if (f.trapped) add('Trapped', W.trapped, 'call');
   if (f.needsHelp) add('Asked for help on call', W.needsHelp, 'call');
   if (f.injured) add('Injured', W.injured, 'call');
+  if (f.gasOrFire) add('Reports gas smell / fire', W.reportsGasOrFire, 'call');
+  if (f.buildingUnsafe) add('Reports building unsafe', W.reportsBuildingUnsafe, 'call');
   if (f.distress) add('Distressed on call', W.distress, 'call');
   if (f.equipmentHoursLeft != null) {
     const hrs = f.equipmentHoursLeft;
@@ -113,8 +127,8 @@ export function scoreCase(person, c = {}, now = Date.now()) {
     else if (hrs <= 6) add(`Equipment power ~${hrs}h left`, W.equipmentUnder6h, 'call');
     else if (hrs <= 12) add(`Equipment power ~${hrs}h left`, W.equipmentUnder12h, 'call');
   }
-  if (f.wantsEvacuation) add('Wants evacuation', W.wantsEvacuation, 'call');
-  if (f.reportedOk && !f.needsHelp) add('Reached — reports OK', W.reportedOk, 'call');
+  if (f.wantsEvacuation) add('Wants to leave / go to shelter', W.wantsEvacuation, 'call');
+  if (f.reportedOk && !f.needsHelp && !f.trapped) add('Reached — reports OK', W.reportedOk, 'call');
 
   // Silence
   if (c.lastContactAt && c.status !== 'safe') {

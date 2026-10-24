@@ -38,17 +38,19 @@ PEOPLE_SAMPLE_MODE=mixed   # a third highest-risk, the rest random
 
 The curated `shared/data/people.sample.json` (the default) uses a simpler flat format: `id, name, age, gender, phone, address, medicalHistory[], emergencyContactName, emergencyContactNumber, livesAlone`. It pairs with `scenarios.sample.json`, which scripts what each person says, so it gives the most dramatic demo. Optional extra fields either format can carry: `livesAlone`, `mobility` (`independent` / `walker` / `wheelchair` / `bedbound`), `preferredContact` (`voice` / `sms`), `location`.
 
-## Hazard (from the 3D simulation → dashboard)
+## Hazard (from the 3D earthquake simulation → dashboard)
 
 `POST /api/hazards`
 
 ```json
 [
-  { "personId": "P004", "minutesUntilFlood": 25 },
-  { "personId": "P010", "homeFlooded": true },
-  { "personId": "P002", "roadsCutOff": true }
+  { "personId": "P004", "buildingDamage": "severe", "intensity": 8 },
+  { "personId": "P013", "gasLeak": true },
+  { "personId": "P002", "roadsBlocked": true, "powerOut": true }
 ]
 ```
+
+`buildingDamage`: `none` / `minor` / `moderate` / `severe` / `collapsed` · `intensity`: MMI 1–10 · `gasLeak`, `fire`, `roadsBlocked`, `powerOut`: true/false. Points are in `client/src/modules/simulation/README.md`.
 
 ## Case (what the dashboard shows per person)
 
@@ -59,8 +61,9 @@ The curated `shared/data/people.sample.json` (the default) uses a simpler flat f
                                     // needs_help | reached | reached_ok | responder_assigned | safe
   attempts, failedAttempts, lastAttemptAt, lastContactAt, contactReached,
   needs: { flags[], powerDependent, mobility, preferredContact },
-  hazard: { minutesUntilFlood, homeFlooded, roadsCutOff, source },
-  findings: { needsHelp, injured, distress, equipmentHoursLeft, wantsEvacuation, reportedOk },
+  hazard: { buildingDamage, intensity, gasLeak, fire, roadsBlocked, powerOut, source },
+  findings: { needsHelp, trapped, injured, distress, gasOrFire, buildingUnsafe, powerOut,
+              equipmentHoursLeft, wantsEvacuation, reportedOk },
   card: { summary, problems[], alerts[], immediateActions[], doNot[],
           communicationGuide, resourcesNeeded, timeSensitive },
   priority: { score, level, factors[{label, points, kind}], reason },

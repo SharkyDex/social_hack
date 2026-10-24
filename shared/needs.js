@@ -21,7 +21,7 @@ export const NEED_RULES = [
 
   // Mobility — can they leave on their own?
   { id: 'bedbound', re: /bed[- ]?bound|bedridden|quadripleg|tetrapleg|\bALS\b/i, points: 22, label: 'Bed-bound / cannot self-evacuate', chip: 'BED', mobility: 'bedbound' },
-  { id: 'wheelchair', re: /wheelchair|parapleg|spinal cord|amputee|amputation/i, points: 15, label: 'Wheelchair user', chip: '♿', mobility: 'wheelchair' },
+  { id: 'wheelchair', re: /wheelchair|parapleg|spinal cord|amputee|amputation/i, points: 15, label: 'Wheelchair user — can\'t use stairs', chip: '♿', mobility: 'wheelchair' },
   { id: 'mobility', re: /mobility impairment|limited mobility/i, points: 12, label: 'Mobility impairment', chip: 'MOB', mobility: 'walker' },
   { id: 'walker', re: /walker|\bcane\b|parkinson|multiple sclerosis|hip replacement|frail/i, points: 8, label: 'Limited mobility', chip: 'MOB', mobility: 'walker' },
 

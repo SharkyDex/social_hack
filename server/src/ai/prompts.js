@@ -18,17 +18,29 @@ export function communicationTips(needs) {
   return tips;
 }
 
-/** What this call must find out, based on their needs. */
+/** What this call must find out, based on their needs (earthquake). */
 export function callGoals(needs) {
   const ids = new Set(needs.flags.map((f) => f.id));
-  const goals = ['Are they safe right now? Is water getting into the home?', 'Are they injured or unwell?'];
-  if (needs.powerDependent) goals.push('Is their medical equipment working? Exactly how many hours of battery or supply are left?');
-  if (ids.has('insulin')) goals.push('Is their insulin being kept cold? How much supply do they have?');
-  if (ids.has('dialysis')) goals.push('Have they missed dialysis? When is the next session due?');
-  if (needs.mobility !== 'independent') goals.push('Could they leave the home on their own if needed?');
-  goals.push('Who is with them? Do they have medication and supplies?', 'Do they want to be evacuated to a shelter?');
+  const goals = [
+    'Are they safe right now? Is their building damaged (cracks, fallen ceiling or walls)?',
+    'Are they trapped, or unable to get out of the building?',
+    'Are they injured?',
+    'Do they smell gas, or see smoke or fire?',
+  ];
+  if (needs.powerDependent) goals.push('Is the power out? Is their medical equipment working, and exactly how many hours of battery are left?');
+  if (ids.has('insulin') || ids.has('diabetes')) goals.push('Do they have their diabetes medication, and can insulin be kept cold if the power is out?');
+  if (ids.has('dialysis') || ids.has('kidney')) goals.push('Have they missed dialysis or kidney treatment? When is the next one due?');
+  if (needs.mobility !== 'independent') goals.push('Could they get out of the building on their own if needed (elevators may not work)?');
+  goals.push('Who is with them? Do they have medication, water and supplies?', 'Do they need to leave the building or go to a shelter?');
   return goals;
 }
+
+// Standard public safety guidance the assistant may give (keep it short and only when relevant).
+const SAFETY_LINES = `Safety guidance you may give, briefly and only when relevant:
+- Aftershock: drop, cover and hold on; stay away from windows and heavy furniture.
+- Gas smell: if they can leave safely, get out and do not use light switches, phones near the leak, or flames.
+- Damaged building: if it is safe to move, get out and away from the building; if trapped, stay still, cover mouth, tap on a pipe or wall so rescuers can hear.
+Never give medical instructions beyond "keep pressure on bleeding" and "do not move someone with a possible neck injury".`;
 
 function personFacts(person, needs) {
   return [
@@ -52,6 +64,7 @@ export function dispatcherSystem(person, needs, { target = 'resident', channel =
 ${who}
 Start by saying you are an automated assistant from ${config.agencyName}.
 If anyone is in immediate danger, tell them to call 911 now.
+${SAFETY_LINES}
 
 About the person:
 ${personFacts(person, needs)}
@@ -73,7 +86,7 @@ export function simulatedConversationPrompt(person, needs, scenario, { target = 
   const other = contact ? 'CONTACT' : 'RESIDENT';
   const truth = contact
     ? scenario?.contactKnows || `The contact has not heard from ${first(person.name)} today and is worried.`
-    : scenario?.situation || 'Invent a realistic situation consistent with their medical history during a flood.';
+    : scenario?.situation || `Invent a realistic situation consistent with their medical history in the hours after ${config.disasterName}.`;
   const medium = channel === 'sms' ? 'text message exchange (4-7 short messages)' : 'phone call (10-14 lines)';
   return [
     { role: 'system', content: dispatcherSystem(person, needs, { target, channel }) },
@@ -109,14 +122,18 @@ Return JSON with exactly these keys:
 {
   "reached_person": boolean,          // did we actually talk to ${first(person.name)} (or their phone)?
   "needs_help": boolean,              // they need responders or supplies sent
+  "trapped": boolean,                 // stuck under debris or unable to get out
   "injured": boolean,
+  "gas_or_fire": boolean,             // smells gas, sees smoke or fire
+  "building_unsafe": boolean,         // reports serious cracks, collapse, fallen ceiling
+  "power_out": boolean|null,
   "distress": boolean,                // panicking, confused or very scared
   "equipment_hours_left": number|null,// hours of battery/supply for medical equipment, if stated
   "wants_evacuation": boolean|null,
   "reported_ok": boolean,             // they say they are safe and need nothing
   "summary": "one sentence a dispatcher reads first",
   "problems": ["short problem statements, most urgent first"],
-  "alerts": ["urgent hazards only — water inside, equipment failing, injury"],
+  "alerts": ["urgent hazards only — trapped, gas leak, collapse, equipment failing, injury"],
   "immediate_actions": ["what responders should do"],
   "do_not": ["things responders must avoid"],
   "communication_guide": "how to talk to this person, or null",
@@ -132,7 +149,8 @@ Return JSON with exactly these keys:
 export function intakeSystem() {
   return `You are the automated intake assistant for ${config.agencyName} during ${config.disasterName}. No 911 operator was available, so you are answering.
 First say you are an automated assistant and that if anyone is in immediate danger they should stay on the line for 911 or call back.
-Then gather: full name and age, address, what is happening, any disability, medical needs or equipment, who is with them, an emergency contact name and number, and whether they need evacuation.
+Then gather: full name and age, address, what is happening (building damage, trapped, injuries, gas or fire), any disability, medical needs or equipment, who is with them, an emergency contact name and number, and whether they need to leave the building.
+${SAFETY_LINES}
 Be warm and calm. One or two questions at a time, at most 2-3 short sentences per turn. When done, say a dispatcher will follow up and end with [END].`;
 }
 
@@ -141,7 +159,7 @@ export function simulatedIntakePrompt() {
     { role: 'system', content: intakeSystem() },
     {
       role: 'user',
-      content: `Write the full inbound phone call (12-16 lines) between DISPATCHER (you) and CALLER. The caller is not in the registry: invent a realistic person during a flood who has a disability or medical need and some problem that needs help. They give their name, age, address on a street in Cypress Bend, conditions, and an emergency contact with a 713-555-01XX number.
+      content: `Write the full inbound phone call (12-16 lines) between DISPATCHER (you) and CALLER. The caller is not in the registry: invent a realistic person in the hours after ${config.disasterName} who has a disability or medical need and a problem that needs help (e.g. building damage, trapped family member, equipment without power). They give their name, age, address on a street in Cypress Bend, conditions, and an emergency contact with a 713-555-01XX number.
 Format: one line per turn starting with "DISPATCHER:" or "CALLER:". Nothing else. The last dispatcher line ends with [END].`,
     },
   ];
@@ -161,7 +179,8 @@ Return JSON:
   "medical_history": ["conditions, disabilities, equipment"],
   "emergency_contact_name": string|null, "emergency_contact_number": string|null,
   "lives_alone": boolean|null,
-  "needs_help": boolean, "injured": boolean, "distress": boolean,
+  "needs_help": boolean, "trapped": boolean, "injured": boolean, "distress": boolean,
+  "gas_or_fire": boolean, "building_unsafe": boolean, "power_out": boolean|null,
   "equipment_hours_left": number|null, "wants_evacuation": boolean|null, "reported_ok": boolean,
   "summary": "one sentence", "problems": [], "alerts": [], "immediate_actions": [], "do_not": [],
   "communication_guide": string|null, "resources_needed": string|null, "time_sensitive": string|null

@@ -78,7 +78,7 @@ app.post('/api/cases/:id/reopen', ok((req) => engine.reopen(req.params.id)));
 app.post('/api/cases/:id/notes', ok((req) => engine.addNote(req.params.id, req.body?.text)));
 
 // ── Integration hooks for the other modules ─────────────────
-// 3D simulation → body: [{ personId, minutesUntilFlood?, homeFlooded?, roadsCutOff? }]
+// 3D simulation → body: [{ personId, buildingDamage?, intensity?, gasLeak?, fire?, roadsBlocked?, powerOut? }]
 app.post('/api/hazards', ok((req) => engine.applyHazards(Array.isArray(req.body) ? req.body : req.body?.hazards)));
 
 app.post('/api/reset', ok(() => engine.reset()));

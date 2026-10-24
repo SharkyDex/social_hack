@@ -1,6 +1,6 @@
 # DisasterBridge
 
-Disaster response for people with disabilities. An AI places welfare-check calls during a flood, turns each conversation into a responder card, and keeps a dispatcher's queue ordered by who needs help first.
+Disaster response for people with disabilities. An AI places welfare-check calls after an earthquake, turns each conversation into a responder card, and keeps a dispatcher's queue ordered by who needs help first.
 
 Built for the Social Coding Social Hack hackathon.
 
@@ -46,13 +46,13 @@ Work on a branch per module and open a pull request into `main`.
 
 Fixed rules in `shared/priority.js`, not AI, so the same inputs always give the same rank and every point is explained on screen. Tune the numbers in `WEIGHTS`. CRITICAL ≥ 60, HIGH ≥ 35.
 
-Factors: medical needs (power-dependent equipment counts most), age, living alone, danger at home (from the simulation), unanswered attempts, what the call found, and time since last contact.
+Factors: medical needs (power-dependent equipment counts most), age, living alone, damage at home (building damage, gas or fire, blocked roads, power out — from the simulation), unanswered attempts, what the call found (trapped counts most), and time since last contact.
 
 ## Data
 
 - `synthetic_population_100k.json`: the team's generated population. Load it with `PEOPLE_FILE=synthetic_population_100k.json` and `PEOPLE_SAMPLE=30` in `.env` (see `shared/FORMATS.md`).
 - `shared/data/people.sample.json`: 30 curated people. This is the default because it pairs with scripted scenarios, which make the best demo.
-- `shared/data/scenarios.sample.json`: **simulation only.** What is "really" happening to each sample person, so simulated calls have something to say. It also holds placeholder flood timings until the 3D simulation is connected.
+- `shared/data/scenarios.sample.json`: **simulation only.** What is "really" happening to each sample person, so simulated calls have something to say. It also holds placeholder building damage, gas and power values until the 3D simulation is connected.
 - `shared/data/responders.sample.json`: 8 units.
 - Regenerate the curated sample with `npm run generate:sample`.
 
