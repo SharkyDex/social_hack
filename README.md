@@ -18,19 +18,6 @@ Open **http://localhost:5173**. The API runs on :3001; the React app forwards `/
 
 With no `GROQ_API_KEY` the app runs in **mock mode**: calls follow a script, so everything works offline. That's also the backup if the Wi-Fi drops during the demo.
 
-## Who owns what
-
-| Folder | Module | Owner |
-|---|---|---|
-| `client/src/modules/dashboard/` | Dispatcher dashboard (priority queue, cards, actions) | _(your name)_ |
-| `client/src/modules/calls/` + `server/src/calls/` | Welfare calls, texts, inbound calls | _(your name)_ |
-| `client/src/modules/simulation/` | 3D flood simulation | teammate |
-| `client/src/modules/routing/` | Open paths for responders | teammate |
-| `server/` | API, shared AI key, phone service | shared |
-| `shared/` | Priority rules, data formats, sample data | shared — agree changes first |
-
-Work on a branch per module and open a pull request into `main`.
-
 ## How a welfare check works
 
 1. The AI calls the person, or texts them if they're Deaf or non-verbal.
