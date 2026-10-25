@@ -125,3 +125,6 @@ button.primary:active { transform: scale(0.98); }
 .pill:active { transform: scale(0.97); }
 .pill.safe { border-color: rgba(34,197,94,0.5); color: #bbf7d0; }
 .pill.help { border-color: rgba(239,68,68,0.6); color: #fecaca; background: rgba(239,68,68,0.12); }
+
+/* "Not 911" disclaimer */
+.warn-911 { color: #fca5a5 !important; font-weight: 500; }

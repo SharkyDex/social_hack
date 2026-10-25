@@ -14,7 +14,7 @@ import * as store from '../store.js';
 import { broadcast } from '../events.js';
 import { provider, destination } from '../telephony/index.js';
 import * as webcall from '../telephony/webcall.js';
-import { aiMode, chat, chatJson } from '../ai/groq.js';
+import { aiMode, chat, chatJson, reasoningEnabled, reasoningChatJson } from '../ai/groq.js';
 import * as P from '../ai/prompts.js';
 import * as mock from '../ai/mock.js';
 import { URGENT_KEYWORDS } from '../../../shared/webcall-protocol.js';
@@ -359,10 +359,21 @@ export async function finishCall(callId) {
   const c = store.getCaseRaw(call.personId);
   const transcript = transcriptText(call);
 
+  // Real human conversations (web + interactive) get the stronger reasoning model
+  // for extraction; simulated AI-vs-AI calls stay on Groq to save that budget.
+  const liveHuman = call.provider === 'webcall' || call.mode === 'interactive';
+  const prompt = P.extractionPrompt(person, transcript, { target: call.target });
   let ex = null;
-  if (aiMode() === 'groq' && transcript) {
+  if (liveHuman && reasoningEnabled() && transcript) {
     try {
-      ex = await chatJson(P.extractionPrompt(person, transcript, { target: call.target }), { maxTokens: 700 });
+      ex = await reasoningChatJson(prompt, { maxTokens: 900 });
+    } catch (e) {
+      console.warn('[engine] reasoning extraction failed, falling back to Groq:', e.message);
+    }
+  }
+  if (!ex && aiMode() === 'groq' && transcript) {
+    try {
+      ex = await chatJson(prompt, { maxTokens: 700 });
     } catch (e) {
       console.warn('[engine] extraction failed, using fallback:', e.message);
     }
@@ -493,10 +504,19 @@ export function simulateInbound({ mode = 'auto', operatorAvailable = false } = {
 async function finishInbound(callId) {
   const call = store.getCall(callId);
   const transcript = transcriptText(call);
+  const liveHuman = call.mode === 'interactive'; // auto inbound is simulated AI-vs-AI
+  const iprompt = P.intakeExtractionPrompt(transcript);
   let ex = null;
-  if (aiMode() === 'groq' && transcript) {
+  if (liveHuman && reasoningEnabled() && transcript) {
     try {
-      ex = await chatJson(P.intakeExtractionPrompt(transcript), { maxTokens: 800 });
+      ex = await reasoningChatJson(iprompt, { maxTokens: 900 });
+    } catch (e) {
+      console.warn('[engine] reasoning intake extraction failed, falling back to Groq:', e.message);
+    }
+  }
+  if (!ex && aiMode() === 'groq' && transcript) {
+    try {
+      ex = await chatJson(iprompt, { maxTokens: 800 });
     } catch (e) {
       console.warn('[engine] intake extraction failed:', e.message);
     }

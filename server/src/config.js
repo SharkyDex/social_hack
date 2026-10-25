@@ -22,6 +22,17 @@ export const config = {
   // 'es' to lock it for better accuracy. Also hints the browser's text-to-speech.
   sttLanguage: process.env.STT_LANGUAGE || 'auto',
 
+  // Separate reasoning model for extraction AFTER a LIVE call (latency doesn't
+  // matter there, so a slower, smarter model is worth it — e.g. GLM 5.3 on
+  // Baseten). Any OpenAI-compatible endpoint. Leave base URL blank to use Groq
+  // for everything. Simulated (AI-vs-AI) calls always stay on Groq.
+  reasoning: {
+    baseUrl: (process.env.REASONING_BASE_URL || '').replace(/\/$/, ''),
+    key: process.env.REASONING_API_KEY || '',
+    model: process.env.REASONING_MODEL || '',
+    effort: process.env.REASONING_EFFORT || 'low', // low | high | max (max is slow + pricey)
+  },
+
   telephonyProvider: process.env.TELEPHONY_PROVIDER || 'simulated',
   demoPhoneNumber: process.env.DEMO_PHONE_NUMBER || '',
   inboundForwardNumber: process.env.INBOUND_FORWARD_NUMBER || '',

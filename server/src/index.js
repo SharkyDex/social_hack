@@ -8,7 +8,7 @@ import { join } from 'node:path';
 import { config, ROOT } from './config.js';
 import * as store from './store.js';
 import { sseHandler } from './events.js';
-import { aiMode } from './ai/groq.js';
+import { aiMode, reasoningEnabled } from './ai/groq.js';
 import { provider } from './telephony/index.js';
 import * as webcall from './telephony/webcall.js';
 import * as engine from './calls/engine.js';
@@ -22,6 +22,7 @@ setInterval(store.rescoreAll, 60_000).unref(); // "no contact for 1h+" changes w
 const meta = () => ({
   aiMode: aiMode(),
   model: aiMode() === 'groq' ? config.groqModel : null,
+  reasoningModel: reasoningEnabled() ? config.reasoning.model : null,
   telephony: provider().name,
   demoNumberSet: Boolean(config.demoPhoneNumber),
   maxAttempts: config.maxAttempts,

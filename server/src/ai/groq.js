@@ -161,3 +161,55 @@ export async function chatJson(messages, opts = {}) {
   const end = clean.lastIndexOf('}');
   return JSON.parse(clean.slice(start, end + 1));
 }
+
+// ── Separate reasoning provider (OpenAI-compatible, e.g. GLM 5.3 on Baseten) ──
+//  Used only for extraction AFTER a live call, where latency doesn't matter and
+//  a stronger reasoning model gives better findings. Off unless configured.
+export const reasoningEnabled = () =>
+  Boolean(config.reasoning.baseUrl && config.reasoning.key && config.reasoning.model);
+
+let effortSupported = true; // some providers reject the reasoning_effort field
+
+async function reasoningChat(messages, { maxTokens = 900, json = false } = {}) {
+  const r = config.reasoning;
+  const body = { model: r.model, messages, max_tokens: maxTokens, temperature: 0.1, ...(json ? { response_format: { type: 'json_object' } } : {}) };
+  if (effortSupported && r.effort) body.reasoning_effort = r.effort; // low/high/max — low keeps cost + latency down
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 60000); // reasoning is slow, but it's post-call
+  let res;
+  try {
+    res = await fetch(`${r.baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${r.key}` },
+      body: JSON.stringify(body),
+      signal: ctrl.signal,
+    });
+  } finally {
+    clearTimeout(timer);
+  }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = data?.error?.message || `Reasoning provider error ${res.status}`;
+    if (res.status === 400 && effortSupported && /reasoning_effort|unrecognized|unexpected|unknown|parameter|not permitted/i.test(msg)) {
+      effortSupported = false; // drop the field and retry once
+      return reasoningChat(messages, { maxTokens, json });
+    }
+    throw new Error(msg);
+  }
+  return (data.choices?.[0]?.message?.content || '').trim();
+}
+
+/** JSON extraction via the reasoning provider, tolerating ```json fences and <think> blocks. */
+export async function reasoningChatJson(messages, opts = {}) {
+  let raw;
+  try {
+    raw = await reasoningChat(messages, { ...opts, json: true });
+  } catch (e) {
+    if (!/response_format|json/i.test(e.message)) throw e;
+    raw = await reasoningChat(messages, { ...opts });
+  }
+  const clean = raw.replace(/<think>[\s\S]*?<\/think>/g, '').replace(/```json|```/g, '').trim();
+  const start = clean.indexOf('{');
+  const end = clean.lastIndexOf('}');
+  return JSON.parse(clean.slice(start, end + 1));
+}

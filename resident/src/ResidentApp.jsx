@@ -76,6 +76,7 @@ export default function ResidentApp() {
           <button className="big primary" type="submit">Go online</button>
         </form>
         <p className="fineprint">Going online lets this phone receive a welfare-check call. Your mic is used only during a call, and nothing is saved.</p>
+        <p className="fineprint warn-911">Automated triage support — not a replacement for 911. In a life-threatening emergency, call 911.</p>
       </div>
     );
   }
@@ -143,6 +144,7 @@ export default function ResidentApp() {
       <p className="sub">{online ? 'Waiting for a welfare-check call.' : 'Trying to reach the server.'}</p>
       {detail.name && <p className="device">This phone: <strong>{detail.name}</strong></p>}
       <p className="fineprint">Keep this screen open. When the dispatcher calls, your phone will ring.</p>
+      <p className="fineprint warn-911">Automated triage support — not a replacement for 911. In a life-threatening emergency, call 911.</p>
     </div>
   );
 }
