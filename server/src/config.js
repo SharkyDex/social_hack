@@ -15,7 +15,9 @@ export const config = {
   port: num(process.env.PORT, 3001),
 
   groqKey: process.env.GROQ_API_KEY || '',
-  groqModel: process.env.GROQ_MODEL || 'llama-3.1-8b-instant',
+  // A capable model is needed for the live conversation to stay reactive rather
+  // than walk the checklist; 8b-instant is too weak. Override via GROQ_MODEL.
+  groqModel: process.env.GROQ_MODEL || 'meta-llama/llama-4-scout-17b-16e-instruct',
   // Speech-to-text for live web calls (the resident's phone over the internet).
   whisperModel: process.env.WHISPER_MODEL || 'whisper-large-v3-turbo',
   // Language the resident speaks. 'auto' lets Whisper detect it; set e.g. 'en',
