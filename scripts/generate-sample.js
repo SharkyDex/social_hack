@@ -23,6 +23,18 @@ mkdirSync(OUT, { recursive: true });
 const TOWN = 'Cypress Bend';
 const phone = (n) => `+1612555${String(n).padStart(4, '0')}`;
 
+// Reproducible pseudorandom zone assignment for the 100-zone simulation.
+function seededRandom(seed) {
+  let t = seed >>> 0;
+  return () => {
+    t += 0x6d2b79f5;
+    let r = Math.imul(t ^ (t >>> 15), 1 | t);
+    r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const zoneRandom = seededRandom(20261025);
+
 // name, age, gender, medicalHistory[], street address, livesAlone, contact [name, relation] | null,
 // scenario: a = answers per attempt, ca = contact answers, sit = situation, t = truth,
 //           hz = hazard at home (placeholder for the 3D simulation), ck = what the contact knows
@@ -136,6 +148,7 @@ P.forEach(([name, age, gender, medicalHistory, street, livesAlone, contact, sc],
     emergencyContactName: contact ? `${contact[0]} (${contact[1]})` : null,
     emergencyContactNumber: contact ? phone(contactNo++) : null,
     livesAlone,
+    zone: Math.floor(zoneRandom() * 100),
   });
   scenarios[id] = {
     answers: sc.a,

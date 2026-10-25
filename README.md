@@ -10,11 +10,13 @@ Needs **Node 20.19+** (or 22+).
 
 ```bash
 npm install
+npm install --prefix simulation
 cp .env.example .env      # add GROQ_API_KEY, or leave it empty for mock mode
+cp simulation/.env.example simulation/.env  # add VITE_CESIUM_ION_TOKEN for the 3D city view
 npm run dev
 ```
 
-Open **http://localhost:5173**. The API runs on :3001; the React app forwards `/api` to it.
+Open **http://localhost:5173**. The API runs on :3001; the React app forwards `/api` to it. The embedded Minneapolis 3D simulation runs on :5174 and is started by the same `npm run dev` command. The Cesium ion token is required for terrain/buildings in the 3D simulation.
 
 With no `GROQ_API_KEY` the app runs in **mock mode**: calls follow a script, so everything works offline. That's also the backup if the Wi-Fi drops during the demo.
 
@@ -33,13 +35,13 @@ With no `GROQ_API_KEY` the app runs in **mock mode**: calls follow a script, so 
 
 The queue now uses a transparent, scenario-based Bayesian evidence model in `shared/bayesian-risk.js`, wrapped by `shared/priority.js`. It estimates the probability of serious harm within 15, 30 and 60 minutes, and the displayed risk score is shown on a 0–10 scale (the underlying model still computes an illustrative probability). This is a hackathon decision-support model, **not a clinically validated or empirically calibrated casualty predictor**.
 
-- `shared/bayesian-risk.js` exposes all baseline priors, likelihood ratios, thresholds and uncertainty assumptions in `BAYESIAN_ASSUMPTIONS`.
+- `shared/bayesian-risk.js` exposes all baseline priors, likelihood ratios, thresholds and uncertainty assumptions in `BAYESIAN_ASSUMPTIONS`. Completed simulation zone status and facility category are added as separate evidence groups to avoid conflating zone severity with measured building damage.
 - Evidence is grouped (structural, acute, environmental, vulnerability, contact) to reduce double-counting of correlated signals. Structural damage and acute-call signals use the strongest signal in their group; environmental/vulnerability evidence is capped.
 - Confirmed trapped reports and building-collapse reports trigger deterministic `CRITICAL` overrides. A reported `OK` can never cancel severe hazard evidence.
 - Missing or stale hazard/contact information produces an explicit uncertainty level and may trigger a **VERIFY / HUMAN REVIEW** flag. The displayed upper-bound sensitivity estimate is a scenario stress check, **not a statistical confidence interval**.
 - The dashboard shows 15/30/60-minute risk scores on a 0–10 display scale, evidence likelihood ratios, uncertainty sources and the assumptions notice. Evidence uncertainty remains a separate percentage.
 - The Simulation tab includes an accelerated 60-minute scenario: 1 real second advances 1 simulated minute, with scripted evidence updates at minutes 15, 30, 45 and 60. During the run, the dashboard shows a non-mutating prioritisation preview for all residents and reorders the preview queue; underlying live case records and dispatch actions are unchanged.
-- `POST /api/hazards` stamps simulation updates with `observedAt`; old observations can be flagged as stale.
+- `POST /api/hazards` stamps person-specific hazard updates with `observedAt`; old observations can be flagged as stale. The embedded 3D simulation sends its completed 100-zone report to `POST /api/zone-report`.
 
 The initial 2% / 4% / 8% horizon priors and all likelihood ratios are illustrative scenario assumptions chosen for transparent demo behavior. They must be reviewed against domain-expert input and validated data before any real-world use. The synthetic scenarios test software behavior and relative ordering, not real-world predictive accuracy.
 
@@ -51,9 +53,9 @@ npm run test:priority
 
 ## Data
 
-- `synthetic_population_100k.json`: the team's generated population. Load it with `PEOPLE_FILE=synthetic_population_100k.json` and `PEOPLE_SAMPLE=30` in `.env` (see `shared/FORMATS.md`).
-- `shared/data/people.sample.json`: 30 curated people. This is the default because it pairs with scripted scenarios, which make the best demo.
-- `shared/data/scenarios.sample.json`: **simulation only.** What is "really" happening to each sample person, so simulated calls have something to say. It also holds placeholder building damage, gas and power values until the 3D simulation is connected.
+- `synthetic_population_100k.json`: the team's generated population. Each of 100 zones has exactly 1,000 pseudorandomly assigned residents. These are synthetic zone assignments, not real residential geocoding. Load it with `PEOPLE_FILE=synthetic_population_100k.json` and `PEOPLE_SAMPLE=30` in `.env` (see `shared/FORMATS.md`).
+- `shared/data/people.sample.json`: 30 curated people. This is the default because it pairs with scripted scenarios, which make the best demo. Every record has a deterministic pseudorandom `zone` in the 0–99 range.
+- `shared/data/scenarios.sample.json`: **simulation only.** What is "really" happening to each sample person, so simulated calls have something to say. It holds scripted starting conditions for mock calls; completed 3D zone reports overlay zone status and facility category onto matching residents.
 - `shared/data/responders.sample.json`: 8 units.
 - Regenerate the curated sample with `npm run generate:sample`.
 
@@ -81,7 +83,8 @@ Safety rails already in place:
 | POST | `/api/inbound/simulate` | `{ mode, operatorAvailable }` |
 | POST | `/api/cases/:id/assign` | `{ responderId }` |
 | POST | `/api/cases/:id/safe` · `/reopen` · `/release` · `/notes` | Dispatcher actions |
-| POST | `/api/hazards` | Simulation → dashboard: danger at each home |
+| POST | `/api/hazards` | Person-specific hazard updates |
+| POST | `/api/zone-report` | Apply completed 0–99 zone report status/category to residents and recalculate risk/priority |
 | POST | `/api/reset` | Reload everything |
 
 ## Demo day

@@ -1,7 +1,7 @@
 import { zoneNeighbors } from '../utils/grid.js';
 
 // Hospital reachability: BFS over the zone grid, where an edge is "blocked"
-// if either zone touching it is cut off (flooded road, burned-through, etc).
+// if either zone touching it is cut off (blocked road, damaged access corridor, etc).
 // zone.roadBlocked is set by the active disaster before this runs.
 
 export function updateHospitalAccess(zones) {

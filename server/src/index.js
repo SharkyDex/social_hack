@@ -80,6 +80,8 @@ app.post('/api/cases/:id/notes', ok((req) => engine.addNote(req.params.id, req.b
 // ── Integration hooks for the other modules ─────────────────
 // 3D simulation → body: [{ personId, buildingDamage?, intensity?, gasLeak?, fire?, roadsBlocked?, powerOut? }]
 app.post('/api/hazards', ok((req) => engine.applyHazards(Array.isArray(req.body) ? req.body : req.body?.hazards)));
+// Completed 3D zone simulation → match zone status/category to each resident's zone.
+app.post('/api/zone-report', ok((req) => store.applyZoneReport(req.body || {})));
 
 app.post('/api/reset', ok(() => engine.reset()));
 

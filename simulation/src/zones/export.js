@@ -10,6 +10,10 @@ export function buildZoneReport(zones, disasterName) {
     .sort((a, b) => a.id - b.id)
     .map((z) => ({
       zone: z.id,
+      // Canonical contract consumed by DisasterBridge. Keep legacy aliases for
+      // standalone simulation/report compatibility.
+      status: ({ critical: 'severe', dangerous: 'danger', moderate: 'moderate', safe: 'safe' })[z.severity] || 'safe',
+      category: z.facility || 'none',
       facility: z.facility || 'none',
       severity: z.severity,
     }));

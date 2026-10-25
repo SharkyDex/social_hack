@@ -15,8 +15,10 @@ export async function createWorld() {
   }
   Cesium.Ion.defaultAccessToken = CONFIG.cesiumToken;
 
+  const terrainProvider = await Cesium.createWorldTerrainAsync();
+
   const viewer = new Cesium.Viewer('cesiumContainer', {
-    terrain: Cesium.Terrain.fromWorldTerrain(),
+    terrainProvider,
     baseLayerPicker: false,
     timeline: false,
     animation: false,
@@ -44,7 +46,7 @@ export async function createWorld() {
     duration: 1.5,
   });
 
-  const heightAt = await buildHeightSampler(viewer.terrainProvider);
+  const heightAt = await buildHeightSampler(terrainProvider);
 
   return { viewer, heightAt };
 }

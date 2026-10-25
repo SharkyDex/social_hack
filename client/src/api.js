@@ -31,5 +31,6 @@ export const api = {
   reopen: (id) => request('POST', `/cases/${id}/reopen`),
   addNote: (id, text) => request('POST', `/cases/${id}/notes`, { text }),
 
+  applyZoneReport: (report) => request('POST', '/zone-report', report),
   reset: () => request('POST', '/reset'),
 };

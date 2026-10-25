@@ -14,6 +14,7 @@ The team's `synthetic_population_100k.json` is read as-is:
       "phone_number": "(612) 555-0136",
       "age": 36,
       "gender": "female",
+      "zone": 14,
       "medical_history": { "on_ventilator": false, "copd": true, "mobility_impairment": false, … },
       "address": "",
       "emergency_contact_1": { "name": "Alexander Walker", "number": "(612) 555-0142" },
@@ -25,6 +26,7 @@ The team's `synthetic_population_100k.json` is read as-is:
 
 - `medical_history` true/false flags become readable conditions ("Ventilator dependent", "COPD"…) and then priority points through the keyword rules in `shared/needs.js`.
 - Both emergency contacts are used: if the first doesn't answer, the AI calls the second.
+- `zone` is a pseudorandom integer from 0 to 99 matching the 10×10 Twin Cities simulation grid. The 100k dataset is stratified so each zone has exactly 1,000 synthetic residents; these are not real geocoded addresses.
 - `address` is blank for now, so the dashboard shows "Address not set". Fill it with fictional-city addresses when the town exists.
 - Phone numbers are `555-01xx`, the range reserved for fiction, so they can't ring anyone real. Live calling always redirects to `DEMO_PHONE_NUMBER` anyway.
 
@@ -36,7 +38,7 @@ PEOPLE_SAMPLE=30
 PEOPLE_SAMPLE_MODE=mixed   # a third highest-risk, the rest random
 ```
 
-The curated `shared/data/people.sample.json` (the default) uses a simpler flat format: `id, name, age, gender, phone, address, medicalHistory[], emergencyContactName, emergencyContactNumber, livesAlone`. It pairs with `scenarios.sample.json`, which scripts what each person says, so it gives the most dramatic demo. Optional extra fields either format can carry: `livesAlone`, `mobility` (`independent` / `walker` / `wheelchair` / `bedbound`), `preferredContact` (`voice` / `sms`), `location`.
+The curated `shared/data/people.sample.json` (the default) uses a simpler flat format: `id, name, age, gender, phone, address, medicalHistory[], emergencyContactName, emergencyContactNumber, livesAlone, zone`. It pairs with `scenarios.sample.json`, which scripts what each person says, so it gives the most dramatic demo. Optional extra fields either format can carry: `livesAlone`, `mobility` (`independent` / `walker` / `wheelchair` / `bedbound`), `preferredContact` (`voice` / `sms`), `location`.
 
 ## Hazard (from the 3D earthquake simulation → dashboard)
 
@@ -52,6 +54,10 @@ The curated `shared/data/people.sample.json` (the default) uses a simpler flat f
 
 `buildingDamage`: `none` / `minor` / `moderate` / `severe` / `collapsed` · `intensity`: MMI 1–10 · `gasLeak`, `fire`, `roadsBlocked`, `powerOut`: true/false. Points are in `client/src/modules/simulation/README.md`.
 
+## Zone report (completed Twin Cities earthquake simulation → dashboard)
+
+`POST /api/zone-report` receives the completed report from the embedded simulation. Each row has `zone` (0–99), `status` (`severe` / `danger` / `moderate` / `safe`) and `category` (`hospital` / `special_care` / `school` / `college` / `none`). The backend matches each resident's `person.zone`, updates the hazard evidence, and recalculates the risk assessment and operational priority. Facility zones receive an explicit operational promotion to at least `HIGH` (unless the case is already `RESOLVED` or `CRITICAL`); the displayed 0–10 risk score remains the model's risk estimate. Category ordering is hospital → special care → school → college → none. This is a demo policy, not a claim that every resident in a facility's zone is affiliated with that facility.
+
 ## Case (what the dashboard shows per person)
 
 ```js
@@ -61,7 +67,7 @@ The curated `shared/data/people.sample.json` (the default) uses a simpler flat f
                                     // needs_help | reached | reached_ok | responder_assigned | safe
   attempts, failedAttempts, lastAttemptAt, lastContactAt, contactReached,
   needs: { flags[], powerDependent, mobility, preferredContact },
-  hazard: { buildingDamage, intensity, gasLeak, fire, roadsBlocked, powerOut, source },
+  hazard: { buildingDamage, intensity, gasLeak, fire, roadsBlocked, powerOut, zoneId, zoneStatus, zoneCategory, source },
   findings: { needsHelp, trapped, injured, distress, gasOrFire, buildingUnsafe, powerOut,
               equipmentHoursLeft, wantsEvacuation, reportedOk },
   card: { summary, problems[], alerts[], immediateActions[], doNot[],

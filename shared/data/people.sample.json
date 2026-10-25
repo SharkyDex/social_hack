@@ -14,7 +14,8 @@
     ],
     "emergencyContactName": "Sarah Thompson (daughter)",
     "emergencyContactNumber": "+16125550131",
-    "livesAlone": true
+    "livesAlone": true,
+    "zone": 14
   },
   {
     "id": "P002",
@@ -30,7 +31,8 @@
     ],
     "emergencyContactName": "Carol Robinson (wife)",
     "emergencyContactNumber": "+16125550132",
-    "livesAlone": false
+    "livesAlone": false,
+    "zone": 33
   },
   {
     "id": "P003",
@@ -46,7 +48,8 @@
     ],
     "emergencyContactName": "Grace Mensah (mother)",
     "emergencyContactNumber": "+16125550133",
-    "livesAlone": false
+    "livesAlone": false,
+    "zone": 68
   },
   {
     "id": "P004",
@@ -61,7 +64,8 @@
     ],
     "emergencyContactName": "Kevin Chen (son)",
     "emergencyContactNumber": "+16125550134",
-    "livesAlone": true
+    "livesAlone": true,
+    "zone": 99
   },
   {
     "id": "P005",
@@ -77,7 +81,8 @@
     ],
     "emergencyContactName": "Elena Ramirez (daughter)",
     "emergencyContactNumber": "+16125550135",
-    "livesAlone": false
+    "livesAlone": false,
+    "zone": 70
   },
   {
     "id": "P006",
@@ -92,7 +97,8 @@
     ],
     "emergencyContactName": "Ngozi Okafor (sister)",
     "emergencyContactNumber": "+16125550136",
-    "livesAlone": true
+    "livesAlone": true,
+    "zone": 9
   },
   {
     "id": "P007",
@@ -108,7 +114,8 @@
     ],
     "emergencyContactName": "Diane Brooks (niece)",
     "emergencyContactNumber": "+16125550137",
-    "livesAlone": true
+    "livesAlone": true,
+    "zone": 78
   },
   {
     "id": "P008",
@@ -122,7 +129,8 @@
     ],
     "emergencyContactName": "Jasmine Williams (partner)",
     "emergencyContactNumber": "+16125550138",
-    "livesAlone": true
+    "livesAlone": true,
+    "zone": 32
   },
   {
     "id": "P009",
@@ -137,7 +145,8 @@
     ],
     "emergencyContactName": "Daniel Park (son)",
     "emergencyContactNumber": "+16125550139",
-    "livesAlone": true
+    "livesAlone": true,
+    "zone": 63
   },
   {
     "id": "P010",
@@ -153,7 +162,8 @@
     ],
     "emergencyContactName": "Peter Novak (son)",
     "emergencyContactNumber": "+16125550140",
-    "livesAlone": false
+    "livesAlone": false,
+    "zone": 80
   },
   {
     "id": "P011",
@@ -168,7 +178,8 @@
     ],
     "emergencyContactName": "Raj Shah (husband)",
     "emergencyContactNumber": "+16125550141",
-    "livesAlone": false
+    "livesAlone": false,
+    "zone": 30
   },
   {
     "id": "P012",
@@ -183,7 +194,8 @@
     ],
     "emergencyContactName": "Mary Jenkins (daughter)",
     "emergencyContactNumber": "+16125550142",
-    "livesAlone": true
+    "livesAlone": true,
+    "zone": 49
   },
   {
     "id": "P013",
@@ -198,7 +210,8 @@
     ],
     "emergencyContactName": "Carmen Delgado (daughter)",
     "emergencyContactNumber": "+16125550143",
-    "livesAlone": true
+    "livesAlone": true,
+    "zone": 9
   },
   {
     "id": "P014",
@@ -213,7 +226,8 @@
     ],
     "emergencyContactName": "Funmi Adeyemi (wife)",
     "emergencyContactNumber": "+16125550144",
-    "livesAlone": false
+    "livesAlone": false,
+    "zone": 39
   },
   {
     "id": "P015",
@@ -229,7 +243,8 @@
     ],
     "emergencyContactName": "Ray Harper (son)",
     "emergencyContactNumber": "+16125550145",
-    "livesAlone": false
+    "livesAlone": false,
+    "zone": 27
   },
   {
     "id": "P016",
@@ -244,7 +259,8 @@
     ],
     "emergencyContactName": "Grace Kim (sister)",
     "emergencyContactNumber": "+16125550146",
-    "livesAlone": true
+    "livesAlone": true,
+    "zone": 39
   },
   {
     "id": "P017",
@@ -259,7 +275,8 @@
     ],
     "emergencyContactName": "Sean O'Brien (son)",
     "emergencyContactNumber": "+16125550147",
-    "livesAlone": true
+    "livesAlone": true,
+    "zone": 38
   },
   {
     "id": "P018",
@@ -275,7 +292,8 @@
     ],
     "emergencyContactName": "Tasha Washington (daughter)",
     "emergencyContactNumber": "+16125550148",
-    "livesAlone": true
+    "livesAlone": true,
+    "zone": 61
   },
   {
     "id": "P019",
@@ -290,7 +308,8 @@
     ],
     "emergencyContactName": "Paul Fields (brother)",
     "emergencyContactNumber": "+16125550149",
-    "livesAlone": true
+    "livesAlone": true,
+    "zone": 39
   },
   {
     "id": "P020",
@@ -305,7 +324,8 @@
     ],
     "emergencyContactName": "Karen Schmidt (daughter)",
     "emergencyContactNumber": "+16125550150",
-    "livesAlone": false
+    "livesAlone": false,
+    "zone": 80
   },
   {
     "id": "P021",
@@ -320,7 +340,8 @@
     ],
     "emergencyContactName": "Fatima Hassan (mother)",
     "emergencyContactNumber": "+16125550151",
-    "livesAlone": false
+    "livesAlone": false,
+    "zone": 20
   },
   {
     "id": "P022",
@@ -335,7 +356,8 @@
     ],
     "emergencyContactName": "Sharon Moore (wife)",
     "emergencyContactNumber": "+16125550152",
-    "livesAlone": false
+    "livesAlone": false,
+    "zone": 38
   },
   {
     "id": "P023",
@@ -350,7 +372,8 @@
     ],
     "emergencyContactName": "Mark Young (son)",
     "emergencyContactNumber": "+16125550153",
-    "livesAlone": true
+    "livesAlone": true,
+    "zone": 99
   },
   {
     "id": "P024",
@@ -365,7 +388,8 @@
     ],
     "emergencyContactName": "Ana Hernandez (sister)",
     "emergencyContactNumber": "+16125550154",
-    "livesAlone": true
+    "livesAlone": true,
+    "zone": 45
   },
   {
     "id": "P025",
@@ -381,7 +405,8 @@
     ],
     "emergencyContactName": "Tom Wright (son)",
     "emergencyContactNumber": "+16125550155",
-    "livesAlone": false
+    "livesAlone": false,
+    "zone": 43
   },
   {
     "id": "P026",
@@ -396,7 +421,8 @@
     ],
     "emergencyContactName": "Kelly Foster (sister)",
     "emergencyContactNumber": "+16125550156",
-    "livesAlone": true
+    "livesAlone": true,
+    "zone": 95
   },
   {
     "id": "P027",
@@ -411,7 +437,8 @@
     ],
     "emergencyContactName": "Emma Martin (mother)",
     "emergencyContactNumber": "+16125550157",
-    "livesAlone": false
+    "livesAlone": false,
+    "zone": 56
   },
   {
     "id": "P028",
@@ -426,7 +453,8 @@
     ],
     "emergencyContactName": "Amy Liu (daughter)",
     "emergencyContactNumber": "+16125550158",
-    "livesAlone": true
+    "livesAlone": true,
+    "zone": 86
   },
   {
     "id": "P029",
@@ -440,7 +468,8 @@
     ],
     "emergencyContactName": null,
     "emergencyContactNumber": null,
-    "livesAlone": true
+    "livesAlone": true,
+    "zone": 47
   },
   {
     "id": "P030",
@@ -455,6 +484,7 @@
     ],
     "emergencyContactName": "Angela Russo (daughter)",
     "emergencyContactNumber": "+16125550159",
-    "livesAlone": false
+    "livesAlone": false,
+    "zone": 77
   }
 ]

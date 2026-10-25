@@ -26,7 +26,7 @@ export default function CaseDetail({ c }) {
             {c.origin === 'inbound' && <span className="tag new">from inbound call</span>}
           </h2>
           <p className="muted">
-            {[p.age != null && `${p.age}`, p.gender, p.address || 'Address not set'].filter(Boolean).join(' · ')}
+            {[p.age != null && `${p.age}`, p.gender, `Zone ${p.zone ?? 'unassigned'}`, p.address || 'Address not set'].filter(Boolean).join(' · ')}
           </p>
           <p className="muted small mono">
             {formatPhone(p.phone)}
@@ -238,6 +238,8 @@ function PriorityBreakdown({ priority, hazard }) {
       {priority.reviewRequired && (
         <div className="risk-review"><b>VERIFY / HUMAN REVIEW</b><span>High uncertainty with meaningful risk or vulnerability. Do not treat missing information as safe.</span></div>
       )}
+      {hazard?.zoneStatus && <div className="risk-review"><b>Simulation zone {hazard.zoneId} · {hazard.zoneStatus.toUpperCase()}</b><span>Facility category: {(hazard.zoneCategory || 'none').replaceAll('_', ' ')}. Zone status affects the risk estimate. Facility zones receive an operational priority boost; the displayed risk score itself remains the model estimate.</span></div>}
+      {priority.facilityPriority > 0 && <div className="risk-review"><b>Facility-zone priority boost</b><span>{({ hospital: 'Hospital', special_care: 'Special-care facility', school: 'School', college: 'College' })[priority.facilityCategory] || 'Facility'} zone: operational priority is promoted to at least HIGH unless the case is resolved or already critical. Ordering: hospital → special care → school → college.</span></div>}
       <div className="risk-uncertainty">
         <span>Evidence uncertainty <b>{uncertainty.level || 'UNKNOWN'}</b></span>
         <span className="mono">{Number.isFinite(uncertainty.score) ? `${Math.round(uncertainty.score * 100)}%` : '—'}</span>
@@ -257,14 +259,14 @@ function PriorityBreakdown({ priority, hazard }) {
         {priority.factors.length === 0 && <li className="muted small">No positive evidence signals recorded; uncertainty may still require verification.</li>}
       </ul>
       <p className="muted small total">
-        30-min risk score <b className="mono">{(Number(priority.score) / 10).toFixed(1)}/10</b> · HIGH ≥ 1.5/10 · CRITICAL ≥ 3.5/10; direct life-threat overrides apply.
+        30-min risk score <b className="mono">{(Number(priority.score) / 10).toFixed(1)}/10</b> · score thresholds: HIGH ≥ 1.5/10 · CRITICAL ≥ 3.5/10; facility-zone policy and direct life-threat overrides can elevate operational priority separately.
       </p>
       <p className="muted small">
         Model: {priority.model || '—'} · Combined evidence LR ×{priority.likelihoodRatio ?? '—'}
       </p>
       <p className="muted small hazard-note">
-        Earthquake evidence: {[hazard?.buildingDamage && hazard.buildingDamage !== 'none' ? `building ${hazard.buildingDamage}` : null, hazard?.intensity != null ? `shaking MMI ${hazard.intensity}` : null, hazard?.gasLeak ? 'gas leak' : null, hazard?.fire ? 'fire' : null, hazard?.powerOut ? 'power out' : null, hazard?.roadsBlocked ? 'roads blocked' : null].filter(Boolean).join(' · ') || 'no hazard signal reported'}
-        {' — '}{hazard?.source === 'simulation' ? 'live from simulation' : hazard?.source === 'sample' ? 'sample scenario data' : 'hazard data unavailable'}
+        Earthquake evidence: {[hazard?.zoneStatus ? `zone status ${hazard.zoneStatus}` : null, hazard?.zoneCategory && hazard.zoneCategory !== 'none' ? `facility ${hazard.zoneCategory.replaceAll('_', ' ')}` : null, hazard?.buildingDamage && hazard.buildingDamage !== 'none' ? `building ${hazard.buildingDamage}` : null, hazard?.intensity != null ? `shaking MMI ${hazard.intensity}` : null, hazard?.gasLeak ? 'gas leak' : null, hazard?.fire ? 'fire' : null, hazard?.powerOut ? 'power out' : null, hazard?.roadsBlocked ? 'roads blocked' : null].filter(Boolean).join(' · ') || 'no hazard signal reported'}
+        {' — '}{hazard?.source === 'simulation' || hazard?.source === 'minneapolis-earthquake-simulation' ? 'live from simulation' : hazard?.source === 'sample' ? 'sample scenario data' : 'hazard data unavailable'}
       </p>
       <p className="muted small model-notice">{priority.assumptionsNotice || 'Scenario assumptions; not validated for real-world casualty prediction.'}</p>
       {uncertainty.reasons?.length > 0 && <p className="muted small">Uncertainty sources: {uncertainty.reasons.join(' · ')}</p>}

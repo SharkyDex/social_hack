@@ -58,7 +58,9 @@ export default function PriorityQueue({ cases, selectedId, onSelect }) {
         const pb = b.simulationPreview.result;
         const order = { CRITICAL: 0, HIGH: 1, STANDARD: 2, RESOLVED: 3 };
         return (order[pa.level] ?? 2) - (order[pb.level] ?? 2)
+          || Number(!!pb.immediateOverride) - Number(!!pa.immediateOverride)
           || Number(pb.reviewRequired) - Number(pa.reviewRequired)
+          || (pb.facilityPriority || 0) - (pa.facilityPriority || 0)
           || pb.score - pa.score;
       })
     : cases;
@@ -110,6 +112,7 @@ export default function PriorityQueue({ cases, selectedId, onSelect }) {
                     <span className="muted small">
                       {c.person.age ?? '?'}
                       {c.person.gender ? ` · ${c.person.gender[0]}` : ''}
+                      {` · Zone ${c.person.zone ?? '—'}`}
                     </span>
                     {c.origin === 'inbound' && <span className="tag new">NEW · inbound</span>}
                     {onCall.has(c.personId) && (

@@ -56,4 +56,5 @@ function reportWriter() {
 // into the build and sets window.CESIUM_BASE_URL automatically.
 export default defineConfig({
   plugins: [cesium(), reportWriter()],
+  server: { host: '127.0.0.1', port: 5174, strictPort: true },
 });

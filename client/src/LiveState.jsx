@@ -114,7 +114,10 @@ export function useSortedCases() {
       Object.values(cases).sort((a, b) => {
         const levelDiff = (LEVEL_ORDER[a.priority.level] ?? 2) - (LEVEL_ORDER[b.priority.level] ?? 2);
         if (levelDiff) return levelDiff;
+        if (!!a.priority.immediateOverride !== !!b.priority.immediateOverride) return a.priority.immediateOverride ? -1 : 1;
         if (!!a.priority.reviewRequired !== !!b.priority.reviewRequired) return a.priority.reviewRequired ? -1 : 1;
+        const facilityDiff = (b.priority.facilityPriority || 0) - (a.priority.facilityPriority || 0);
+        if (facilityDiff) return facilityDiff;
         return b.priority.score - a.priority.score;
       }),
     [cases],

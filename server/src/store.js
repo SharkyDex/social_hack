@@ -44,6 +44,7 @@ const ALIASES = {
   mobility: 'mobility',
   preferredcontact: 'preferredContact',
   location: 'location',
+  zone: 'zone', zoneid: 'zone', zoneindex: 'zone',
 };
 
 // The generated dataset stores medical history as true/false flags.
@@ -87,6 +88,7 @@ export function normalizePerson(raw, i) {
   p.id = String(p.id ?? `P${String(i + 1).padStart(5, '0')}`);
   p.medicalHistory = medicalList(p.medicalHistory);
   p.age = p.age != null ? Number(p.age) : null;
+  if (p.zone != null && Number.isFinite(Number(p.zone))) p.zone = Math.max(0, Math.min(99, Math.trunc(Number(p.zone))));
   if (typeof p.gender === 'string') p.gender = p.gender.charAt(0).toUpperCase() + p.gender.slice(1);
   p.address = p.address || null;
 
@@ -160,8 +162,8 @@ function newCase(person) {
     lastAttemptAt: null,
     lastContactAt: null,
     needs: deriveNeeds(person),
-    // PLACEHOLDER: danger at home. The 3D simulation will push real values
-    // through POST /api/hazards; until then the sample scenario fills it.
+    // Initial scripted call scenario. A completed 3D zone report can override
+    // the zone-specific hazard fields through POST /api/zone-report.
     hazard: scenario?.hazard ? { ...scenario.hazard, source: 'sample' } : { source: 'none' },
     findings: {},
     card: {
@@ -204,6 +206,54 @@ export function load() {
 }
 
 export const getDatasetInfo = () => ({ file: config.peopleFile.split(/[\\/]/).pop(), size: datasetSize, loaded: people.size });
+
+/** Apply a completed 0–99 earthquake zone report to every loaded resident in that zone. */
+export function applyZoneReport(report = {}) {
+  const rows = Array.isArray(report) ? report : report.zones;
+  if (!Array.isArray(rows)) throw Object.assign(new Error('Zone report must contain a zones array'), { status: 400 });
+  const zoneMap = new Map();
+  for (const row of rows) {
+    const zone = Number(row.zone);
+    if (!Number.isInteger(zone) || zone < 0 || zone > 99) continue;
+    const rawStatus = String(row.status ?? row.severity ?? '').toLowerCase();
+    const status = ({ critical: 'severe', dangerous: 'danger', severe: 'severe', danger: 'danger', moderate: 'moderate', safe: 'safe' })[rawStatus];
+    if (!status) continue;
+    const rawCategory = String(row.category ?? row.facility ?? 'none').toLowerCase();
+    const category = ['hospital', 'special_care', 'school', 'college'].includes(rawCategory) ? rawCategory : 'none';
+    zoneMap.set(zone, { zone, status, category });
+  }
+  const hazardFor = (zoneData) => ({
+      zoneId: zoneData.zone,
+      zoneStatus: zoneData.status,
+      zoneCategory: zoneData.category,
+      // The composite zone status is not a direct building inspection or MMI
+      // reading; clear stale scripted structural estimates to avoid double-counting.
+      buildingDamage: undefined,
+      intensity: undefined,
+      source: 'minneapolis-earthquake-simulation',
+      observedAt: report.generatedAt || new Date().toISOString(),
+      zoneReportDisaster: report.disaster || 'earthquake',
+    });
+  let updatedCases = 0;
+  const matchedZones = new Set();
+  for (const [id, person] of people) {
+    const zoneData = zoneMap.get(Number(person.zone));
+    if (!zoneData) continue;
+    matchedZones.add(zoneData.zone);
+    const current = cases.get(id);
+    if (!current) continue;
+    updateCase(id, (c) => ({ hazard: { ...c.hazard, ...hazardFor(zoneData) } }));
+    updatedCases++;
+  }
+  return {
+    zonesReceived: zoneMap.size,
+    zonesMatchedToLoadedResidents: matchedZones.size,
+    loadedResidentsUpdated: updatedCases,
+    totalDatasetSize: datasetSize,
+    loadedResidentCount: people.size,
+    generatedAt: report.generatedAt || null,
+  };
+}
 
 // ── Reads ────────────────────────────────────────────────────
 

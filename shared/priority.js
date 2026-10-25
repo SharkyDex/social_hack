@@ -17,11 +17,19 @@ export function scoreCase(person, c = {}, now = Date.now()) {
   const risk = assessBayesianRisk(person, caseWithNeeds, now);
   const score = Math.round(risk.riskScore * 10) / 10; // percentage, P(serious harm within 30 min)
   let level = score >= THRESHOLDS.CRITICAL ? 'CRITICAL' : score >= THRESHOLDS.HIGH ? 'HIGH' : 'STANDARD';
+  const category = String(c.hazard?.zoneCategory || '').toLowerCase();
+  const facilityPriorityOrder = { hospital: 4, special_care: 3, school: 2, college: 1, none: 0 };
+  const facilityPriority = facilityPriorityOrder[category] ?? 0;
+  // Facility zones are operationally escalated at least to HIGH, while the
+  // displayed risk score remains the Bayesian scenario estimate. This is an
+  // explicit demo policy, not a claim that facility presence proves harm.
+  if (facilityPriority > 0 && level === 'STANDARD') level = 'HIGH';
   if (risk.immediateOverride) level = 'CRITICAL';
   if (c.status === 'safe') level = 'RESOLVED';
 
   const topEvidence = [...risk.evidence].sort((a, b) => b.likelihoodRatio - a.likelihoodRatio).slice(0, 2).map((x) => x.label);
-  const reason = risk.immediateOverride || (topEvidence.join(' · ') || 'No significant risk evidence recorded');
+  const facilityLabel = ({ hospital: 'Hospital zone', special_care: 'Special-care facility zone', school: 'School zone', college: 'College zone' })[category];
+  const reason = risk.immediateOverride || (facilityLabel ? `${facilityLabel}${topEvidence.length ? ` · ${topEvidence.join(' · ')}` : ''}` : (topEvidence.join(' · ') || 'No significant risk evidence recorded'));
   const factors = risk.evidence.map((item) => ({
     label: item.label,
     likelihoodRatio: Math.round(item.likelihoodRatio * 100) / 100,
@@ -32,6 +40,8 @@ export function scoreCase(person, c = {}, now = Date.now()) {
   return {
     score,
     level,
+    facilityPriority,
+    facilityCategory: category || 'none',
     factors,
     reason,
     riskByHorizon: risk.riskByHorizon,
@@ -52,6 +62,9 @@ export function compareCases(a, b) {
   const levelOrder = { CRITICAL: 0, HIGH: 1, STANDARD: 2, RESOLVED: 3 };
   const levelDiff = (levelOrder[a.priority.level] ?? 2) - (levelOrder[b.priority.level] ?? 2);
   if (levelDiff) return levelDiff;
+  if (!!a.priority.immediateOverride !== !!b.priority.immediateOverride) return a.priority.immediateOverride ? -1 : 1;
   if (!!a.priority.reviewRequired !== !!b.priority.reviewRequired) return a.priority.reviewRequired ? -1 : 1;
+  const facilityDiff = (b.priority.facilityPriority || 0) - (a.priority.facilityPriority || 0);
+  if (facilityDiff) return facilityDiff;
   return b.priority.score - a.priority.score;
 }

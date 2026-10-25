@@ -15,6 +15,8 @@ export const BAYESIAN_ASSUMPTIONS = Object.freeze({
     environment: { gasOrFire: 3, roadsBlocked: 1.5, powerOutForDependent: 2 },
     vulnerability: { powerDependent: 2.5, bedbound: 2.2, wheelchair: 1.6, limitedMobility: 1.35, age85: 1.5, age75: 1.3, livesAlone: 1.4 },
     contact: { failedAttempt: 1.3, unreachable: 2.2, silenceOver60m: 1.2, silenceOver120m: 1.4, reportedOk: 0.4 },
+    zoneStatus: { severe: 6, danger: 3, moderate: 1.6, safe: 1 },
+    zoneCategory: { hospital: 1.8, special_care: 1.6, school: 1.35, college: 1.2, none: 1 },
   },
   thresholdsPercent: { CRITICAL: 35, HIGH: 15 },
   uncertaintyReviewThreshold: 0.45,
@@ -116,11 +118,28 @@ function contactEvidence(c = {}, now = Date.now()) {
   return evidence.sort((a, b) => b.likelihoodRatio - a.likelihoodRatio).slice(0, 1);
 }
 
+function zoneEvidence(hazard = {}) {
+  const evidence = [];
+  const status = String(hazard.zoneStatus || '').toLowerCase();
+  const statusLR = BAYESIAN_ASSUMPTIONS.likelihoodRatios.zoneStatus[status];
+  if (statusLR != null && statusLR > 1) {
+    const label = status === 'severe' ? 'Zone status: severe' : status === 'danger' ? 'Zone status: danger' : 'Zone status: moderate';
+    evidence.push(strongest(label, statusLR, 'zone-status', `Earthquake simulation severity for zone ${hazard.zoneId ?? 'unknown'}; higher severity raises the scenario risk estimate.`));
+  }
+  const category = String(hazard.zoneCategory || '').toLowerCase();
+  const categoryLR = BAYESIAN_ASSUMPTIONS.likelihoodRatios.zoneCategory[category];
+  if (category && category !== 'none' && categoryLR != null) {
+    const labels = { hospital: 'Zone contains a hospital', special_care: 'Zone contains a special-care facility', school: 'Zone contains a school', college: 'Zone contains a college' };
+    evidence.push(strongest(labels[category] || `Zone facility: ${category}`, categoryLR, 'zone-category', `Facility in zone ${hazard.zoneId ?? 'unknown'} receives a configurable protection/response-priority modifier. This is a zone-level proxy, not proof the resident is affiliated with the facility.`));
+  }
+  return evidence;
+}
+
 function uncertaintyAssessment(person = {}, c = {}, needs = {}, now = Date.now()) {
   let uncertainty = 0.05; // small floor: every scenario is still an approximation
   const reasons = [];
   const h = c.hazard || {};
-  if (!h.buildingDamage && (h.intensity == null || !Number.isFinite(Number(h.intensity)))) {
+  if (!h.buildingDamage && !h.zoneStatus && (h.intensity == null || !Number.isFinite(Number(h.intensity)))) {
     uncertainty += 0.25;
     reasons.push('No building-damage estimate or shaking intensity');
   }
@@ -178,20 +197,23 @@ export function assessBayesianRisk(person = {}, c = {}, now = Date.now()) {
   const environmental = environmentEvidence(hazard, needs);
   const vulnerability = vulnerabilityEvidence(person, needs);
   const contact = contactEvidence(c, now);
+  const zone = zoneEvidence(hazard);
   if (structural) evidence.push(structural);
   if (acute) evidence.push(acute);
-  evidence.push(...environmental, ...vulnerability, ...contact);
+  evidence.push(...environmental, ...vulnerability, ...contact, ...zone);
 
   const groupedLR = {};
   for (const item of evidence) {
     // Structural and acute groups deliberately contribute only their strongest item.
-    if (['structural', 'acute', 'contact'].includes(item.group)) {
+    if (['structural', 'acute', 'contact', 'zone-status', 'zone-category'].includes(item.group)) {
       groupedLR[item.group] = groupedLR[item.group] == null ? item.likelihoodRatio : Math.max(groupedLR[item.group], item.likelihoodRatio);
     } else groupedLR[item.group] = (groupedLR[item.group] || 1) * item.likelihoodRatio;
   }
   // Cap combined evidence within broad groups to keep demo assumptions bounded.
   groupedLR.environment = Math.min(groupedLR.environment || 1, 5);
   groupedLR.vulnerability = Math.min(groupedLR.vulnerability || 1, 4);
+  groupedLR['zone-status'] = Math.min(groupedLR['zone-status'] || 1, 6);
+  groupedLR['zone-category'] = Math.min(groupedLR['zone-category'] || 1, 1.8);
   const totalLR = Object.values(groupedLR).reduce((product, value) => product * value, 1);
   const riskByHorizon = {};
   for (const minutes of BAYESIAN_ASSUMPTIONS.horizonsMinutes) {

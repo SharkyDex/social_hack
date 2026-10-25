@@ -470,3 +470,16 @@ input:focus, select:focus { outline: 2px solid color-mix(in srgb, var(--info) 60
 }
 .queue-sim-banner strong { color: var(--info); }
 .queue-sim-banner span { color: var(--muted); }
+
+
+/* Embedded Twin Cities earthquake simulation + live zone report handoff. */
+.embedded-earthquake-sim { padding: 15px; display: grid; gap: 12px; }
+.embedded-sim-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+.embedded-sim-head h2 { margin: 0 0 5px; }
+.embedded-sim-head p { max-width: 850px; margin: 0; }
+.earthquake-sim-frame { display: block; width: 100%; height: min(78vh, 760px); min-height: 560px; border: 1px solid var(--line); border-radius: 9px; background: #101722; }
+.zone-report-sync { padding: 9px 11px; border-radius: 7px; background: var(--panel-2); border: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+.zone-report-sync[data-state="success"] { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 45%, var(--line)); }
+.zone-report-sync[data-state="error"] { color: var(--critical); border-color: color-mix(in srgb, var(--critical) 45%, var(--line)); }
+.zone-report-sync[data-state="syncing"] { color: var(--info); }
+@media (max-width: 700px) { .embedded-sim-head { flex-direction: column; } .earthquake-sim-frame { min-height: 480px; height: 65vh; } }

@@ -57,11 +57,18 @@ async function main() {
       `${c.moderate} moderate, ${c.safe} safe.`;
     panel.setStatus(base + ' Saving report…');
     const where = await saveZoneReport(report);
+    // When embedded in DisasterBridge, hand the same completed report to the
+    // parent app so it can update resident risk/priority by zone. Standalone
+    // mode remains unchanged and still saves/downloads the JSON report.
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'disasterbridge:zone-report', report, saved: where }, '*');
+    }
     panel.setStatus(
       base +
         (where.mode === 'file'
           ? ` Saved to ${where.path} in your project.`
-          : ` Downloaded ${where.path}.`)
+          : ` Downloaded ${where.path}.`) +
+        (window.parent !== window ? ' Sent zone status to DisasterBridge.' : '')
     );
   }
 

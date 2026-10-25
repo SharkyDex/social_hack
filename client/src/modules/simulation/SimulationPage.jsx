@@ -4,6 +4,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLive } from '../../LiveState.jsx';
 import { scoreCase } from '../../../../shared/priority.js';
+import { api } from '../../api.js';
 
 const PRESETS = [
   {
@@ -104,6 +105,8 @@ export default function SimulationPage() {
   const simulationMinute = simulation.minute;
   const [simulationSnapshots, setSimulationSnapshots] = useState([]);
   const processedStages = useRef(new Set());
+  const zoneSimulationFrame = useRef(null);
+  const [zoneReportSync, setZoneReportSync] = useState({ state: 'idle', message: '' });
 
   useEffect(() => {
     if (!selectedId || !cases[selectedId]) {
@@ -114,7 +117,24 @@ export default function SimulationPage() {
 
   const selectedCase = cases[selectedId];
 
-
+  useEffect(() => {
+    const onZoneReport = async (event) => {
+      if (event.source !== zoneSimulationFrame.current?.contentWindow) return;
+      if (event.data?.type !== 'disasterbridge:zone-report' || !event.data.report) return;
+      setZoneReportSync({ state: 'syncing', message: 'Simulation complete — applying zone results to resident cases…' });
+      try {
+        const result = await api.applyZoneReport(event.data.report);
+        setZoneReportSync({
+          state: 'success',
+          message: `Applied ${result.zonesReceived} zones to ${result.loadedResidentsUpdated.toLocaleString()} loaded residents across ${result.zonesMatchedToLoadedResidents} matched zones. Risk and priority are recalculated live.`,
+        });
+      } catch (error) {
+        setZoneReportSync({ state: 'error', message: `Could not update resident priorities: ${error.message}` });
+      }
+    };
+    window.addEventListener('message', onZoneReport);
+    return () => window.removeEventListener('message', onZoneReport);
+  }, []);
 
   useEffect(() => {
     if ((!simulationRunning && simulationMinute !== 60) || !selectedCase || simulationMinute === 0) return;
@@ -219,13 +239,30 @@ export default function SimulationPage() {
           <h1>Earthquake simulation & triage lab</h1>
           <p className="muted">Explore how earthquake evidence changes risk assessment and dispatcher priority over time.</p>
         </div>
-        <span className="badge info">Local scenario preview</span>
+        <span className="badge info">3D zone integration</span>
       </div>
 
-      <section className="panel simulation-handoff">
-        <div className="section-title">3D simulation integration</div>
-        <p>When the 3D simulation is connected, it can send each resident's earthquake hazard through <code>POST /api/hazards</code>. The comparison below is a local, non-mutating preview: it does not change live cases or dispatch anyone.</p>
-        <p className="muted small">Expected hazard fields: buildingDamage, intensity (MMI 1–10), gasLeak, fire, roadsBlocked and powerOut.</p>
+      <section className="panel embedded-earthquake-sim">
+        <div className="embedded-sim-head">
+          <div>
+            <div className="section-title">Twin Cities · Minneapolis earthquake simulation</div>
+            <h2>Run the city simulation</h2>
+            <p className="muted small">Start the earthquake simulation below. When it finishes, its 100 zone statuses and facility categories are sent to DisasterBridge and matched against each resident's zone (0–99). The live queue and risk assessment then recalculate automatically.</p>
+          </div>
+          <span className="badge info">100 zones · 0–99</span>
+        </div>
+        <div className="zone-report-sync" data-state={zoneReportSync.state} role="status">
+          {zoneReportSync.state === 'success' ? '✓ ' : zoneReportSync.state === 'error' ? '⚠ ' : zoneReportSync.state === 'syncing' ? '↻ ' : 'ℹ '}
+          {zoneReportSync.message || 'Run the simulation and press Start in the simulation panel. A zone report is generated when the run completes.'}
+        </div>
+        <iframe
+          ref={zoneSimulationFrame}
+          className="earthquake-sim-frame"
+          src="http://127.0.0.1:5174/"
+          title="Minneapolis Twin Cities earthquake simulation"
+          allow="fullscreen"
+        />
+        <p className="muted small">If the simulation does not load, run <code>npm install --prefix simulation</code>, copy <code>simulation/.env.example</code> to <code>simulation/.env</code>, add a Cesium ion token, and restart with <code>npm run dev</code>.</p>
       </section>
 
       <section className="scenario-lab panel">
@@ -245,8 +282,8 @@ export default function SimulationPage() {
 
         {selectedCase && results ? <>
           <div className="scenario-person-summary">
-            <div><span className="label">Selected resident</span><strong>{selectedCase.person?.name || selectedCase.personId}</strong><span className="muted small">{selectedCase.person?.age ? `${selectedCase.person.age} years` : 'Age unknown'} · Status: {selectedCase.status?.replaceAll('_', ' ') || 'unknown'}</span></div>
-            <div><span className="label">Current live hazard</span><strong>{selectedCase.hazard?.buildingDamage || 'Damage unknown'}</strong><span className="muted small">MMI {selectedCase.hazard?.intensity ?? 'unknown'} · {selectedCase.hazard?.source || 'no source metadata'}</span></div>
+            <div><span className="label">Selected resident</span><strong>{selectedCase.person?.name || selectedCase.personId}</strong><span className="muted small">{selectedCase.person?.age ? `${selectedCase.person.age} years` : 'Age unknown'} · Zone {selectedCase.person?.zone ?? 'unassigned'} · Status: {selectedCase.status?.replaceAll('_', ' ') || 'unknown'}</span></div>
+            <div><span className="label">Current live hazard</span><strong>{selectedCase.hazard?.zoneStatus ? `Zone ${selectedCase.hazard.zoneStatus}` : (selectedCase.hazard?.buildingDamage || 'Damage unknown')}</strong><span className="muted small">Facility: {selectedCase.hazard?.zoneCategory || 'none'} · MMI {selectedCase.hazard?.intensity ?? 'unknown'} · {selectedCase.hazard?.source || 'no source metadata'}</span></div>
             <div><span className="label">Model</span><strong>earthquake-demo-v1</strong><span className="muted small">Scenario assumptions, not calibrated predictions</span></div>
           </div>
 

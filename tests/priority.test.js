@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { scoreCase, compareCases } from '../shared/priority.js';
 import { deriveNeeds } from '../shared/needs.js';
+import { buildZoneReport } from '../simulation/src/zones/export.js';
 
 const people = JSON.parse(readFileSync(new URL('../shared/data/people.sample.json', import.meta.url), 'utf8'));
 const scenarios = JSON.parse(readFileSync(new URL('../shared/data/scenarios.sample.json', import.meta.url), 'utf8'));
@@ -104,4 +105,55 @@ test('curated scenario validation: trapped resident outranks vulnerable but untr
   assert.equal(trapped.level, 'CRITICAL');
   assert.ok(trapped.score > vulnerable.score);
   assert.ok(vulnerable.score > lowEvidence.score);
+});
+
+
+test('earthquake zone severity increases Bayesian risk in ascending order', () => {
+  const p = person({ zone: 42 });
+  const make = (zoneStatus) => scoreCase(p, caseOf({
+    hazard: { source: 'minneapolis-earthquake-simulation', zoneId: 42, zoneStatus, zoneCategory: 'none', observedAt: new Date(now).toISOString() },
+  }), now);
+  const safe = make('safe');
+  const moderate = make('moderate');
+  const danger = make('danger');
+  const severe = make('severe');
+  assert.ok(safe.riskByHorizon[30] < moderate.riskByHorizon[30]);
+  assert.ok(moderate.riskByHorizon[30] < danger.riskByHorizon[30]);
+  assert.ok(danger.riskByHorizon[30] < severe.riskByHorizon[30]);
+});
+
+test('facility categories raise operational priority and hospitals rank above schools', () => {
+  const p = person({ zone: 12 });
+  const make = (zoneCategory) => scoreCase(p, caseOf({
+    hazard: { source: 'minneapolis-earthquake-simulation', zoneId: 12, zoneStatus: 'safe', zoneCategory, buildingDamage: 'none', intensity: 4, observedAt: new Date(now).toISOString() },
+  }), now);
+  const none = make('none');
+  const college = make('college');
+  const school = make('school');
+  const specialCare = make('special_care');
+  const hospital = make('hospital');
+  assert.equal(none.level, 'STANDARD');
+  for (const result of [college, school, specialCare, hospital]) assert.equal(result.level, 'HIGH');
+  assert.ok(hospital.score >= none.score);
+  assert.ok(hospital.facilityPriority > specialCare.facilityPriority);
+  assert.ok(specialCare.facilityPriority > school.facilityPriority);
+  assert.ok(school.facilityPriority > college.facilityPriority);
+});
+
+
+test('simulation exports the canonical zone/status/category contract with legacy aliases', () => {
+  const report = buildZoneReport([
+    { id: 1, facility: 'hospital', severity: 'critical' },
+    { id: 2, facility: null, severity: 'dangerous' },
+    { id: 3, facility: 'school', severity: 'moderate' },
+    { id: 0, facility: 'college', severity: 'safe' },
+  ], 'earthquake');
+  assert.deepEqual(report.zones.map(({ zone, status, category }) => ({ zone, status, category })), [
+    { zone: 0, status: 'safe', category: 'college' },
+    { zone: 1, status: 'severe', category: 'hospital' },
+    { zone: 2, status: 'danger', category: 'none' },
+    { zone: 3, status: 'moderate', category: 'school' },
+  ]);
+  assert.equal(report.zones[1].severity, 'critical');
+  assert.equal(report.zones[1].facility, 'hospital');
 });
