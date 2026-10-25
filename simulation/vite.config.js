@@ -54,7 +54,11 @@ function reportWriter() {
 
 // vite-plugin-cesium copies Cesium's static assets (workers, widgets, etc.)
 // into the build and sets window.CESIUM_BASE_URL automatically.
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  // Relative base so the production build works wherever it is mounted — the
+  // API server serves it under /sim (so it embeds over the tunnel). Dev stays
+  // at / for `npm run dev`.
+  base: mode === 'production' ? './' : '/',
   plugins: [cesium(), reportWriter()],
   server: { host: '127.0.0.1', port: 5174, strictPort: true },
-});
+}));

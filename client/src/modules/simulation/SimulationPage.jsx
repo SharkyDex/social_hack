@@ -258,11 +258,11 @@ export default function SimulationPage() {
         <iframe
           ref={zoneSimulationFrame}
           className="earthquake-sim-frame"
-          src="http://127.0.0.1:5174/"
+          src={import.meta.env.DEV ? 'http://127.0.0.1:5174/' : '/sim/'}
           title="Minneapolis Twin Cities earthquake simulation"
           allow="fullscreen"
         />
-        <p className="muted small">If the simulation does not load, run <code>npm install --prefix simulation</code>, copy <code>simulation/.env.example</code> to <code>simulation/.env</code>, add a Cesium ion token, and restart with <code>npm run dev</code>.</p>
+        <p className="muted small">If the simulation is blank: it needs a Cesium ion token in <code>simulation/.env</code> (<code>VITE_CESIUM_ION_TOKEN</code>). In dev (<code>npm run dev</code>) it also needs <code>npm install --prefix simulation</code> once. Under <code>npm start</code> / a tunnel it is built and served at <code>/sim</code> — set the token before building.</p>
       </section>
 
       <section className="scenario-lab panel">

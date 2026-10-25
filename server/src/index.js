@@ -105,6 +105,15 @@ if (existsSync(residentDist)) {
   app.use('/resident', express.static(residentDist));
   app.get(/^\/resident(?:\/.*)?$/, (req, res) => res.sendFile(join(residentDist, 'index.html')));
 }
+// The 3D earthquake simulation (its own Vite app) lives under /sim, so the
+// dashboard can embed it over the same origin (works through the tunnel).
+const simDist = join(ROOT, 'simulation', 'dist');
+if (existsSync(simDist)) {
+  // Bare /sim → /sim/ so the page's relative asset paths resolve correctly.
+  app.use((req, res, next) => (req.path === '/sim' ? res.redirect(301, '/sim/') : next()));
+  app.use('/sim', express.static(simDist));
+  app.get(/^\/sim\/.*$/, (req, res) => res.sendFile(join(simDist, 'index.html')));
+}
 const dist = join(ROOT, 'client', 'dist');
 if (existsSync(dist)) {
   app.use(express.static(dist));
