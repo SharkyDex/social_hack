@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.vite/
+.DS_Store
+*.log
+.env
+.env.local
+.env.*.local
+.vscode/*
+!.vscode/extensions.json
+
+# Generated zone reports (written by the dev server)
+reports/
