@@ -75,6 +75,77 @@ export async function chat(messages, { maxTokens = 600, temperature = 0.4, json 
   }
 }
 
+// Phrases Whisper tends to invent on silence/noise — dropped when confidence is low.
+const HALLUCINATIONS = [
+  /^thank you\.?$/i, /^thanks for watching\.?$/i, /^please subscribe\.?$/i,
+  /^you\.?$/i, /^\.+$/, /^bye\.?$/i, /^okay\.?$/i, /^\s*♪.*♪\s*$/,
+];
+
+/** Turn a verbose_json response into { text, confidence, noSpeech }, filtering likely hallucinations. */
+function scoreTranscript(data) {
+  const text = (data.text || '').trim();
+  const segs = data.segments || [];
+  const noSpeech = segs.length ? Math.max(...segs.map((s) => s.no_speech_prob ?? 0)) : text ? 0 : 1;
+  const avgLogprob = segs.length ? segs.reduce((a, s) => a + (s.avg_logprob ?? -1), 0) / segs.length : -1;
+  const compression = segs.length ? Math.max(...segs.map((s) => s.compression_ratio ?? 0)) : 0;
+  let confidence = Math.max(0, Math.min(1, (avgLogprob + 1.2) / 1.1)); // ~-0.1 good … ~-1.2 poor
+  if (compression > 2.4) confidence = Math.min(confidence, 0.3); // runaway repetition
+  if (noSpeech > 0.6) confidence = Math.min(confidence, 0.2);
+  const dropped = !text || (confidence < 0.5 && HALLUCINATIONS.some((r) => r.test(text)));
+  return { text: dropped ? '' : text, confidence: dropped ? 0 : Number(confidence.toFixed(2)), noSpeech };
+}
+
+/**
+ * Speech-to-text with Groq Whisper, for live web calls. Returns the transcript
+ * plus a confidence score (from Whisper's own segment stats) so the caller can
+ * treat noisy, low-confidence audio differently — important in a disaster where
+ * voices won't be clear. `prompt` biases recognition toward expected words
+ * (the person's name, "trapped", "gas", …).
+ * @param {Buffer|Uint8Array} audio
+ * @param {{mime?:string, filename?:string, language?:string, prompt?:string}} opts
+ * @returns {Promise<{text:string, confidence:number, noSpeech:number}>}
+ */
+export async function transcribe(audio, { mime = 'audio/webm', filename = 'clip.webm', language, prompt } = {}) {
+  if (!config.groqKey) throw new Error('No GROQ_API_KEY set (mock mode) — speech-to-text needs a key');
+  await slot();
+  try {
+    for (let attempt = 0; attempt < 4; attempt++) {
+      const form = new FormData();
+      form.append('file', new Blob([audio], { type: mime }), filename);
+      form.append('model', config.whisperModel);
+      form.append('response_format', 'verbose_json');
+      if (language && language !== 'auto') form.append('language', language);
+      if (prompt) form.append('prompt', prompt);
+
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 30000);
+      let res;
+      try {
+        res = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${config.groqKey}` }, // FormData sets its own Content-Type
+          body: form,
+          signal: ctrl.signal,
+        });
+      } finally {
+        clearTimeout(timer);
+      }
+      if (res.status === 429 || res.status >= 500) {
+        const wait = Number(res.headers.get('retry-after')) * 1000 || 2000 * (attempt + 1);
+        console.warn(`[groq] STT ${res.status}, retrying in ${wait}ms`);
+        await sleep(Math.min(wait, 15000));
+        continue;
+      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error?.message || `Groq STT error ${res.status}`);
+      return scoreTranscript(data);
+    }
+    throw new Error('Groq STT rate limit — gave up after retries');
+  } finally {
+    release();
+  }
+}
+
 /** Ask for JSON and parse it, tolerating ```json fences. */
 export async function chatJson(messages, opts = {}) {
   let raw;

@@ -6,11 +6,12 @@
   "description": "DisasterBridge — disaster response coordination for people with disabilities",
   "workspaces": [
     "client",
+    "resident",
     "server"
   ],
   "scripts": {
-    "dev": "concurrently -n server,client,earthquake-sim -c blue,green,yellow \"npm run dev -w server\" \"npm run dev -w client\" \"npm run dev --prefix simulation -- --host 127.0.0.1 --port 5174\"",
-    "start": "npm run build -w client && npm run start -w server",
+    "dev": "concurrently -n server,client,resident,earthquake-sim -c blue,green,magenta,yellow \"npm run dev -w server\" \"npm run dev -w client\" \"npm run dev -w resident\" \"npm run dev --prefix simulation -- --host 127.0.0.1 --port 5174\"",
+    "start": "npm run build -w client && npm run build -w resident && npm run start -w server",
     "generate:sample": "node scripts/generate-sample.js",
     "test:priority": "node --test tests/priority.test.js"
   },

@@ -10,6 +10,7 @@ import * as store from './store.js';
 import { sseHandler } from './events.js';
 import { aiMode } from './ai/groq.js';
 import { provider } from './telephony/index.js';
+import * as webcall from './telephony/webcall.js';
 import * as engine from './calls/engine.js';
 
 const app = express();
@@ -35,7 +36,7 @@ const ok = (fn) => async (req, res) => res.json(await fn(req));
 // ── Reads ────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => res.json({ ok: true, ...meta() }));
 app.get('/api/state', (req, res) =>
-  res.json({ meta: meta(), cases: store.listCases(), calls: store.listCalls(), responders: store.listResponders() }),
+  res.json({ meta: meta(), cases: store.listCases(), calls: store.listCalls(), responders: store.listResponders(), devices: engine.listDevices() }),
 );
 app.get('/api/cases', (req, res) => {
   // ?limit=50&offset=0 — ready for the 100k dataset
@@ -70,6 +71,16 @@ app.post('/api/rounds/stop', ok(() => engine.stopRound() && engine.getRound()));
 // body: { mode: 'auto'|'interactive', operatorAvailable?: boolean }
 app.post('/api/inbound/simulate', ok((req) => engine.simulateInbound(req.body || {})));
 
+// ── Web calls (live call to a connected phone over the internet) ─
+app.get('/api/devices', (req, res) => res.json(engine.listDevices()));
+// body: { deviceId, name?, personId? }
+app.post('/api/webcall', ok((req) => {
+  if (aiMode() !== 'groq') {
+    throw Object.assign(new Error('Live web calls need a GROQ_API_KEY (speech-to-text + the AI). Add one to .env and restart.'), { status: 400 });
+  }
+  return engine.startWebCall(req.body || {});
+}));
+
 // ── Dispatcher actions ───────────────────────────────────────
 app.post('/api/cases/:id/assign', ok((req) => engine.assignResponder(req.params.id, req.body?.responderId)));
 app.post('/api/cases/:id/release', ok((req) => engine.releaseResponder(req.params.id)));
@@ -85,7 +96,14 @@ app.post('/api/zone-report', ok((req) => store.applyZoneReport(req.body || {})))
 
 app.post('/api/reset', ok(() => engine.reset()));
 
-// ── Production: serve the built React app from the same port ─
+// ── Production: serve the built apps from the same port ─────
+// The resident phone app (PWA) lives under /resident; register it before the
+// dispatcher catch-all so those paths aren't swallowed.
+const residentDist = join(ROOT, 'resident', 'dist');
+if (existsSync(residentDist)) {
+  app.use('/resident', express.static(residentDist));
+  app.get(/^\/resident(?:\/.*)?$/, (req, res) => res.sendFile(join(residentDist, 'index.html')));
+}
 const dist = join(ROOT, 'client', 'dist');
 if (existsSync(dist)) {
   app.use(express.static(dist));
@@ -98,8 +116,9 @@ app.use((err, req, res, next) => {
   res.status(status).json({ error: err.message });
 });
 
-app.listen(config.port, () => {
+const server = app.listen(config.port, () => {
   console.log(`DisasterBridge server on http://localhost:${config.port}`);
   const of = loaded.datasetSize > loaded.people ? ` (sample of ${loaded.datasetSize.toLocaleString()})` : '';
   console.log(`  ${loaded.people} people${of} · ${loaded.responders} responders · AI: ${aiMode()} · phone: ${provider().name}`);
 });
+webcall.attach(server); // live web calls to connected phones (/ws)

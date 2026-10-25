@@ -471,7 +471,6 @@ input:focus, select:focus { outline: 2px solid color-mix(in srgb, var(--info) 60
 .queue-sim-banner strong { color: var(--info); }
 .queue-sim-banner span { color: var(--muted); }
 
-
 /* Embedded Twin Cities earthquake simulation + live zone report handoff. */
 .embedded-earthquake-sim { padding: 15px; display: grid; gap: 12px; }
 .embedded-sim-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
@@ -483,3 +482,13 @@ input:focus, select:focus { outline: 2px solid color-mix(in srgb, var(--info) 60
 .zone-report-sync[data-state="error"] { color: var(--critical); border-color: color-mix(in srgb, var(--critical) 45%, var(--line)); }
 .zone-report-sync[data-state="syncing"] { color: var(--info); }
 @media (max-width: 700px) { .embedded-sim-head { flex-direction: column; } .earthquake-sim-frame { min-height: 480px; height: 65vh; } }
+
+/* ── Connected phones (web calls) ───────────────────────────── */
+.devices-panel { padding: 14px 16px; margin-bottom: 16px; }
+.devices-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.devices-head h3 { margin: 0; font-size: 15px; }
+.device-list { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 6px; }
+.device-list li { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--panel-3, rgba(255,255,255,0.03)); border: 1px solid var(--line); border-radius: 10px; }
+.device-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--ok, #22c55e); box-shadow: 0 0 10px var(--ok, #22c55e); flex: none; }
+.device-name { flex: 1; font-weight: 500; }
+.err-line { color: #fca5a5; }

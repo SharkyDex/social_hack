@@ -13,9 +13,11 @@ import { config } from '../config.js';
 import * as store from '../store.js';
 import { broadcast } from '../events.js';
 import { provider, destination } from '../telephony/index.js';
+import * as webcall from '../telephony/webcall.js';
 import { aiMode, chat, chatJson } from '../ai/groq.js';
 import * as P from '../ai/prompts.js';
 import * as mock from '../ai/mock.js';
+import { URGENT_KEYWORDS } from '../../../shared/webcall-protocol.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const now = () => new Date().toISOString();
@@ -25,6 +27,35 @@ let generation = 0; // bumps on reset so in-flight work stops
 const retryTimers = new Map(); // personId → timeout
 const live = new Map(); // callId → { messages, intake, done(resolve) }
 let round = { active: false, total: 0, done: 0 };
+
+// ── Web-call inbound events (speech / button / hangup from a connected phone) ──
+// A disaster call won't be clear audio, so: flag urgent keywords immediately even
+// if the transcript is rough, pass low-confidence speech through with a nudge to
+// confirm, and treat SAFE/HELP button taps as a reliable fallback channel.
+function flagKeywords(personId, text) {
+  const low = ` ${text.toLowerCase()} `;
+  const hits = URGENT_KEYWORDS.filter((k) => low.includes(k));
+  if (hits.length) store.addTimeline(personId, `Possible urgent word heard: ${[...new Set(hits)].slice(0, 3).join(', ')}`, 'alert');
+}
+webcall.setHandlers({
+  onUtterance: (callId, text, meta = {}) => {
+    const call = store.getCall(callId);
+    if (call?.personId) flagKeywords(call.personId, text);
+    const note = meta.unsure ? 'The audio was unclear / low-confidence — if this could matter, ask them to repeat or confirm with a yes/no question.' : undefined;
+    return replyToCall(callId, text, { note }).catch((e) => {
+      if (!/not waiting/i.test(e.message)) console.warn('[engine] web utterance:', e.message);
+    });
+  },
+  onButton: (callId, value, text) => {
+    const call = store.getCall(callId);
+    if (call?.personId) store.addTimeline(call.personId, value === 'help' ? 'Resident pressed HELP' : 'Resident pressed SAFE', value === 'help' ? 'alert' : 'success');
+    const note = value === 'help' ? 'The resident pressed the HELP button.' : 'The resident pressed the SAFE button.';
+    return replyToCall(callId, text, { note }).catch((e) => {
+      if (!/not waiting/i.test(e.message)) console.warn('[engine] web button:', e.message);
+    });
+  },
+  onHangup: (callId) => hangUp(callId).catch((e) => console.warn('[engine] web hangup:', e.message)),
+});
 
 /** The person as the AI should see them for this call (which emergency contact is on the line). */
 function personFor(call) {
@@ -255,7 +286,9 @@ async function dispatcherTurn(callId) {
   state.turn++;
   state.messages.push({ role: 'assistant', content: text });
   const ended = text.includes('[END]');
-  store.addTurn(callId, 'dispatcher', text.replace(/\[END\]/g, '').trim());
+  const clean = text.replace(/\[END\]/g, '').trim();
+  store.addTurn(callId, 'dispatcher', clean);
+  if (clean && call.provider === 'webcall') webcall.say(callId, clean); // speak on the phone
   if (ended) await finishCall(callId);
 }
 
@@ -286,14 +319,15 @@ async function startInteractive(callId, { intake = false } = {}) {
   }
 }
 
-export async function replyToCall(callId, text) {
+export async function replyToCall(callId, text, { note } = {}) {
   const call = store.getCall(callId);
   if (!call || call.status !== 'in_progress' || !live.has(callId)) {
     throw Object.assign(new Error('That call is not waiting for a reply'), { status: 409 });
   }
   const speaker = call.target === 'inbound' ? 'caller' : call.target === 'emergency_contact' ? 'contact' : 'resident';
   store.addTurn(callId, speaker, text);
-  live.get(callId).messages.push({ role: 'user', content: text });
+  // `note` steers the AI (e.g. "audio was unclear, confirm") without altering the shown transcript.
+  live.get(callId).messages.push({ role: 'user', content: note ? `${text}\n\n[${note}]` : text });
   await dispatcherTurn(callId);
   return store.getCall(callId);
 }
@@ -341,6 +375,7 @@ export async function finishCall(callId) {
   }
 
   store.updateCall(callId, { status: 'completed', endedAt: now(), extracted: ex, extracting: false });
+  if (call.provider === 'webcall') webcall.end(callId); // tell the phone the call ended
   applyExtraction(call.personId, ex, call);
 }
 
@@ -486,6 +521,90 @@ async function finishInbound(callId) {
   store.addTimeline(person.id, 'Added from an inbound call (not in registry)', 'call');
   applyExtraction(person.id, ex, { ...call, target: 'resident' });
 }
+
+// ── Web calls: live calls to a phone over the internet ──────
+//
+//  No phone number and no telephony provider — the resident's phone is already
+//  connected over a WebSocket (webcall.js). We ring it; once accepted, the
+//  conversation runs through the same interactive turn loop as any live call:
+//  their speech → Groq Whisper → chat() → reply spoken by the phone.
+
+/**
+ * @param {{deviceId:string, name?:string, personId?:string}} opts
+ *   personId: attach to an existing case; otherwise an ephemeral in-memory
+ *   person is created so the call still produces a responder card.
+ */
+export async function startWebCall({ deviceId, name, personId } = {}) {
+  if (!deviceId) throw Object.assign(new Error('deviceId is required'), { status: 400 });
+
+  let pid = personId;
+  if (pid) {
+    if (!store.getCaseRaw(pid)) throw Object.assign(new Error('Unknown person'), { status: 404 });
+  } else {
+    const person = store.addPerson({ name: String(name || '').trim() || 'Web test caller', phone: `web:${deviceId}` });
+    pid = person.id;
+    store.addTimeline(pid, 'Added as a live web-call test device (over the internet, not in the registry)', 'info');
+  }
+  const person = store.getPerson(pid);
+
+  const call = store.createCall({
+    personId: pid,
+    target: 'resident',
+    channel: 'voice',
+    mode: 'live',
+    attempt: 1,
+    to: `web:${deviceId}`,
+    dialedFor: `web:${deviceId}`,
+    provider: 'webcall',
+    status: 'ringing',
+  });
+  store.addTimeline(pid, `Ringing ${first(person.name)} over the internet (web call)`, 'call');
+
+  const gen = generation;
+  const answered = await webcall.ring(call.id, deviceId, { from: config.agencyName });
+  if (gen !== generation) return call;
+
+  if (!answered) {
+    store.addTurn(call.id, 'system', 'No answer — declined or not picked up.');
+    store.updateCall(call.id, { status: 'no_answer', endedAt: now() });
+    store.addTimeline(pid, 'Web call not answered', 'alert');
+    webcall.end(call.id);
+    return store.getCall(call.id);
+  }
+
+  store.updateCall(call.id, { status: 'in_progress', answeredAt: now() });
+  store.addTimeline(pid, 'Web call answered', 'success');
+  await startWebLoop(call.id);
+  return store.getCall(call.id);
+}
+
+async function startWebLoop(callId) {
+  const call = store.getCall(callId);
+  const person = personFor(call);
+  const c = store.getCaseRaw(call.personId);
+  // Bias speech-to-text toward the words this call is likely to contain — helps in noise.
+  const bias = [
+    'Welfare check after an earthquake.',
+    `Person: ${person.name}.`,
+    person.address ? `Address: ${person.address}.` : '',
+    'Likely words: trapped, injured, hurt, bleeding, gas, fire, smoke, power, oxygen, ventilator, medication, water, help, safe, aftershock.',
+    (person.medicalHistory || []).join(', '),
+  ].filter(Boolean).join(' ');
+  webcall.setCallHint(callId, { prompt: bias, language: config.sttLanguage });
+
+  const system = P.dispatcherSystem(person, c.needs, { target: call.target, channel: 'voice' });
+  live.set(callId, {
+    intake: false,
+    turn: 0,
+    messages: [
+      { role: 'system', content: system + '\nReply with ONLY your next message — no labels.' },
+      { role: 'user', content: '(The call has connected. Say your opening line.)' },
+    ],
+  });
+  await dispatcherTurn(callId); // opening line → spoken on the phone via the say-hook
+}
+
+export const listDevices = () => webcall.listDevices();
 
 // ── Welfare rounds: check everyone not yet contacted ────────
 

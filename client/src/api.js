@@ -24,6 +24,10 @@ export const api = {
   stopRound: () => request('POST', '/rounds/stop'),
   simulateInbound: (opts) => request('POST', '/inbound/simulate', opts),
 
+  // Web calls — live call to a connected phone over the internet (no phone number)
+  devices: () => request('GET', '/devices'),
+  webCall: (deviceId, name) => request('POST', '/webcall', { deviceId, name }),
+
   // Dispatcher actions
   assign: (id, responderId) => request('POST', `/cases/${id}/assign`, { responderId }),
   release: (id) => request('POST', `/cases/${id}/release`),

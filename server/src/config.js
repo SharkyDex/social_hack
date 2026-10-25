@@ -16,6 +16,11 @@ export const config = {
 
   groqKey: process.env.GROQ_API_KEY || '',
   groqModel: process.env.GROQ_MODEL || 'llama-3.1-8b-instant',
+  // Speech-to-text for live web calls (the resident's phone over the internet).
+  whisperModel: process.env.WHISPER_MODEL || 'whisper-large-v3-turbo',
+  // Language the resident speaks. 'auto' lets Whisper detect it; set e.g. 'en',
+  // 'es' to lock it for better accuracy. Also hints the browser's text-to-speech.
+  sttLanguage: process.env.STT_LANGUAGE || 'auto',
 
   telephonyProvider: process.env.TELEPHONY_PROVIDER || 'simulated',
   demoPhoneNumber: process.env.DEMO_PHONE_NUMBER || '',

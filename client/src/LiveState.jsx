@@ -5,7 +5,7 @@ import { api } from './api.js';
 
 const LiveContext = createContext(null);
 
-const initial = { loaded: false, connected: false, meta: null, cases: {}, calls: {}, responders: {}, round: null, error: null,
+const initial = { loaded: false, connected: false, meta: null, cases: {}, calls: {}, responders: {}, devices: [], round: null, error: null,
   simulation: { running: false, minute: 0 } };
 
 const byKey = (list, key) => Object.fromEntries(list.map((x) => [x[key], x]));
@@ -22,6 +22,7 @@ function reducer(state, { type, data }) {
         cases: byKey(data.cases, 'personId'),
         calls: byKey(data.calls, 'id'),
         responders: byKey(data.responders, 'id'),
+        devices: data.devices || [],
       };
     case 'error':
       return { ...state, error: data };
@@ -38,6 +39,8 @@ function reducer(state, { type, data }) {
     }
     case 'responder':
       return { ...state, responders: { ...state.responders, [data.id]: data } };
+    case 'devices':
+      return { ...state, devices: data };
     case 'round':
       return { ...state, round: data };
     case 'simulation-start':

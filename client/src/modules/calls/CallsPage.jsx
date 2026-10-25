@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { ACTIVE_CALL, useLive } from '../../LiveState.jsx';
 import CallTranscript, { callTitle } from './CallTranscript.jsx';
 import InboundControls from './InboundControls.jsx';
+import DevicesPanel from './DevicesPanel.jsx';
 
 export default function CallsPage() {
   const { calls, cases } = useLive();
@@ -28,6 +29,8 @@ export default function CallsPage() {
         </div>
         <InboundControls />
       </div>
+
+      <DevicesPanel />
 
       <div className="tabs">
         {[
