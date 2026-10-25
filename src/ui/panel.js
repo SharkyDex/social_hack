@@ -22,6 +22,9 @@ export function createPanel(root, { onSelectDisaster, onStart, onReset }) {
       <span class="dot moderate"></span> Moderate
       <span class="dot safe"></span> Safe
     </div>
+    <div class="legend facilities">
+      🏥 Hospital (7) &nbsp; 🏫 School (5) &nbsp; 🎓 College (4) &nbsp; 🩺 Special care (9)
+    </div>
     <div class="status" id="status"></div>
     <div class="summary" id="summary"></div>
     <ol class="zone-list" id="zone-list"></ol>

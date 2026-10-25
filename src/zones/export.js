@@ -1,14 +1,16 @@
 import { CONFIG } from '../config.js';
 
-// Builds the zone report: one entry per zone with just its zone number and
-// severity level. Nothing else — population and other per-person data live in
-// a separate dataset keyed on the same zone number.
+// Builds the zone report: one entry per zone with its zone number, the
+// facility it hosts (school/college/hospital/special_care, or "none"), and
+// its severity level. Per-person population data lives in a separate dataset
+// keyed on the same zone number.
 export function buildZoneReport(zones, disasterName) {
   const entries = zones
     .slice()
     .sort((a, b) => a.id - b.id)
     .map((z) => ({
       zone: z.id,
+      facility: z.facility || 'none',
       severity: z.severity,
     }));
 

@@ -99,6 +99,12 @@ html, body {
   margin-bottom: 8px;
 }
 
+.legend.facilities {
+  line-height: 1.6;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
 .dot {
   display: inline-block;
   width: 9px;
