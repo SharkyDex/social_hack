@@ -1,0 +1,121 @@
+building_number,building_id,facility_type,facility_name,damage_state,severity,dmg_index
+2269,74fce8c7-caeb-499e-8940-40b61ab7396f,school,School 01,slight,Moderate,0.8417
+2979,e6f81f55-8ce4-424e-a0ec-a50a5743d01a,hospital,Hospital 01,slight,Moderate,0.7466
+4252,c600d945-449a-463d-8740-89ceb3eab38c,school,School 02,slight,High,1.1113
+11217,ebbe4ad7-2360-4add-9af2-6920c436398c,medical_centre,Medical Centre 01,none,Low,0.3033
+12214,ac9de3c4-c06e-4b1a-96c8-0649123f161d,elderly_home,Elderly Home 01,none,Low,0.3988
+13316,b4b64b40-ed54-4408-bfb3-8b088bab3341,medical_centre,Medical Centre 02,none,Low,0.3701
+13904,545cb425-b46b-43e3-b864-a3588e12aebb,school,School 03,none,Normal,0.2318
+14548,762f03c7-43ee-4468-bd61-c6bc52bf9bd4,school,School 04,slight,Moderate,0.7671
+16994,3d8d277f-0a54-4d72-97a3-ac8eb154ab11,education,Educational Facility 01,none,Low,0.499
+17523,79802876-a19a-4163-9dcc-fb2d356b3688,elderly_home,Elderly Home 02,none,Low,0.306
+20360,98ee0eb6-08ae-47dd-a3ec-4f110d86487f,education,Educational Facility 02,none,Low,0.3971
+24075,0a4c571f-6454-4fc6-a416-1bcb91aceff8,school,School 05,none,Moderate,0.5247
+24089,1cb43707-4ba7-46ae-a5a5-491e28a96db4,elderly_home,Elderly Home 03,slight,Moderate,0.6329
+24495,6f952d21-a2d4-411c-9df2-40e7543303aa,school,School 06,slight,Moderate,0.6608
+24596,c484b980-3220-40b8-b1d9-5dadfb0fe8b1,hospital,Hospital 02,slight,Moderate,0.8766
+26749,f31872e4-0504-43fd-9feb-ead3d6fb48bc,elderly_home,Elderly Home 04,none,Normal,0.2262
+28257,3df4dc51-8301-4b76-945f-0bfc752e679d,medical_centre,Medical Centre 03,none,Normal,0.2236
+30218,6e8b0c6c-3b3f-4f3d-86f5-10bdccf521fd,school,School 07,none,Low,0.3716
+31494,1576694c-b1e4-42f4-9104-a71964d4f422,school,School 08,none,Moderate,0.5606
+31911,a0e77285-37a8-464a-93ca-7d88a3453c7a,medical_centre,Medical Centre 04,none,Low,0.3789
+33484,38e448cc-cbb0-44c3-aaff-98a42640f3bc,school,School 09,none,Moderate,0.5031
+34777,95223337-5069-4e36-908c-733442b762a6,medical_centre,Medical Centre 05,none,Normal,0.2279
+43857,e2991576-f6ee-438b-89a5-9c50fcd5f062,school,School 10,none,Normal,0.2075
+52757,b2c7c6b3-0f15-4256-935e-3ee486717f9e,school,School 11,none,Normal,0.2479
+55597,3a3cf065-f6fe-47e4-98f1-a7616b8461f3,medical_centre,Medical Centre 06,none,Normal,0.2023
+61382,9e923099-96fb-4ffb-abda-04bcda236a73,school,School 12,none,Low,0.3717
+61890,27c5ed02-4709-49f7-b675-d533c5a25c4b,school,School 13,none,Low,0.3327
+62700,1254fd91-530d-4f17-8d49-8282d1c8080c,elderly_home,Elderly Home 05,none,Low,0.3241
+68533,0756df9a-21fd-474f-b220-b892e342a5bf,education,Educational Facility 03,slight,Moderate,0.6467
+68701,e7eeedf2-18ad-4341-b1b7-e87e1404bea6,school,School 14,slight,Moderate,0.6645
+72489,ee3e58d8-131a-4955-900a-958490bbf86b,school,School 15,none,Normal,0.0725
+79138,6104f11f-b7bd-4acf-9eec-ff6727365c02,education,Educational Facility 04,none,Normal,0.2251
+79630,b3e55042-972b-4610-b080-d2f00a3b76c4,medical_centre,Medical Centre 07,none,Low,0.2913
+81570,48daa1ac-f0c6-475c-8deb-24adde45efd1,education,Educational Facility 05,none,Normal,0.1877
+81937,5b986b5c-10f6-4ae8-b750-8207a22d64dc,school,School 16,none,Moderate,0.6025
+83068,ea240c06-e151-46fc-b682-16dc6827e18f,elderly_home,Elderly Home 06,slight,Moderate,0.6308
+86276,0b0fd517-c06a-4f71-b650-b65cf76ce2bb,hospital,Hospital 03,none,Moderate,0.5788
+86442,ea021553-40c8-4c2d-a348-9dacad9731f5,elderly_home,Elderly Home 07,none,Moderate,0.5632
+87450,d9bc46ec-8d12-4e06-ae6d-5b50acf73cb9,school,School 17,none,Normal,0.1487
+87848,fb158fe8-9a32-436f-8728-09f92b1c2516,school,School 18,none,Moderate,0.5656
+90740,861d13bb-4cb1-4eae-94ac-77bb94032d1c,education,Educational Facility 06,none,Normal,0.1347
+90915,4f94977f-6857-44bb-95ba-c0fb39ee4b12,hospital,Hospital 04,slight,Moderate,0.7348
+91348,f2f2f260-07e8-409f-8b08-546d97c49821,school,School 19,slight,Moderate,0.7148
+91768,02a09cea-998d-40f6-8b32-f9923df56852,medical_centre,Medical Centre 08,none,Low,0.4208
+91831,da51fb5f-0e8c-474e-a32b-32c7990c803a,hospital,Hospital 05,slight,Moderate,0.6349
+92025,2be48d31-1d7d-4770-ac6f-36162879fbc9,medical_centre,Medical Centre 09,none,Normal,0.1998
+95471,e41c5fe9-718a-4d99-a61d-8ece859894e7,medical_centre,Medical Centre 10,none,Moderate,0.5714
+95476,5248a11b-2c83-4f0b-b0e5-ad343dafe0ec,medical_centre,Medical Centre 11,none,Low,0.4309
+97026,038847d6-2f33-4c7c-96d8-48137c335243,elderly_home,Elderly Home 08,none,Low,0.3139
+97794,024f53e7-262f-46e4-b110-8582622e87cc,school,School 20,none,Low,0.3993
+100792,9419e755-6102-418d-ba91-4c3f846eee37,school,School 21,none,Low,0.284
+103180,6b033538-2e77-468c-8f21-9c7ee6bbd2d6,medical_centre,Medical Centre 12,none,Moderate,0.5803
+103736,3612b92b-9577-4d47-bec4-dc9d7cfdbf7b,elderly_home,Elderly Home 09,none,Moderate,0.5584
+103903,d370b4a2-b1e7-48a2-9fbd-1726797f1e0e,medical_centre,Medical Centre 13,none,Low,0.472
+104892,cf99ff71-9b88-4f67-889e-9e6c80e92e53,medical_centre,Medical Centre 14,none,Normal,0.1169
+105030,d5ad0f4e-41df-4bde-908f-f4de8b51a1aa,education,Educational Facility 07,none,Low,0.2745
+105460,2313e53f-8464-48a8-9b0c-74a588bfa5c8,education,Educational Facility 08,none,Low,0.4381
+106147,b136d7e3-0351-4599-9f38-2a0d854225c3,education,Educational Facility 09,none,Normal,0.0538
+106302,3bcfed2b-8fc4-44bb-bddc-fd05925a1bbc,school,School 22,none,Normal,0.0539
+107503,5b52d6a5-c546-471c-866f-6e134d962dfb,elderly_home,Elderly Home 10,none,Normal,0.0807
+108906,0a1e8336-7d70-4f6a-a97e-e88387790033,school,School 23,slight,Moderate,0.7037
+109654,74caf036-86ae-4082-b46a-106a336fe7dc,medical_centre,Medical Centre 15,none,Normal,0.0731
+111114,738327c1-c3ce-45af-9f63-5f15eafe39a1,school,School 24,none,Normal,0.0721
+111713,db9739bb-68a7-4d0c-b79f-b9ad7b9c0810,school,School 25,none,Normal,0.0006
+114068,66643252-bbdc-4211-8c22-1e651cfa5605,school,School 26,none,Low,0.4168
+115435,b09daae9-7e8a-4b1c-9175-40e209974ca1,medical_centre,Medical Centre 16,slight,Moderate,0.7266
+116149,90a67339-cd1e-428b-b7fe-42770b13723a,education,Educational Facility 10,none,Moderate,0.5582
+116938,5f915db1-8307-4b7a-8e91-56b5971c773c,hospital,Hospital 06,none,Low,0.4236
+116956,1b259521-ca40-49fb-a5a2-8506ea017b27,elderly_home,Elderly Home 11,none,Low,0.3324
+117666,961240fb-9475-4244-a5de-8a26b4b74075,school,School 27,none,Low,0.3685
+118200,45b2b50f-5abb-49f0-98b0-5c7565a66071,medical_centre,Medical Centre 17,none,Low,0.4668
+118238,29bf9783-4263-4c2d-934f-87fd43c562b9,elderly_home,Elderly Home 12,none,Moderate,0.6231
+118986,9b71b443-1ac6-42e4-a3d2-20ffa625a650,medical_centre,Medical Centre 18,slight,Moderate,0.6362
+119625,bfa0a684-2d76-48be-abbd-28c5d087331e,medical_centre,Medical Centre 19,none,Low,0.2537
+120502,26b91716-f38c-46ad-9ff7-3d99911f5b11,elderly_home,Elderly Home 13,none,Moderate,0.5594
+120894,9d3dc8a8-34bb-497c-a48a-25afc218e704,elderly_home,Elderly Home 14,none,Low,0.3611
+121470,6c381294-0307-483a-a2ca-5426b2d3bbf3,hospital,Hospital 07,none,Low,0.3809
+122513,0159dc4c-8268-434d-b006-12d400b9e825,elderly_home,Elderly Home 15,none,Low,0.3049
+122783,2b7abed5-c7e3-4bca-934e-bab5cbda1cfb,school,School 28,none,Low,0.4274
+123681,97852da0-d303-4256-a0fb-885a71baec1b,school,School 29,none,Low,0.3036
+124203,7b07ddd7-428b-4bc3-aca0-3dc0107baa48,hospital,Hospital 08,none,Moderate,0.5493
+124627,49c129a6-d7cb-4831-8e23-34bdcd3a9054,education,Educational Facility 11,none,Low,0.2825
+124793,ef7d1573-4900-4b39-9c3a-ea82c627fcdf,education,Educational Facility 12,none,Low,0.2708
+124860,954d1e36-227e-46fc-8fb9-b43cda883257,elderly_home,Elderly Home 16,none,Normal,0.0741
+126014,627b9b21-6e99-4f52-b3ef-7a2a7d8e84ec,medical_centre,Medical Centre 20,none,Normal,0.0661
+126685,a7ceed5a-916c-4bff-86ff-2c8f271a95fe,elderly_home,Elderly Home 17,none,Low,0.2559
+127255,afee7722-90e9-4b03-bd12-7d37567e9048,hospital,Hospital 09,none,Moderate,0.6038
+128233,9785e642-3cac-484c-b423-9c8a2130e5ff,elderly_home,Elderly Home 18,slight,Moderate,0.6313
+129294,5a0d08f7-c4be-430c-8227-e4cef45e2d5b,elderly_home,Elderly Home 19,none,Normal,0.156
+130454,0e982c52-bc36-488a-8eb4-113fc014fa10,school,School 30,none,Normal,0.1337
+136996,15c0ad85-b617-4c20-bf0f-30bb0228ede6,hospital,Hospital 10,none,Normal,0.2216
+139574,3deaebdd-5482-444b-84de-e04b42ed5218,medical_centre,Medical Centre 21,none,Low,0.3395
+144881,31175069-7c25-41f4-9981-c5304cdd89c2,medical_centre,Medical Centre 22,none,Normal,0.1263
+145449,d8b14258-4aa5-428b-90d9-71a48c276f0e,medical_centre,Medical Centre 23,none,Normal,0.1321
+149214,edd34379-b5eb-49a8-8e89-99297bebed41,medical_centre,Medical Centre 24,none,Normal,0.0685
+149874,8378f4eb-e684-468c-ad08-c32755185c90,school,School 31,none,Normal,0.0041
+154894,5cfb0fa4-70ee-4ad7-ab9c-b48e80b2785d,medical_centre,Medical Centre 25,none,Low,0.3394
+155092,7245ae0e-c9e4-41e8-bbd8-038284ce3a5a,school,School 32,none,Normal,0.2168
+155203,94f6830b-073f-4046-8f40-07aa5a4be786,school,School 33,none,Normal,0.0462
+156789,2b490776-e534-4ad6-a306-071872159070,medical_centre,Medical Centre 26,none,Normal,0.1638
+157624,29eceb75-3149-4f1f-bcf1-98c0a42457e9,education,Educational Facility 13,none,Normal,0.1605
+158362,1cdf44d8-d49b-465d-a8d5-59b61ef320f6,elderly_home,Elderly Home 20,none,Low,0.3233
+158398,521215ac-95d5-4ad1-bc6b-c8e30128feec,education,Educational Facility 14,slight,Moderate,0.6368
+158465,3d715a52-3eef-4974-8bb5-7eba351a8d87,school,School 34,none,Normal,0.0478
+158909,4b0f128d-9351-4729-8cd4-8395ed069152,hospital,Hospital 11,none,Low,0.383
+160850,6e5aa529-7dc4-4e2c-a546-7ed2eae93719,education,Educational Facility 15,none,Moderate,0.6028
+160883,d0adb2d6-395a-403c-95be-9a620161c4e1,school,School 35,none,Moderate,0.5001
+161036,a8e0d506-1757-41c2-a252-f048935da751,hospital,Hospital 12,none,Moderate,0.5017
+162100,2773f468-4f15-44b8-85eb-116079b39f9e,medical_centre,Medical Centre 27,slight,Moderate,0.9401
+162252,426a3c41-b8cc-4be1-b5c0-dcab836eb538,hospital,Hospital 13,slight,High,1.1215
+162817,206ddabb-dab7-4d9a-a42d-eba3a2f57c0e,school,School 36,none,Moderate,0.6121
+162923,b7bd81b8-00d4-4664-b6e8-27fcbec73be8,hospital,Hospital 14,none,Normal,0.1521
+164367,4a9afe2d-1ad1-439b-b505-dca0d518ba2b,school,School 37,none,Normal,0.1104
+164772,7cd5b0b5-8552-4f87-9d5b-c8f03dd1b487,school,School 38,none,Normal,0.0443
+164883,a4ddc528-8262-425a-9f87-141bf00bdcd0,hospital,Hospital 15,none,Moderate,0.6007
+166005,42771a3d-9fac-4d9e-83ef-cc280e79a708,school,School 39,none,Normal,0.1656
+166936,611acac5-e22d-46d9-8b60-59d82f8c971a,school,School 40,none,Normal,0.0706
+167368,5bd5f87f-ed8f-41e0-916c-79dda890e8db,medical_centre,Medical Centre 28,none,Normal,0.2279
+168802,b63b9ef6-3cd7-44f2-9a96-5cbaef178ebf,medical_centre,Medical Centre 29,none,Normal,0.0729
+169609,22219b34-91c4-415e-a401-eb20423a429f,medical_centre,Medical Centre 30,none,Low,0.2697
